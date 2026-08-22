@@ -16,6 +16,10 @@
   box-sizing:border-box;
 }
 
+html{
+  scroll-behavior:smooth;
+}
+
 body{
   margin:0;
   background:var(--bg);
@@ -29,6 +33,10 @@ select{
   font:inherit;
 }
 
+button{
+  -webkit-tap-highlight-color:transparent;
+}
+
 
 /* =========================
    HEADER
@@ -40,7 +48,7 @@ select{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  background:rgba(255,255,255,.92);
+  background:rgba(255,255,255,.94);
   border-bottom:1px solid var(--line);
   position:sticky;
   top:0;
@@ -177,6 +185,10 @@ main{
   font-size:35px;
 }
 
+.hero-card b{
+  display:block;
+}
+
 .hero-card span{
   display:block;
   color:#d5e6dc;
@@ -233,7 +245,7 @@ main{
 
 
 /* =========================
-   ATHLETE CARDS
+   ATHLETE GRID
 ========================= */
 
 .grid{
@@ -241,6 +253,11 @@ main{
   grid-template-columns:repeat(3,1fr);
   gap:20px;
 }
+
+
+/* =========================
+   ATHLETE CARD
+========================= */
 
 .athlete-card{
   position:relative;
@@ -264,7 +281,11 @@ main{
   right:0;
   left:0;
   height:5px;
-  background:linear-gradient(90deg,var(--green),var(--green2));
+  background:linear-gradient(
+    90deg,
+    var(--green),
+    var(--green2)
+  );
 }
 
 .athlete-card:hover{
@@ -301,6 +322,7 @@ main{
   align-items:center;
   padding-top:15px;
   border-top:1px solid var(--line);
+  gap:10px;
 }
 
 .athlete-card-footer span{
@@ -313,7 +335,8 @@ main{
   background:var(--light-green);
   padding:7px 11px;
   border-radius:10px;
-  font-size:14px;
+  font-size:13px;
+  white-space:nowrap;
 }
 
 
@@ -344,6 +367,91 @@ main{
   font-size:13px;
 }
 
+
+/* =========================
+   COACH PANEL
+========================= */
+
+.coach-panel{
+  margin-top:32px;
+  background:linear-gradient(
+    135deg,
+    #173f2e,
+    #2d7454
+  );
+  color:white;
+  border-radius:24px;
+  padding:25px 28px;
+  display:flex;
+  align-items:center;
+  gap:20px;
+  box-shadow:0 18px 45px rgba(20,45,31,.12);
+  position:relative;
+  overflow:hidden;
+}
+
+.coach-panel:after{
+  content:"";
+  position:absolute;
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.08);
+  left:-90px;
+  bottom:-150px;
+}
+
+.coach-panel-icon{
+  width:58px;
+  height:58px;
+  flex-shrink:0;
+  border-radius:18px;
+  background:rgba(255,255,255,.12);
+  display:grid;
+  place-items:center;
+  font-size:26px;
+}
+
+.coach-panel-content{
+  flex:1;
+  position:relative;
+  z-index:1;
+}
+
+.coach-panel-content .eyebrow{
+  color:#cfe5d8;
+}
+
+.coach-panel-content h3{
+  margin:5px 0;
+  font-size:21px;
+}
+
+.coach-panel-content p{
+  margin:0;
+  color:#d5e6dc;
+  font-size:13px;
+  line-height:1.8;
+}
+
+.coach-button{
+  background:white;
+  color:var(--green);
+  margin-top:0;
+  white-space:nowrap;
+  position:relative;
+  z-index:2;
+}
+
+.coach-button:hover{
+  background:#eef7f1;
+}
+
+
+/* =========================
+   BUTTON
+========================= */
+
 .primary{
   border:0;
   background:var(--green);
@@ -359,6 +467,10 @@ main{
 .primary:hover{
   background:var(--green2);
   transform:translateY(-1px);
+}
+
+.wide{
+  width:100%;
 }
 
 .hidden{
@@ -416,8 +528,9 @@ main{
   outline:none;
 }
 
-.wide{
-  width:100%;
+.modal-card input:focus{
+  border-color:var(--green2);
+  box-shadow:0 0 0 3px rgba(45,122,87,.08);
 }
 
 .modal-card small{
@@ -442,7 +555,7 @@ footer{
 
 
 /* =========================
-   MOBILE
+   TABLET
 ========================= */
 
 @media(max-width:900px){
@@ -452,6 +565,11 @@ footer{
   }
 
 }
+
+
+/* =========================
+   MOBILE
+========================= */
 
 @media(max-width:800px){
 
@@ -482,6 +600,11 @@ footer{
 
   .tools input{
     min-width:0;
+    width:100%;
+  }
+
+  .tools select{
+    width:100%;
   }
 
   .topbar{
@@ -489,6 +612,11 @@ footer{
   }
 
 }
+
+
+/* =========================
+   SMALL MOBILE
+========================= */
 
 @media(max-width:550px){
 
@@ -511,6 +639,21 @@ footer{
 
   .athlete-card{
     padding:20px;
+  }
+
+  .coach-panel{
+    flex-direction:column;
+    align-items:stretch;
+    text-align:center;
+    padding:25px 20px;
+  }
+
+  .coach-panel-icon{
+    margin:auto;
+  }
+
+  .coach-button{
+    width:100%;
   }
 
 }
