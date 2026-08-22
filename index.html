@@ -2,24 +2,37 @@
 <html lang="fa" dir="rtl">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>جودو طبیعت | عملکرد ورزشکاران</title>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <title>
+    جودو طبیعت | عملکرد ورزشکاران
+  </title>
 
   <meta
     name="description"
     content="سامانه عملکرد و پیشرفت ورزشکاران جودو طبیعت"
   >
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
 </head>
+
 
 <body>
 
+
   <!-- =========================
        HEADER
-  ========================== -->
+  ========================= -->
 
   <header class="topbar">
 
@@ -30,6 +43,7 @@
       </div>
 
       <div>
+
         <strong>
           جودو طبیعت
         </strong>
@@ -37,13 +51,16 @@
         <span>
           عملکرد و پیشرفت ورزشکاران
         </span>
+
       </div>
 
     </div>
 
+
     <button
       class="login-btn"
       id="loginBtn"
+      type="button"
     >
       ورود
     </button>
@@ -51,13 +68,13 @@
   </header>
 
 
-  <!-- =========================
-       MAIN
-  ========================== -->
 
   <main>
 
-    <!-- HERO -->
+
+    <!-- =========================
+         HERO
+    ========================= -->
 
     <section class="hero">
 
@@ -104,11 +121,13 @@
     </section>
 
 
+
     <!-- =========================
          ATHLETES
-    ========================== -->
+    ========================= -->
 
     <section class="athletes-section">
+
 
       <div class="section-head">
 
@@ -147,7 +166,10 @@
       </div>
 
 
-      <!-- EMPTY STATE -->
+
+      <!-- =========================
+           EMPTY STATE
+      ========================= -->
 
       <div
         id="emptyState"
@@ -163,34 +185,74 @@
         </h3>
 
         <p>
-          پس از ورود مربی، ورزشکاران از پنل مربی اضافه می‌شوند.
+          پس از ورود مربی، ورزشکاران از پنل
+          مربی اضافه می‌شوند.
         </p>
-
-        <button
-          class="primary"
-          id="coachLogin"
-        >
-          ورود مربی
-        </button>
 
       </div>
 
 
-      <!-- ATHLETE CARDS -->
+
+      <!-- =========================
+           ATHLETE GRID
+      ========================= -->
 
       <div
         id="athleteGrid"
         class="grid"
       ></div>
 
+
+
+      <!-- =========================
+           COACH PANEL
+      ========================= -->
+
+      <section class="coach-panel">
+
+        <div class="coach-panel-icon">
+          🔐
+        </div>
+
+
+        <div class="coach-panel-content">
+
+          <span class="eyebrow">
+            COACH PANEL
+          </span>
+
+          <h3>
+            پنل مربی
+          </h3>
+
+          <p>
+            مدیریت ورزشکاران، معیارهای ارزیابی
+            و مشاهده روند پیشرفت.
+          </p>
+
+        </div>
+
+
+        <button
+          class="primary coach-button"
+          id="coachLogin"
+          type="button"
+        >
+          ورود مربی
+        </button>
+
+      </section>
+
+
     </section>
 
   </main>
 
 
+
   <!-- =========================
        LOGIN MODAL
-  ========================== -->
+  ========================= -->
 
   <div
     class="modal hidden"
@@ -198,6 +260,7 @@
   >
 
     <div class="modal-card">
+
 
       <button
         class="close"
@@ -212,12 +275,15 @@
         SECURE LOGIN
       </span>
 
+
       <h2>
         ورود به جودو طبیعت
       </h2>
 
+
       <p class="muted">
-        برای ورود، اطلاعات حساب خود را وارد کنید.
+        برای ورود، نام کاربری و رمز عبور
+        خود را وارد کنید.
       </p>
 
 
@@ -257,7 +323,8 @@
 
 
       <small>
-        احراز هویت و سطح دسترسی در مرحله اتصال کامل پایگاه داده فعال می‌شود.
+        حساب مربی و ورزشکار در سامانه
+        به صورت جداگانه مدیریت خواهد شد.
       </small>
 
     </div>
@@ -265,22 +332,32 @@
   </div>
 
 
+
   <!-- =========================
        FOOTER
-  ========================== -->
+  ========================= -->
 
   <footer>
+
     جودو طبیعت • سامانه عملکرد و پیشرفت ورزشکاران
+
   </footer>
 
 
+
   <!-- =========================
-       SCRIPTS
-  ========================== -->
+       SUPABASE
+  ========================= -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+
+  <!-- =========================
+       APP
+  ========================= -->
+
   <script src="app.js"></script>
+
 
 </body>
 
