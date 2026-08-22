@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>جودو طبیعت | عملکرد ورزشکاران</title>
 
@@ -14,7 +14,6 @@
 
   <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
@@ -31,8 +30,13 @@
       </div>
 
       <div>
-        <strong>جودو طبیعت</strong>
-        <span>عملکرد و پیشرفت ورزشکاران</span>
+        <strong>
+          جودو طبیعت
+        </strong>
+
+        <span>
+          عملکرد و پیشرفت ورزشکاران
+        </span>
       </div>
 
     </div>
@@ -129,6 +133,7 @@
             placeholder="جستجوی ورزشکار..."
           >
 
+
           <select id="filter">
 
             <option value="all">
@@ -146,7 +151,7 @@
 
       <div
         id="emptyState"
-        class="empty-state"
+        class="empty-state hidden"
       >
 
         <div class="empty-icon">
@@ -158,8 +163,7 @@
         </h3>
 
         <p>
-          پس از ورود مربی، ورزشکاران
-          از پنل مربی اضافه می‌شوند.
+          پس از ورود مربی، ورزشکاران از پنل مربی اضافه می‌شوند.
         </p>
 
         <button
@@ -176,7 +180,7 @@
 
       <div
         id="athleteGrid"
-        class="grid hidden"
+        class="grid"
       ></div>
 
     </section>
@@ -198,9 +202,11 @@
       <button
         class="close"
         id="closeModal"
+        type="button"
       >
         ×
       </button>
+
 
       <span class="eyebrow">
         SECURE LOGIN
@@ -211,8 +217,7 @@
       </h2>
 
       <p class="muted">
-        در نسخه نهایی، حساب مربی و ورزشکار
-        از هم جدا خواهد بود.
+        برای ورود، اطلاعات حساب خود را وارد کنید.
       </p>
 
 
@@ -222,6 +227,7 @@
 
         <input
           id="username"
+          type="text"
           autocomplete="username"
         >
 
@@ -243,14 +249,15 @@
 
       <button
         class="primary wide"
+        id="loginSubmit"
+        type="button"
       >
         ورود
       </button>
 
 
       <small>
-        احراز هویت و سطح دسترسی
-        در مرحله اتصال پایگاه داده فعال می‌شود.
+        احراز هویت و سطح دسترسی در مرحله اتصال کامل پایگاه داده فعال می‌شود.
       </small>
 
     </div>
@@ -268,14 +275,10 @@
 
 
   <!-- =========================
-       SUPABASE
+       SCRIPTS
   ========================== -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- =========================
-       MAIN JAVASCRIPT
-  ========================== -->
 
   <script src="app.js"></script>
 
