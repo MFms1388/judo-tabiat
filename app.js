@@ -65,6 +65,7 @@ function openLogin() {
 
 }
 
+
 function closeLogin() {
 
   if (!modal) return;
@@ -126,7 +127,15 @@ if (modal) {
 
 async function loginCoach() {
 
-  if (!username || !password) return;
+  if (!username || !password) {
+
+    alert(
+      "بخش ورود به درستی بارگذاری نشده است."
+    );
+
+    return;
+
+  }
 
 
   const email =
@@ -147,10 +156,14 @@ async function loginCoach() {
   }
 
 
-  loginSubmit.disabled = true;
+  if (loginSubmit) {
 
-  loginSubmit.textContent =
-    "در حال ورود...";
+    loginSubmit.disabled = true;
+
+    loginSubmit.textContent =
+      "در حال ورود...";
+
+  }
 
 
   const {
@@ -166,15 +179,22 @@ async function loginCoach() {
     });
 
 
-  loginSubmit.disabled = false;
+  if (loginSubmit) {
 
-  loginSubmit.textContent =
-    "ورود";
+    loginSubmit.disabled = false;
+
+    loginSubmit.textContent =
+      "ورود";
+
+  }
 
 
   if (error) {
 
-    console.error(error);
+    console.error(
+      "Login error:",
+      error
+    );
 
     alert(
       "ایمیل یا رمز عبور اشتباه است."
@@ -183,6 +203,12 @@ async function loginCoach() {
     return;
 
   }
+
+
+  console.log(
+    "Coach logged in:",
+    data
+  );
 
 
   closeLogin();
@@ -217,49 +243,92 @@ let athletes = [];
 
 async function loadAthletes() {
 
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("athletes")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
+  console.log(
+    "شروع دریافت ورزشکاران..."
+  );
+
+
+  try {
+
+    const result =
+      await supabaseClient
+        .from("athletes")
+        .select(
+          "id, first_name, last_name, age_group, weight, total_score, created_at"
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        );
+
+
+    console.log(
+      "Supabase result:",
+      result
+    );
+
+
+    const data =
+      result.data;
+
+    const error =
+      result.error;
+
+
+    if (error) {
+
+      console.error(
+        "SUPABASE ERROR:",
+        error
       );
 
 
-  if (error) {
+      showEmptyState(
+        "خطا در دریافت اطلاعات ورزشکاران: " +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    athletes =
+      data || [];
+
+
+    console.log(
+      "Athletes:",
+      athletes
+    );
+
+
+    createCategoryFilter(
+      athletes
+    );
+
+
+    renderAthletes(
+      athletes
+    );
+
+
+  } catch (error) {
 
     console.error(
-      "Supabase error:",
+      "GENERAL ERROR:",
       error
     );
 
+
     showEmptyState(
-      "خطا در دریافت اطلاعات ورزشکاران"
+      "خطای اتصال به پایگاه داده: " +
+      error.message
     );
 
-    return;
-
   }
-
-
-  athletes =
-    data || [];
-
-
-  createCategoryFilter(
-    athletes
-  );
-
-
-  renderAthletes(
-    athletes
-  );
 
 }
 
@@ -270,7 +339,15 @@ async function loadAthletes() {
 
 function renderAthletes(list) {
 
-  if (!grid) return;
+  if (!grid) {
+
+    console.error(
+      "athleteGrid پیدا نشد."
+    );
+
+    return;
+
+  }
 
 
   grid.innerHTML = "";
@@ -336,9 +413,11 @@ function renderAthletes(list) {
           : "وزن ثبت نشده";
 
 
-      const belt =
-        athlete.belt ||
-        "کمربند ثبت نشده";
+      const score =
+        athlete.total_score !== null &&
+        athlete.total_score !== undefined
+          ? athlete.total_score
+          : "0";
 
 
       card.innerHTML = `
@@ -360,7 +439,7 @@ function renderAthletes(list) {
           <div class="athlete-card-footer">
 
             <span>
-              ${belt}
+              امتیاز ${score}/10
             </span>
 
             <strong>
