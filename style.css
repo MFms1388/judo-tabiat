@@ -1925,3 +1925,226 @@ body {
 .empty-panel p {
   color: #4b5563;
 }
+/* =========================================
+   FIX - ATHLETE CARDS
+========================================= */
+
+.coach-athlete-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.coach-athlete-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
+  padding: 18px;
+
+  background: #ffffff;
+  border: 1px solid #e7e7e7;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+
+  color: #171717;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.coach-athlete-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.10);
+}
+
+
+/* عکس / آیکون */
+
+.coach-athlete-icon {
+  flex: 0 0 68px;
+
+  width: 68px;
+  height: 68px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-radius: 16px;
+
+  background: #f1f4f2;
+
+  font-size: 30px;
+}
+
+
+/* اطلاعات */
+
+.coach-athlete-info {
+  flex: 1 1 auto;
+
+  min-width: 0;
+
+  overflow: hidden;
+}
+
+.coach-athlete-info h3 {
+  margin: 0 0 6px;
+
+  color: #111111;
+
+  font-size: 18px;
+  font-weight: 800;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.coach-athlete-info p {
+  margin: 0 0 10px;
+
+  color: #666666;
+
+  font-size: 14px;
+}
+
+
+/* اطلاعات وزن و امتیاز */
+
+.coach-athlete-meta {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  color: #444444;
+
+  font-size: 13px;
+}
+
+.coach-athlete-meta span {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 9px;
+
+  background: #f5f6f5;
+
+  border-radius: 9px;
+
+  white-space: nowrap;
+}
+
+
+/* دکمه مشاهده */
+
+.athlete-view-btn {
+  flex: 0 0 auto;
+
+  min-width: 72px;
+
+  padding: 9px 12px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: #1f6b45;
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.athlete-view-btn:hover {
+  background: #185638;
+}
+
+.athlete-view-btn:active {
+  transform: scale(0.97);
+}
+
+
+/* موبایل */
+
+@media (max-width: 600px) {
+
+  .coach-athlete-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .coach-athlete-card {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .coach-athlete-icon {
+    flex-basis: 58px;
+
+    width: 58px;
+    height: 58px;
+  }
+
+  .coach-athlete-info h3 {
+    font-size: 16px;
+  }
+
+  .coach-athlete-meta {
+    display: block;
+  }
+
+  .coach-athlete-meta span {
+    display: inline-flex;
+    margin-bottom: 5px;
+  }
+
+  .athlete-view-btn {
+    min-width: 65px;
+    padding: 8px 9px;
+    font-size: 12px;
+  }
+
+}
+
+
+/* صفحه خیلی کوچک */
+
+@media (max-width: 400px) {
+
+  .coach-athlete-card {
+    flex-wrap: wrap;
+  }
+
+  .coach-athlete-info {
+    flex: 1 1 calc(100% - 82px);
+  }
+
+  .athlete-view-btn {
+    width: 100%;
+    margin-top: 4px;
+  }
+
+}
