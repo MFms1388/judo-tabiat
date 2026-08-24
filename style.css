@@ -1868,3 +1868,60 @@ body {
   }
 
 }
+/* =========================================
+   NATURE JUDO - ATHLETE PAGE STYLE
+========================================= */
+
+.coach-athlete-card {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.coach-athlete-card h3 {
+  color: #111827;
+  font-weight: 800;
+}
+
+.coach-athlete-card p {
+  color: #4b5563;
+}
+
+.coach-athlete-meta {
+  color: #374151;
+}
+
+.coach-athlete-meta span {
+  color: #374151;
+}
+
+.coach-athlete-meta span:nth-child(2) {
+  color: #087f5b;
+  font-weight: 800;
+}
+
+.athlete-view-btn {
+  background: #087f5b;
+  color: #ffffff;
+  border: none;
+}
+
+.athlete-view-btn:hover {
+  background: #066b4d;
+}
+
+.empty-panel {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.empty-panel h2 {
+  color: #111827;
+}
+
+.empty-panel p {
+  color: #4b5563;
+}
