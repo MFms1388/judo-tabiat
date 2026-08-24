@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>پنل مربی | جودو طبیعت</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- =================================
+       COACH APP
+  ================================== -->
+
+  <div class="coach-app">
+
+
+    <!-- =================================
+         TOPBAR
+    ================================== -->
+
+    <header class="coach-topbar">
+
+      <div class="coach-brand">
+
+        <button
+          class="menu-btn"
+          id="menuBtn"
+          type="button"
+          aria-label="باز کردن منو"
+        >
+          ☰
+        </button>
+
+        <div class="coach-logo">
+          🥋
+        </div>
+
+        <div>
+
+          <strong>
+            جودو طبیعت
+          </strong>
+
+          <span>
+            پنل مدیریت مربی
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="logout-btn"
+        id="logoutBtn"
+        type="button"
+      >
+        خروج
+      </button>
+
+    </header>
+
+
+    <!-- =================================
+         SIDEBAR
+    ================================== -->
+
+    <aside
+      class="coach-sidebar"
+      id="coachSidebar"
+    >
+
+      <div class="sidebar-title">
+        مدیریت باشگاه
+      </div>
+
+
+      <nav>
+
+        <button
+          class="nav-item active"
+          data-page="dashboard"
+        >
+          <span>🏠</span>
+          داشبورد
+        </button>
+
+
+        <button
+          class="nav-item"
+          data-page="athletes"
+        >
+          <span>👥</span>
+          ورزشکاران
+        </button>
+
+
+        <button
+          class="nav-item"
+          data-page="evaluations"
+        >
+          <span>📊</span>
+          ارزیابی
+        </button>
+
+
+        <button
+          class="nav-item"
+          data-page="attendance"
+        >
+          <span>🟢</span>
+          حضور و غیاب
+        </button>
+
+
+        <button
+          class="nav-item"
+          data-page="achievements"
+        >
+          <span>🏆</span>
+          مقام‌ها و افتخارات
+        </button>
+
+
+        <button
+          class="nav-item"
+          data-page="events"
+        >
+          <span>📅</span>
+          مسابقات و اطلاعیه‌ها
+        </button>
+
+
+        <button
+          class="nav-item"
+          data-page="records"
+        >
+          <span>📈</span>
+          آمار و رکوردها
+        </button>
+
+
+        <button
+          class="nav-item"
+          data-page="settings"
+        >
+          <span>⚙️</span>
+          تنظیمات سایت
+        </button>
+
+      </nav>
+
+
+      <div class="sidebar-footer">
+
+        <span>
+          مربی
+        </span>
+
+        <small id="coachEmail">
+          در حال بارگذاری...
+        </small>
+
+      </div>
+
+    </aside>
+
+
+    <!-- =================================
+         MAIN
+    ================================== -->
+
+    <main class="coach-main">
+
+
+      <!-- =================================
+           DASHBOARD
+      ================================== -->
+
+      <section
+        class="coach-page active"
+        id="page-dashboard"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              DASHBOARD
+            </span>
+
+            <h1>
+              داشبورد مربی
+            </h1>
+
+            <p>
+              مدیریت کامل باشگاه جودو طبیعت
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- STATS -->
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+
+            <span>
+              👥
+            </span>
+
+            <div>
+
+              <small>
+                ورزشکاران
+              </small>
+
+              <strong id="totalAthletes">
+                ۰
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <span>
+              📊
+            </span>
+
+            <div>
+
+              <small>
+                ارزیابی‌ها
+              </small>
+
+              <strong id="totalEvaluations">
+                ۰
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <span>
+              🟢
+            </span>
+
+            <div>
+
+              <small>
+                حضور امروز
+              </small>
+
+              <strong id="todayAttendance">
+                ۰
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <span>
+              🏆
+            </span>
+
+            <div>
+
+              <small>
+                مقام‌ها
+              </small>
+
+              <strong id="totalAchievements">
+                ۰
+              </strong>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- QUICK ACTIONS -->
+
+        <div class="dashboard-section">
+
+          <div class="section-title">
+
+            <h2>
+              دسترسی سریع
+            </h2>
+
+          </div>
+
+
+          <div class="quick-grid">
+
+            <button
+              class="quick-card"
+              data-go="athletes"
+            >
+
+              <span>
+                ➕
+              </span>
+
+              <strong>
+                افزودن ورزشکار
+              </strong>
+
+              <small>
+                ثبت ورزشکار جدید
+              </small>
+
+            </button>
+
+
+            <button
+              class="quick-card"
+              data-go="evaluations"
+            >
+
+              <span>
+                📋
+              </span>
+
+              <strong>
+                ارزیابی جدید
+              </strong>
+
+              <small>
+                ثبت عملکرد ورزشکار
+              </small>
+
+            </button>
+
+
+            <button
+              class="quick-card"
+              data-go="attendance"
+            >
+
+              <span>
+                🟢
+              </span>
+
+              <strong>
+                حضور و غیاب
+              </strong>
+
+              <small>
+                ثبت حضور امروز
+              </small>
+
+            </button>
+
+
+            <button
+              class="quick-card"
+              data-go="achievements"
+            >
+
+              <span>
+                🏆
+              </span>
+
+              <strong>
+                ثبت مقام
+              </strong>
+
+              <small>
+                افزودن افتخار جدید
+              </small>
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================
+           ATHLETES
+      ================================== -->
+
+      <section
+        class="coach-page"
+        id="page-athletes"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              ATHLETES
+            </span>
+
+            <h1>
+              ورزشکاران
+            </h1>
+
+            <p>
+              مدیریت ورزشکاران باشگاه
+            </p>
+
+          </div>
+
+
+          <button
+            class="primary"
+            id="addAthleteBtn"
+            type="button"
+          >
+            ➕ افزودن ورزشکار
+          </button>
+
+        </div>
+
+
+        <div class="toolbar">
+
+          <input
+            id="coachSearch"
+            type="search"
+            placeholder="جستجوی ورزشکار..."
+          >
+
+
+          <select id="coachFilter">
+
+            <option value="all">
+              همه رده‌ها
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div
+          id="coachAthleteGrid"
+          class="coach-athlete-grid"
+        ></div>
+
+      </section>
+
+
+      <!-- =================================
+           EVALUATIONS
+      ================================== -->
+
+      <section
+        class="coach-page"
+        id="page-evaluations"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              EVALUATION
+            </span>
+
+            <h1>
+              ارزیابی ورزشکاران
+            </h1>
+
+            <p>
+              ثبت و بررسی عملکرد ورزشکاران
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="empty-panel">
+
+          <div>
+            📊
+          </div>
+
+          <h2>
+            بخش ارزیابی
+          </h2>
+
+          <p>
+            معیارها و ارزیابی‌ها در این بخش مدیریت می‌شوند.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================
+           ATTENDANCE
+      ================================== -->
+
+      <section
+        class="coach-page"
+        id="page-attendance"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              ATTENDANCE
+            </span>
+
+            <h1>
+              حضور و غیاب
+            </h1>
+
+            <p>
+              ثبت حضور و غیاب ورزشکاران
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="empty-panel">
+
+          <div>
+            🟢
+          </div>
+
+          <h2>
+            حضور و غیاب
+          </h2>
+
+          <p>
+            ثبت حضور، غیبت و سابقه حضور ورزشکاران.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================
+           ACHIEVEMENTS
+      ================================== -->
+
+      <section
+        class="coach-page"
+        id="page-achievements"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              ACHIEVEMENTS
+            </span>
+
+            <h1>
+              مقام‌ها و افتخارات
+            </h1>
+
+            <p>
+              ثبت افتخارات و نتایج ورزشکاران
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="empty-panel">
+
+          <div>
+            🏆
+          </div>
+
+          <h2>
+            مقام‌ها و افتخارات
+          </h2>
+
+          <p>
+            ثبت و مدیریت مقام‌های کسب‌شده توسط ورزشکاران.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================
+           EVENTS
+      ================================== -->
+
+      <section
+        class="coach-page"
+        id="page-events"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              EVENTS
+            </span>
+
+            <h1>
+              مسابقات و اطلاعیه‌ها
+            </h1>
+
+            <p>
+              مدیریت مسابقات، تقویم و اطلاعیه‌های باشگاه
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="empty-panel">
+
+          <div>
+            📅
+          </div>
+
+          <h2>
+            مسابقات و اطلاعیه‌ها
+          </h2>
+
+          <p>
+            مسابقات آینده، تقویم و اطلاعیه‌های باشگاه در این بخش قرار می‌گیرند.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================
+           RECORDS
+      ================================== -->
+
+      <section
+        class="coach-page"
+        id="page-records"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              RECORDS
+            </span>
+
+            <h1>
+              آمار و رکوردها
+            </h1>
+
+            <p>
+              بررسی آمار و روند پیشرفت ورزشکاران
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="empty-panel">
+
+          <div>
+            📈
+          </div>
+
+          <h2>
+            آمار و رکوردها
+          </h2>
+
+          <p>
+            آمار تمرینی و رکوردهای ورزشکاران در این بخش نمایش داده می‌شود.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================
+           SETTINGS
+      ================================== -->
+
+      <section
+        class="coach-page"
+        id="page-settings"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              SETTINGS
+            </span>
+
+            <h1>
+              تنظیمات سایت
+            </h1>
+
+            <p>
+              مدیریت اطلاعات و محتوای باشگاه
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+
+          <div class="setting-card">
+
+            <span>
+              🏢
+            </span>
+
+            <h3>
+              اطلاعات باشگاه
+            </h3>
+
+            <p>
+              نام، توضیحات و اطلاعات اصلی باشگاه
+            </p>
+
+          </div>
+
+
+          <div class="setting-card">
+
+            <span>
+              📞
+            </span>
+
+            <h3>
+              راه‌های ارتباطی
+            </h3>
+
+            <p>
+              شماره تماس، شبکه‌های اجتماعی و اطلاعات تماس
+            </p>
+
+          </div>
+
+
+          <div class="setting-card">
+
+            <span>
+              📍
+            </span>
+
+            <h3>
+              آدرس باشگاه
+            </h3>
+
+            <p>
+              آدرس و موقعیت باشگاه
+            </p>
+
+          </div>
+
+
+          <div class="setting-card">
+
+            <span>
+              ⚙️
+            </span>
+
+            <h3>
+              تنظیمات عمومی
+            </h3>
+
+            <p>
+              تنظیمات کلی سامانه
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <!-- =================================
+       ADD ATHLETE MODAL
+  ================================== -->
+
+  <div
+    class="modal hidden"
+    id="athleteModal"
+  >
+
+    <div class="modal-card">
+
+      <button
+        class="close"
+        id="closeAthleteModal"
+        type="button"
+      >
+        ×
+      </button>
+
+
+      <span class="eyebrow">
+        NEW ATHLETE
+      </span>
+
+
+      <h2>
+        افزودن ورزشکار
+      </h2>
+
+
+      <p class="muted">
+        اطلاعات ورزشکار را وارد کنید.
+      </p>
+
+
+      <label>
+
+        نام
+
+        <input
+          id="athleteFirstName"
+          type="text"
+          placeholder="نام ورزشکار"
+        >
+
+      </label>
+
+
+      <label>
+
+        نام خانوادگی
+
+        <input
+          id="athleteLastName"
+          type="text"
+          placeholder="نام خانوادگی"
+        >
+
+      </label>
+
+
+      <label>
+
+        رده سنی
+
+        <input
+          id="athleteAgeGroup"
+          type="text"
+          placeholder="مثلاً نونهالان"
+        >
+
+      </label>
+
+
+      <label>
+
+        وزن
+
+        <input
+          id="athleteWeight"
+          type="number"
+          step="0.1"
+          placeholder="وزن به کیلوگرم"
+        >
+
+      </label>
+
+
+      <label>
+
+        کمربند
+
+        <input
+          id="athleteBelt"
+          type="text"
+          placeholder="مثلاً زرد"
+        >
+
+      </label>
+
+
+      <label>
+
+        کد ملی
+
+        <input
+          id="athleteNationalId"
+          type="text"
+          inputmode="numeric"
+          maxlength="10"
+          placeholder="کد ملی ورزشکار"
+        >
+
+      </label>
+
+
+      <button
+        class="primary wide"
+        id="saveAthleteBtn"
+        type="button"
+      >
+        ثبت ورزشکار
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =================================
+       SUPABASE
+  ================================== -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+  <!-- =================================
+       COACH APP
+  ================================== -->
+
+  <script src="coach.js"></script>
+
+</body>
+
+  </html>
