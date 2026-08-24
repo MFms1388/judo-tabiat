@@ -89,6 +89,7 @@
         <button
           class="nav-item active"
           data-page="dashboard"
+          type="button"
         >
           <span>🏠</span>
           داشبورد
@@ -98,6 +99,7 @@
         <button
           class="nav-item"
           data-page="athletes"
+          type="button"
         >
           <span>👥</span>
           ورزشکاران
@@ -107,6 +109,7 @@
         <button
           class="nav-item"
           data-page="evaluations"
+          type="button"
         >
           <span>📊</span>
           ارزیابی
@@ -116,6 +119,7 @@
         <button
           class="nav-item"
           data-page="attendance"
+          type="button"
         >
           <span>🟢</span>
           حضور و غیاب
@@ -125,6 +129,7 @@
         <button
           class="nav-item"
           data-page="achievements"
+          type="button"
         >
           <span>🏆</span>
           مقام‌ها و افتخارات
@@ -134,6 +139,7 @@
         <button
           class="nav-item"
           data-page="events"
+          type="button"
         >
           <span>📅</span>
           مسابقات و اطلاعیه‌ها
@@ -143,6 +149,7 @@
         <button
           class="nav-item"
           data-page="records"
+          type="button"
         >
           <span>📈</span>
           آمار و رکوردها
@@ -152,6 +159,7 @@
         <button
           class="nav-item"
           data-page="settings"
+          type="button"
         >
           <span>⚙️</span>
           تنظیمات سایت
@@ -320,6 +328,7 @@
             <button
               class="quick-card"
               data-go="athletes"
+              type="button"
             >
 
               <span>
@@ -340,6 +349,7 @@
             <button
               class="quick-card"
               data-go="evaluations"
+              type="button"
             >
 
               <span>
@@ -360,6 +370,7 @@
             <button
               class="quick-card"
               data-go="attendance"
+              type="button"
             >
 
               <span>
@@ -380,6 +391,7 @@
             <button
               class="quick-card"
               data-go="achievements"
+              type="button"
             >
 
               <span>
@@ -442,12 +454,15 @@
         </div>
 
 
+        <!-- SEARCH AND FILTER -->
+
         <div class="toolbar">
 
           <input
             id="coachSearch"
             type="search"
-            placeholder="جستجوی ورزشکار..."
+            placeholder="جستجوی نام یا کد ملی..."
+            autocomplete="off"
           >
 
 
@@ -461,6 +476,8 @@
 
         </div>
 
+
+        <!-- ATHLETE CARDS -->
 
         <div
           id="coachAthleteGrid"
@@ -776,7 +793,7 @@
             </h3>
 
             <p>
-              شماره تماس، شبکه‌های اجتماعی و اطلاعات تماس
+              مربی می‌تواند اطلاعات تماس باشگاه را وارد یا ویرایش کند.
             </p>
 
           </div>
@@ -839,6 +856,7 @@
         class="close"
         id="closeAthleteModal"
         type="button"
+        aria-label="بستن"
       >
         ×
       </button>
@@ -892,7 +910,7 @@
         <input
           id="athleteAgeGroup"
           type="text"
-          placeholder="مثلاً نونهالان"
+          placeholder="مثلاً نوجوانان"
         >
 
       </label>
@@ -914,19 +932,6 @@
 
       <label>
 
-        کمربند
-
-        <input
-          id="athleteBelt"
-          type="text"
-          placeholder="مثلاً زرد"
-        >
-
-      </label>
-
-
-      <label>
-
         کد ملی
 
         <input
@@ -935,6 +940,32 @@
           inputmode="numeric"
           maxlength="10"
           placeholder="کد ملی ورزشکار"
+        >
+
+      </label>
+
+
+      <label>
+
+        توضیحات
+
+        <textarea
+          id="athleteBio"
+          rows="3"
+          placeholder="توضیحات درباره ورزشکار"
+        ></textarea>
+
+      </label>
+
+
+      <label>
+
+        لینک عکس
+
+        <input
+          id="athletePhotoUrl"
+          type="url"
+          placeholder="https://..."
         >
 
       </label>
@@ -968,4 +999,4 @@
 
 </body>
 
-  </html>
+</html>
