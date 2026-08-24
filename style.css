@@ -1815,3 +1815,56 @@ body {
   }
 
    }
+/* =========================================
+   COACH SCROLL FIX
+========================================= */
+
+html,
+body {
+  min-height: 100%;
+}
+
+.coach-app {
+  min-height: 100vh;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.coach-main {
+  min-height: calc(100vh - 70px);
+  height: auto;
+  overflow: visible;
+}
+
+.coach-page {
+  min-height: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+@media (max-width: 750px) {
+
+  html,
+  body {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .coach-app {
+    min-height: 100vh;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .coach-main {
+    height: auto;
+    min-height: calc(100vh - 70px);
+    overflow: visible;
+    padding-bottom: 60px;
+  }
+
+}
