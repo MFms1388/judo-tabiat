@@ -217,8 +217,6 @@ function openPage(pageName) {
 
   }
 
-
-  // وقتی وارد صفحه ارزیابی می‌شویم
   if (
     pageName ===
     "evaluations"
@@ -1282,9 +1280,7 @@ function clearAthleteForm() {
 
 
 // ==================================================
-// ==================================================
 // EVALUATION SYSTEM
-// ==================================================
 // ==================================================
 
 
@@ -2112,19 +2108,22 @@ async function renderEvaluations(
                 padding:12px;
                 background:#f7f7f7;
                 border-radius:12px;
+                color:#111;
               "
             >
+
               <strong>
                 توضیحات:
               </strong>
 
               <div
-                style="margin-top:5px;"
+                style="margin-top:5px;color:#111;"
               >
                 ${escapeHTML(
                   evaluation.notes
                 )}
               </div>
+
             </div>
           `
           : ""
@@ -2287,6 +2286,7 @@ function openNewEvaluationModal() {
 
 // ======================================
 // CREATE EVALUATION MODAL
+// SLIDER VERSION
 // ======================================
 
 function createEvaluationModal(
@@ -2339,10 +2339,11 @@ function createEvaluationModal(
 
           <div
             style="
-              background:#f8f8f8;
-              padding:15px;
+              background:#ffffff;
+              padding:16px;
               border-radius:14px;
               margin-bottom:12px;
+              border:1px solid #e5e5e5;
             "
           >
 
@@ -2350,25 +2351,45 @@ function createEvaluationModal(
               style="
                 display:flex;
                 justify-content:space-between;
-                gap:10px;
                 align-items:center;
-                margin-bottom:8px;
+                gap:10px;
+                margin-bottom:10px;
               "
             >
 
-              <strong>
+              <strong
+                style="
+                  color:#111111 !important;
+                  font-size:15px;
+                "
+              >
                 ${escapeHTML(
                   criterion.name
                 )}
               </strong>
 
+
               <span
+                class="evaluation-score-display"
+                data-display-id="${escapeHTML(
+                  criterion.id
+                )}"
                 style="
-                  color:#777;
-                  font-size:13px;
+                  display:inline-flex;
+                  align-items:center;
+                  justify-content:center;
+                  min-width:55px;
+                  height:38px;
+                  padding:0 10px;
+                  background:#f1f1f1 !important;
+                  color:#111111 !important;
+                  border:1px solid #cccccc;
+                  border-radius:9px;
+                  font-size:17px;
+                  font-weight:700;
                 "
               >
-                امتیاز ۰ تا ۱۰
+                ۰
               </span>
 
             </div>
@@ -2379,9 +2400,9 @@ function createEvaluationModal(
                 ? `
                   <div
                     style="
-                      color:#777;
+                      color:#555555 !important;
                       font-size:12px;
-                      margin-bottom:8px;
+                      margin-bottom:12px;
                     "
                   >
                     ${escapeHTML(
@@ -2394,7 +2415,7 @@ function createEvaluationModal(
 
 
             <input
-              type="number"
+              type="range"
               min="0"
               max="10"
               step="0.1"
@@ -2404,15 +2425,34 @@ function createEvaluationModal(
                 criterion.id
               )}"
               style="
+                display:block;
                 width:100%;
-                min-height:45px;
-                padding:10px;
-                border:1px solid #ddd;
-                border-radius:10px;
-                font-family:inherit;
-                font-size:16px;
+                height:8px;
+                margin:12px 0 8px;
+                accent-color:#111111;
+                cursor:pointer;
+                opacity:1;
               "
             >
+
+
+            <div
+              style="
+                display:flex;
+                justify-content:space-between;
+                color:#333333 !important;
+                font-size:12px;
+                font-weight:600;
+              "
+            >
+
+              <span>۰</span>
+
+              <span>۵</span>
+
+              <span>۱۰</span>
+
+            </div>
 
           </div>
 
@@ -2442,6 +2482,7 @@ function createEvaluationModal(
       style="
         max-height:90vh;
         overflow-y:auto;
+        color:#111111;
       "
     >
 
@@ -2459,14 +2500,23 @@ function createEvaluationModal(
       </span>
 
 
-      <h2>
+      <h2
+        style="
+          color:#111111 !important;
+        "
+      >
         ارزیابی جدید
       </h2>
 
 
-      <p class="muted">
+      <p
+        class="muted"
+        style="color:#555555 !important;"
+      >
         ورزشکار:
-        <strong>
+        <strong
+          style="color:#111111 !important;"
+        >
           ${escapeHTML(
             athleteName
           )}
@@ -2474,9 +2524,14 @@ function createEvaluationModal(
       </p>
 
 
-      <p class="muted">
+      <p
+        class="muted"
+        style="color:#555555 !important;"
+      >
         دوره:
-        <strong>
+        <strong
+          style="color:#111111 !important;"
+        >
           ${
             period
               ? escapeHTML(
@@ -2503,6 +2558,7 @@ function createEvaluationModal(
         style="
           display:block;
           margin-top:15px;
+          color:#111111 !important;
         "
       >
 
@@ -2520,6 +2576,8 @@ function createEvaluationModal(
             border-radius:12px;
             font-family:inherit;
             resize:vertical;
+            color:#111111 !important;
+            background:#ffffff !important;
           "
         ></textarea>
 
@@ -2533,13 +2591,18 @@ function createEvaluationModal(
           background:#f3f6f4;
           border-radius:12px;
           text-align:center;
+          color:#111111 !important;
         "
       >
 
         امتیاز نهایی:
+
         <strong
           id="newEvaluationTotal"
-          style="font-size:22px;"
+          style="
+            font-size:22px;
+            color:#111111 !important;
+          "
         >
           ۰
         </strong>
@@ -2553,7 +2616,9 @@ function createEvaluationModal(
         class="primary wide"
         id="saveNewEvaluationBtn"
         type="button"
-        style="margin-top:15px;"
+        style="
+          margin-top:15px;
+        "
       >
         ثبت ارزیابی
       </button>
@@ -2596,7 +2661,9 @@ function createEvaluationModal(
         if (
           Number.isNaN(value)
         ) {
+
           value = 0;
+
         }
 
 
@@ -2613,6 +2680,22 @@ function createEvaluationModal(
         total +=
           value;
 
+
+        const display =
+          modal.querySelector(
+            `[data-display-id="${input.dataset.criterionId}"]`
+          );
+
+
+        if (display) {
+
+          display.textContent =
+            toPersianNumber(
+              value.toFixed(1)
+            );
+
+        }
+
       }
     );
 
@@ -2628,8 +2711,8 @@ function createEvaluationModal(
 
 
     const totalElement =
-      document.getElementById(
-        "newEvaluationTotal"
+      modal.querySelector(
+        "#newEvaluationTotal"
       );
 
 
@@ -2661,8 +2744,8 @@ function createEvaluationModal(
 
 
   const closeBtn =
-    document.getElementById(
-      "closeNewEvaluationModal"
+    modal.querySelector(
+      "#closeNewEvaluationModal"
     );
 
 
@@ -2698,8 +2781,8 @@ function createEvaluationModal(
 
 
   const saveBtn =
-    document.getElementById(
-      "saveNewEvaluationBtn"
+    modal.querySelector(
+      "#saveNewEvaluationBtn"
     );
 
 
@@ -2878,9 +2961,9 @@ async function saveNewEvaluation(
 
   try {
 
-    // ----------------------------------
-    // 1. INSERT EVALUATION
-    // ----------------------------------
+    // ==================================
+    // INSERT EVALUATION
+    // ==================================
 
     const {
       data: evaluation,
@@ -2929,9 +3012,9 @@ async function saveNewEvaluation(
     }
 
 
-    // ----------------------------------
-    // 2. INSERT SCORES
-    // ----------------------------------
+    // ==================================
+    // INSERT SCORES
+    // ==================================
 
     const scoreRows =
       scores.map(
@@ -2970,8 +3053,6 @@ async function saveNewEvaluation(
       );
 
 
-      // اگر امتیازها ثبت نشدند،
-      // ارزیابی اصلی را هم حذف می‌کنیم
       await supabaseClient
         .from(
           "evaluations"
@@ -2991,9 +3072,9 @@ async function saveNewEvaluation(
     }
 
 
-    // ----------------------------------
-    // 3. UPDATE ATHLETE TOTAL SCORE
-    // ----------------------------------
+    // ==================================
+    // UPDATE ATHLETE SCORE
+    // ==================================
 
     const {
       error: athleteUpdateError
@@ -3271,7 +3352,6 @@ async function startCoachApp() {
   await loadAthletes();
 
 
-  // آماده‌سازی اولیه ارزیابی
   await loadEvaluationPage();
 
 }
