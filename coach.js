@@ -1,2609 +1,589 @@
 // ======================================
-// SUPABASE
+// SLIDER VERSION - CREATE EVALUATION MODAL
 // ======================================
 
-const SUPABASE_URL =
-  "https://bkkdgywdptufjsaepehc.supabase.co";
+function createEvaluationModal(athleteId, periodId) {
 
-const SUPABASE_KEY =
-  "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
+  // حذف پنجره قبلی
+  const oldModal = document.getElementById("newEvaluationModal");
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-
-// ======================================
-// GLOBAL DATA
-// ======================================
-
-let athletes = [];
-let evaluationCriteria = [];
-let evaluationPeriods = [];
-let evaluations = [];
-
-
-// ======================================
-// AUTH
-// ======================================
-
-async function checkCoachAccess() {
-
-  const {
-    data,
-    error
-  } = await supabaseClient.auth.getSession();
-
-  if (error) {
-
-    console.error(
-      "Session error:",
-      error
-    );
-
-    redirectToLogin();
-
-    return false;
+  if (oldModal) {
+    oldModal.remove();
   }
 
-  const session =
-    data?.session;
+  // پیدا کردن ورزشکار
+  const athlete = athletes.find(
+    item => item.id === athleteId
+  );
 
-  if (!session) {
+  // پیدا کردن دوره
+  const period = evaluationPeriods.find(
+    item => item.id === periodId
+  );
 
-    redirectToLogin();
+  const athleteName = athlete
+    ? [
+        athlete.first_name,
+        athlete.last_name
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : "ورزشکار";
 
-    return false;
+  // ======================================
+  // CSS
+  // ======================================
+
+  const oldStyle = document.getElementById(
+    "evaluation-modal-style"
+  );
+
+  if (oldStyle) {
+    oldStyle.remove();
   }
 
-  const email =
-    session.user?.email?.toLowerCase();
+  const style = document.createElement("style");
 
-  if (
-    email !==
-    "coach.judotabiat@gmail.com"
-  ) {
+  style.id = "evaluation-modal-style";
 
-    await supabaseClient.auth.signOut();
+  style.textContent = `
 
-    alert(
-      "شما اجازه ورود به پنل مربی را ندارید."
-    );
+    #newEvaluationModal {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 99999 !important;
 
-    redirectToLogin();
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
 
-    return false;
-  }
+      background: rgba(0, 0, 0, 0.60) !important;
 
-  const coachEmail =
-    document.getElementById(
-      "coachEmail"
-    );
+      padding: 15px !important;
 
-  if (coachEmail) {
-
-    coachEmail.textContent =
-      session.user.email;
-
-  }
-
-  return true;
-}
-
-
-// ======================================
-// REDIRECT
-// ======================================
-
-function redirectToLogin() {
-
-  window.location.href =
-    "index.html";
-
-}
-
-
-// ======================================
-// ELEMENTS
-// ======================================
-
-const sidebar =
-  document.getElementById(
-    "coachSidebar"
-  );
-
-const menuBtn =
-  document.getElementById(
-    "menuBtn"
-  );
-
-const logoutBtn =
-  document.getElementById(
-    "logoutBtn"
-  );
-
-const navItems =
-  document.querySelectorAll(
-    ".nav-item"
-  );
-
-const coachPages =
-  document.querySelectorAll(
-    ".coach-page"
-  );
-
-
-// ======================================
-// MOBILE MENU
-// ======================================
-
-if (menuBtn) {
-
-  menuBtn.addEventListener(
-    "click",
-    () => {
-
-      if (!sidebar) return;
-
-      sidebar.classList.toggle(
-        "open"
-      );
-
-    }
-  );
-
-}
-
-
-// ======================================
-// PAGE NAVIGATION
-// ======================================
-
-function openPage(pageName) {
-
-  coachPages.forEach(
-    page => {
-
-      page.classList.remove(
-        "active"
-      );
-
-    }
-  );
-
-  navItems.forEach(
-    item => {
-
-      item.classList.remove(
-        "active"
-      );
-
-    }
-  );
-
-  const targetPage =
-    document.getElementById(
-      `page-${pageName}`
-    );
-
-  const targetNav =
-    document.querySelector(
-      `.nav-item[data-page="${pageName}"]`
-    );
-
-  if (targetPage) {
-
-    targetPage.classList.add(
-      "active"
-    );
-
-  }
-
-  if (targetNav) {
-
-    targetNav.classList.add(
-      "active"
-    );
-
-  }
-
-  if (sidebar) {
-
-    sidebar.classList.remove(
-      "open"
-    );
-
-  }
-
-  if (
-    pageName ===
-    "evaluations"
-  ) {
-
-    loadEvaluationPage();
-
-  }
-
-}
-
-
-// ======================================
-// NAVIGATION EVENTS
-// ======================================
-
-navItems.forEach(
-  item => {
-
-    item.addEventListener(
-      "click",
-      () => {
-
-        const page =
-          item.dataset.page;
-
-        openPage(page);
-
-      }
-    );
-
-  }
-);
-
-
-// ======================================
-// QUICK ACTIONS
-// ======================================
-
-const quickCards =
-  document.querySelectorAll(
-    "[data-go]"
-  );
-
-quickCards.forEach(
-  card => {
-
-    card.addEventListener(
-      "click",
-      () => {
-
-        const page =
-          card.dataset.go;
-
-        openPage(page);
-
-      }
-    );
-
-  }
-);
-
-
-// ======================================
-// LOGOUT
-// ======================================
-
-if (logoutBtn) {
-
-  logoutBtn.addEventListener(
-    "click",
-    async () => {
-
-      const confirmLogout =
-        confirm(
-          "آیا می‌خواهید از حساب مربی خارج شوید؟"
-        );
-
-      if (!confirmLogout) {
-        return;
-      }
-
-      await supabaseClient.auth.signOut();
-
-      window.location.href =
-        "index.html";
-
-    }
-  );
-
-}
-
-
-// ======================================
-// ATHLETES
-// ======================================
-
-async function loadAthletes() {
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("athletes")
-      .select(`
-        id,
-        profile_id,
-        first_name,
-        last_name,
-        national_id,
-        age_group,
-        weight,
-        photo_url,
-        total_score,
-        bio,
-        created_at,
-        updated_at
-      `)
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-  if (error) {
-
-    console.error(
-      "Athletes error:",
-      error
-    );
-
-    showAthleteError(
-      error.message
-    );
-
-    return;
-  }
-
-  athletes =
-    data || [];
-
-  console.log(
-    "Athletes loaded:",
-    athletes
-  );
-
-  updateDashboardStats();
-
-  createCoachCategoryFilter(
-    athletes
-  );
-
-  renderCoachAthletes(
-    athletes
-  );
-
-  fillEvaluationAthletes();
-
-}
-
-
-// ======================================
-// DASHBOARD STATS
-// ======================================
-
-async function updateDashboardStats() {
-
-  const totalAthletes =
-    document.getElementById(
-      "totalAthletes"
-    );
-
-  if (totalAthletes) {
-
-    totalAthletes.textContent =
-      toPersianNumber(
-        athletes.length
-      );
-
-  }
-
-
-  const totalEvaluations =
-    document.getElementById(
-      "totalEvaluations"
-    );
-
-  if (totalEvaluations) {
-
-    const {
-      count,
-      error
-    } =
-      await supabaseClient
-        .from("evaluations")
-        .select(
-          "id",
-          {
-            count: "exact",
-            head: true
-          }
-        );
-
-    if (!error) {
-
-      totalEvaluations.textContent =
-        toPersianNumber(
-          count || 0
-        );
-
-    } else {
-
-      totalEvaluations.textContent =
-        "۰";
-
+      box-sizing: border-box !important;
     }
 
-  }
+    #newEvaluationModal .evaluation-modal-card {
+      position: relative !important;
 
+      width: min(620px, 100%) !important;
 
-  const todayAttendance =
-    document.getElementById(
-      "todayAttendance"
-    );
+      max-height: 92vh !important;
 
-  if (todayAttendance) {
+      overflow-y: auto !important;
 
-    todayAttendance.textContent =
-      "۰";
+      background: #ffffff !important;
 
-  }
+      color: #111111 !important;
 
+      border-radius: 20px !important;
 
-  const totalAchievements =
-    document.getElementById(
-      "totalAchievements"
-    );
+      padding: 22px !important;
 
-  if (totalAchievements) {
+      box-sizing: border-box !important;
 
-    totalAchievements.textContent =
-      "۰";
-
-  }
-
-}
-
-
-// ======================================
-// RENDER ATHLETES
-// ======================================
-
-function renderCoachAthletes(list) {
-
-  const grid =
-    document.getElementById(
-      "coachAthleteGrid"
-    );
-
-  if (!grid) {
-    return;
-  }
-
-  grid.innerHTML = "";
-
-  if (
-    !list ||
-    list.length === 0
-  ) {
-
-    grid.innerHTML = `
-
-      <div class="empty-panel">
-
-        <div>
-          🥋
-        </div>
-
-        <h2>
-          هنوز ورزشکاری ثبت نشده است
-        </h2>
-
-        <p>
-          از گزینه «افزودن ورزشکار»
-          برای ثبت ورزشکار جدید استفاده کنید.
-        </p>
-
-      </div>
-
-    `;
-
-    return;
-  }
-
-
-  list.forEach(
-    athlete => {
-
-      const card =
-        document.createElement(
-          "div"
-        );
-
-      card.className =
-        "coach-athlete-card";
-
-
-      const name =
-        [
-          athlete.first_name,
-          athlete.last_name
-        ]
-          .filter(Boolean)
-          .join(" ") ||
-        "بدون نام";
-
-
-      const category =
-        athlete.age_group ||
-        "رده ثبت نشده";
-
-
-      const weight =
-        athlete.weight !== null &&
-        athlete.weight !== undefined &&
-        athlete.weight !== ""
-          ? `${athlete.weight} کیلوگرم`
-          : "وزن ثبت نشده";
-
-
-      const score =
-        athlete.total_score !== null &&
-        athlete.total_score !== undefined
-          ? athlete.total_score
-          : 0;
-
-
-      let photoHTML = `
-        <div class="athlete-placeholder">
-          🥋
-        </div>
-      `;
-
-
-      if (athlete.photo_url) {
-
-        photoHTML = `
-          <img
-            src="${escapeHTML(
-              athlete.photo_url
-            )}"
-            alt="${escapeHTML(name)}"
-            class="athlete-photo"
-          >
-        `;
-
-      }
-
-
-      card.innerHTML = `
-
-        <div class="coach-athlete-icon">
-          ${photoHTML}
-        </div>
-
-        <div class="coach-athlete-info">
-
-          <h3>
-            ${escapeHTML(name)}
-          </h3>
-
-          <p>
-            ${escapeHTML(category)}
-          </p>
-
-          <div class="coach-athlete-meta">
-
-            <span class="athlete-weight">
-              ⚖️
-              ${escapeHTML(weight)}
-            </span>
-
-            <span class="athlete-score">
-              امتیاز:
-              ${escapeHTML(
-                toPersianNumber(score)
-              )}
-            </span>
-
-          </div>
-
-        </div>
-
-        <button
-          class="athlete-view-btn"
-          type="button"
-        >
-          مشاهده پروفایل
-        </button>
-
-      `;
-
-
-      const viewBtn =
-        card.querySelector(
-          ".athlete-view-btn"
-        );
-
-
-      if (viewBtn) {
-
-        viewBtn.addEventListener(
-          "click",
-          event => {
-
-            event.stopPropagation();
-
-            window.location.href =
-              `athlete.html?id=${encodeURIComponent(
-                athlete.id
-              )}`;
-
-          }
-        );
-
-      }
-
-
-      card.addEventListener(
-        "click",
-        () => {
-
-          window.location.href =
-            `athlete.html?id=${encodeURIComponent(
-              athlete.id
-            )}`;
-
-        }
-      );
-
-
-      grid.appendChild(card);
-
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.30) !important;
     }
-  );
 
-}
+    #newEvaluationModal h2,
+    #newEvaluationModal p,
+    #newEvaluationModal strong,
+    #newEvaluationModal label,
+    #newEvaluationModal span,
+    #newEvaluationModal div {
+      color: #111111;
+    }
 
+    .evaluation-new-header {
+      margin-bottom: 20px !important;
+    }
 
-// ======================================
-// ATHLETE ERROR
-// ======================================
+    .evaluation-new-header .eyebrow {
+      display: block !important;
 
-function showAthleteError(
-  message = ""
-) {
+      color: #16834b !important;
 
-  const grid =
-    document.getElementById(
-      "coachAthleteGrid"
-    );
+      font-size: 12px !important;
 
-  if (!grid) return;
+      font-weight: 800 !important;
 
-  grid.innerHTML = `
+      margin-bottom: 5px !important;
+    }
 
-    <div class="empty-panel">
+    .evaluation-new-header h2 {
+      margin: 0 0 12px 0 !important;
 
-      <div>
-        ⚠️
-      </div>
+      color: #111111 !important;
 
-      <h2>
-        خطا در دریافت ورزشکاران
-      </h2>
+      font-size: 24px !important;
 
-      <p>
-        دریافت اطلاعات ورزشکاران انجام نشد.
-      </p>
+      font-weight: 800 !important;
+    }
 
-      ${
-        message
-          ? `
-            <small
-              style="
-                display:block;
-                margin-top:10px;
-                direction:ltr;
-                word-break:break-word;
-              "
+    .evaluation-info {
+      background: #f1f6f3 !important;
+
+      color: #111111 !important;
+
+      border-radius: 12px !important;
+
+      padding: 13px !important;
+
+      line-height: 2 !important;
+    }
+
+    .evaluation-info strong {
+      color: #111111 !important;
+
+      font-weight: 800 !important;
+    }
+
+    /* ======================================
+       کارت هر معیار
+       ====================================== */
+
+    .evaluation-criterion {
+      background: #f8faf9 !important;
+
+      border: 1px solid #dfe6e2 !important;
+
+      border-radius: 15px !important;
+
+      padding: 16px !important;
+
+      margin-bottom: 13px !important;
+    }
+
+    .evaluation-criterion-top {
+      display: flex !important;
+
+      align-items: center !important;
+
+      justify-content: space-between !important;
+
+      gap: 10px !important;
+
+      margin-bottom: 8px !important;
+    }
+
+    .evaluation-criterion-name {
+      color: #111111 !important;
+
+      font-size: 17px !important;
+
+      font-weight: 800 !important;
+    }
+
+    /* عدد امتیاز */
+    .evaluation-criterion-value {
+      min-width: 58px !important;
+
+      height: 38px !important;
+
+      display: flex !important;
+
+      align-items: center !important;
+
+      justify-content: center !important;
+
+      background: #16834b !important;
+
+      color: #ffffff !important;
+
+      border-radius: 10px !important;
+
+      font-size: 18px !important;
+
+      font-weight: 900 !important;
+
+      line-height: 1 !important;
+    }
+
+    .evaluation-criterion-description {
+      color: #555555 !important;
+
+      font-size: 13px !important;
+
+      line-height: 1.7 !important;
+
+      margin-bottom: 12px !important;
+    }
+
+    /* ======================================
+       نوار کشیدنی ۰ تا ۱۰
+       ====================================== */
+
+    .evaluation-range {
+      display: block !important;
+
+      width: 100% !important;
+
+      height: 10px !important;
+
+      margin: 15px 0 8px 0 !important;
+
+      padding: 0 !important;
+
+      appearance: none !important;
+
+      -webkit-appearance: none !important;
+
+      background: #cfd8d3 !important;
+
+      border-radius: 10px !important;
+
+      outline: none !important;
+
+      cursor: pointer !important;
+    }
+
+    /* Chrome / Android */
+    .evaluation-range::-webkit-slider-thumb {
+      appearance: none !important;
+
+      -webkit-appearance: none !important;
+
+      width: 30px !important;
+
+      height: 30px !important;
+
+      border-radius: 50% !important;
+
+      background: #16834b !important;
+
+      border: 4px solid #ffffff !important;
+
+      box-shadow:
+        0 2px 7px rgba(0, 0, 0, 0.30) !important;
+
+      cursor: pointer !important;
+    }
+
+    /* Firefox */
+    .evaluation-range::-moz-range-thumb {
+      width: 30px !important;
+
+      height: 30px !important;
+
+      border-radius: 50% !important;
+
+      background: #16834b !important;
+
+      border: 4px solid #ffffff !important;
+
+      box-shadow:
+        0 2px 7px rgba(0, 0, 0, 0.30) !important;
+
+      cursor: pointer !important;
+    }
+
+    /* اعداد زیر نوار */
+    .evaluation-range-labels {
+      display: flex !important;
+
+      justify-content: space-between !important;
+
+      align-items: center !important;
+
+      width: 100% !important;
+
+      margin-top: 6px !important;
+
+      color: #333333 !important;
+
+      font-size: 12px !important;
+
+      font-weight: 700 !important;
+    }
+
+    .evaluation-range-labels span {
+      color: #333333 !important;
+    }
+
+    /* ======================================
+       توضیحات
+       ====================================== */
+
+    .evaluation-notes-label {
+      display: block !important;
+
+      margin-top: 18px !important;
+
+      color: #111111 !important;
+
+      font-weight: 800 !important;
+    }
+
+    #newEvaluationNotes {
+      display: block !important;
+
+      width: 100% !important;
+
+      box-sizing: border-box !important;
+
+      margin-top: 8px !important;
+
+      padding: 12px !important;
+
+      min-height: 100px !important;
+
+      background: #ffffff !important;
+
+      color: #111111 !important;
+
+      border: 1px solid #cfd5d1 !important;
+
+      border-radius: 12px !important;
+
+      font-family: inherit !important;
+
+      font-size: 15px !important;
+
+      outline: none !important;
+    }
+
+    #newEvaluationNotes::placeholder {
+      color: #777777 !important;
+    }
+
+    /* ======================================
+       امتیاز نهایی
+       ====================================== */
+
+    .evaluation-total-box {
+      margin-top: 17px !important;
+
+      padding: 16px !important;
+
+      background: #edf7f1 !important;
+
+      border: 1px solid #cde7d8 !important;
+
+      border-radius: 13px !important;
+
+      text-align: center !important;
+
+      color: #222222 !important;
+
+      font-size: 16px !important;
+
+      font-weight: 700 !important;
+    }
+
+    #newEvaluationTotal {
+      color: #16834b !important;
+
+      font-size: 27px !important;
+
+      font-weight: 900 !important;
+
+      margin: 0 5px !important;
+    }
+
+    /* ======================================
+       دکمه ثبت
+       ====================================== */
+
+    #saveNewEvaluationBtn {
+      width: 100% !important;
+
+      min-height: 52px !important;
+
+      margin-top: 14px !important;
+
+      border: none !important;
+
+      border-radius: 12px !important;
+
+      background: #16834b !important;
+
+      color: #ffffff !important;
+
+      font-family: inherit !important;
+
+      font-size: 16px !important;
+
+      font-weight: 800 !important;
+
+      cursor: pointer !important;
+    }
+
+    #saveNewEvaluationBtn:disabled {
+      opacity: 0.6 !important;
+
+      cursor: wait !important;
+    }
+
+    /* ======================================
+       دکمه بستن
+       ====================================== */
+
+    #closeNewEvaluationModal {
+      position: absolute !important;
+
+      top: 12px !important;
+
+      left: 12px !important;
+
+      width: 36px !important;
+
+      height: 36px !important;
+
+      border: none !important;
+
+      border-radius: 50% !important;
+
+      background: #eeeeee !important;
+
+      color: #222222 !important;
+
+      font-size: 25px !important;
+
+      line-height: 1 !important;
+
+      cursor: pointer !important;
+    }
+
+  `;
+
+  document.head.appendChild(style);
+
+  // ======================================
+  // ساخت معیارها
+  // ======================================
+
+  const criteriaHTML = evaluationCriteria
+    .map(criterion => {
+
+      return `
+
+        <div class="evaluation-criterion">
+
+          <div class="evaluation-criterion-top">
+
+            <div class="evaluation-criterion-name">
+              ${escapeHTML(criterion.name)}
+            </div>
+
+            <div
+              class="evaluation-criterion-value"
+              id="scoreValue-${criterion.id}"
             >
-              ${escapeHTML(
-                message
-              )}
-            </small>
-          `
-          : ""
-      }
-
-    </div>
-
-  `;
-
-}
-
-
-// ======================================
-// HTML ESCAPE
-// ======================================
-
-function escapeHTML(value) {
-
-  return String(value)
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-    .replace(
-      /</g,
-      "&lt;"
-    )
-    .replace(
-      />/g,
-      "&gt;"
-    )
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-    .replace(
-      /'/g,
-      "&#039;"
-    );
-
-}
-
-
-// ======================================
-// PERSIAN NUMBERS
-// ======================================
-
-function toPersianNumber(
-  value
-) {
-
-  return String(value)
-    .replace(
-      /\d/g,
-      digit =>
-        "۰۱۲۳۴۵۶۷۸۹"[digit]
-    );
-
-}
-
-
-// ======================================
-// SEARCH
-// ======================================
-
-const coachSearch =
-  document.getElementById(
-    "coachSearch"
-  );
-
-const coachFilter =
-  document.getElementById(
-    "coachFilter"
-  );
-
-
-function filterCoachAthletes() {
-
-  const search =
-    coachSearch
-      ? coachSearch.value
-          .trim()
-          .toLowerCase()
-      : "";
-
-
-  const category =
-    coachFilter
-      ? coachFilter.value
-      : "all";
-
-
-  const result =
-    athletes.filter(
-      athlete => {
-
-        const name =
-          [
-            athlete.first_name,
-            athlete.last_name
-          ]
-            .filter(Boolean)
-            .join(" ")
-            .toLowerCase();
-
-
-        const nationalId =
-          athlete.national_id
-            ? String(
-                athlete.national_id
-              ).toLowerCase()
-            : "";
-
-
-        const athleteCategory =
-          athlete.age_group || "";
-
-
-        const matchesSearch =
-          name.includes(search) ||
-          nationalId.includes(search);
-
-
-        const matchesCategory =
-          category === "all" ||
-          athleteCategory ===
-            category;
-
-
-        return (
-          matchesSearch &&
-          matchesCategory
-        );
-
-      }
-    );
-
-
-  renderCoachAthletes(
-    result
-  );
-
-}
-
-
-if (coachSearch) {
-
-  coachSearch.addEventListener(
-    "input",
-    filterCoachAthletes
-  );
-
-}
-
-
-if (coachFilter) {
-
-  coachFilter.addEventListener(
-    "change",
-    filterCoachAthletes
-  );
-
-}
-
-
-// ======================================
-// CATEGORY FILTER
-// ======================================
-
-function createCoachCategoryFilter(
-  list
-) {
-
-  if (!coachFilter) return;
-
-
-  const categories =
-    [
-      ...new Set(
-
-        list
-          .map(
-            athlete =>
-              athlete.age_group
-          )
-          .filter(Boolean)
-
-      )
-    ];
-
-
-  coachFilter.innerHTML = `
-
-    <option value="all">
-      همه رده‌ها
-    </option>
-
-  `;
-
-
-  categories.forEach(
-    category => {
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-      option.value =
-        category;
-
-      option.textContent =
-        category;
-
-      coachFilter.appendChild(
-        option
-      );
-
-    }
-  );
-
-}
-
-
-// ======================================
-// ADD ATHLETE MODAL
-// ======================================
-
-const athleteModal =
-  document.getElementById(
-    "athleteModal"
-  );
-
-const addAthleteBtn =
-  document.getElementById(
-    "addAthleteBtn"
-  );
-
-const closeAthleteModal =
-  document.getElementById(
-    "closeAthleteModal"
-  );
-
-const saveAthleteBtn =
-  document.getElementById(
-    "saveAthleteBtn"
-  );
-
-
-function openAthleteModal() {
-
-  if (!athleteModal) return;
-
-  athleteModal.classList.remove(
-    "hidden"
-  );
-
-}
-
-
-function closeAthleteForm() {
-
-  if (!athleteModal) return;
-
-  athleteModal.classList.add(
-    "hidden"
-  );
-
-}
-
-
-if (addAthleteBtn) {
-
-  addAthleteBtn.addEventListener(
-    "click",
-    openAthleteModal
-  );
-
-}
-
-
-if (closeAthleteModal) {
-
-  closeAthleteModal.addEventListener(
-    "click",
-    closeAthleteForm
-  );
-
-}
-
-
-if (athleteModal) {
-
-  athleteModal.addEventListener(
-    "click",
-    event => {
-
-      if (
-        event.target ===
-        athleteModal
-      ) {
-
-        closeAthleteForm();
-
-      }
-
-    }
-  );
-
-}
-
-
-// ======================================
-// SAVE ATHLETE
-// ======================================
-
-async function saveAthlete() {
-
-  const firstName =
-    document.getElementById(
-      "athleteFirstName"
-    )?.value.trim();
-
-
-  const lastName =
-    document.getElementById(
-      "athleteLastName"
-    )?.value.trim();
-
-
-  const ageGroup =
-    document.getElementById(
-      "athleteAgeGroup"
-    )?.value.trim();
-
-
-  const weightValue =
-    document.getElementById(
-      "athleteWeight"
-    )?.value.trim();
-
-
-  const nationalId =
-    document.getElementById(
-      "athleteNationalId"
-    )?.value.trim();
-
-
-  const bio =
-    document.getElementById(
-      "athleteBio"
-    )?.value.trim();
-
-
-  const photoUrl =
-    document.getElementById(
-      "athletePhotoUrl"
-    )?.value.trim();
-
-
-  if (
-    !firstName ||
-    !lastName
-  ) {
-
-    alert(
-      "نام و نام خانوادگی را وارد کنید."
-    );
-
-    return;
-  }
-
-
-  if (!nationalId) {
-
-    alert(
-      "کد ملی ورزشکار را وارد کنید."
-    );
-
-    return;
-  }
-
-
-  if (
-    !/^\d{10}$/.test(
-      nationalId
-    )
-  ) {
-
-    alert(
-      "کد ملی باید ۱۰ رقم باشد."
-    );
-
-    return;
-  }
-
-
-  if (!saveAthleteBtn) {
-    return;
-  }
-
-
-  saveAthleteBtn.disabled =
-    true;
-
-  saveAthleteBtn.textContent =
-    "در حال ثبت...";
-
-
-  try {
-
-    const weight =
-      weightValue
-        ? Number(weightValue)
-        : null;
-
-
-    if (
-      weightValue &&
-      Number.isNaN(weight)
-    ) {
-
-      alert(
-        "وزن وارد شده صحیح نیست."
-      );
-
-      return;
-    }
-
-
-    const {
-      error
-    } =
-      await supabaseClient
-        .from("athletes")
-        .insert({
-
-          first_name:
-            firstName,
-
-          last_name:
-            lastName,
-
-          national_id:
-            nationalId,
-
-          age_group:
-            ageGroup || null,
-
-          weight:
-            weight,
-
-          bio:
-            bio || null,
-
-          photo_url:
-            photoUrl || null,
-
-          total_score:
-            0
-
-        });
-
-
-    if (error) {
-
-      console.error(
-        "Save athlete error:",
-        error
-      );
-
-      alert(
-        "ثبت ورزشکار انجام نشد.\n\n" +
-        error.message
-      );
-
-      return;
-    }
-
-
-    alert(
-      "ورزشکار با موفقیت ثبت شد."
-    );
-
-
-    clearAthleteForm();
-
-    closeAthleteForm();
-
-    await loadAthletes();
-
-    openPage(
-      "athletes"
-    );
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "خطایی هنگام ثبت ورزشکار رخ داد."
-    );
-
-  } finally {
-
-    saveAthleteBtn.disabled =
-      false;
-
-    saveAthleteBtn.textContent =
-      "ثبت ورزشکار";
-
-  }
-
-}
-
-
-if (saveAthleteBtn) {
-
-  saveAthleteBtn.addEventListener(
-    "click",
-    saveAthlete
-  );
-
-}
-
-
-// ======================================
-// CLEAR ATHLETE FORM
-// ======================================
-
-function clearAthleteForm() {
-
-  const fields = [
-
-    "athleteFirstName",
-    "athleteLastName",
-    "athleteAgeGroup",
-    "athleteWeight",
-    "athleteNationalId",
-    "athleteBio",
-    "athletePhotoUrl"
-
-  ];
-
-
-  fields.forEach(
-    id => {
-
-      const input =
-        document.getElementById(
-          id
-        );
-
-      if (input) {
-
-        input.value =
-          "";
-
-      }
-
-    }
-  );
-
-}
-
-
-// ==================================================
-// EVALUATION SYSTEM
-// ==================================================
-
-
-// ======================================
-// EVALUATION ELEMENTS
-// ======================================
-
-const evaluationAthleteSelect =
-  document.getElementById(
-    "evaluationAthleteSelect"
-  );
-
-const evaluationPeriodSelect =
-  document.getElementById(
-    "evaluationPeriodSelect"
-  );
-
-const newEvaluationBtn =
-  document.getElementById(
-    "newEvaluationBtn"
-  );
-
-const evaluationsList =
-  document.getElementById(
-    "evaluationsList"
-  );
-
-
-// ======================================
-// LOAD EVALUATION PAGE
-// ======================================
-
-let evaluationPageLoaded =
-  false;
-
-
-async function loadEvaluationPage() {
-
-  try {
-
-    await Promise.all([
-      loadEvaluationCriteria(),
-      loadEvaluationPeriods()
-    ]);
-
-    fillEvaluationAthletes();
-
-    evaluationPageLoaded =
-      true;
-
-    await loadEvaluations();
-
-  } catch (error) {
-
-    console.error(
-      "Evaluation page error:",
-      error
-    );
-
-  }
-
-}
-
-
-// ======================================
-// FILL ATHLETE SELECT
-// ======================================
-
-function fillEvaluationAthletes() {
-
-  const select =
-    document.getElementById(
-      "evaluationAthleteSelect"
-    );
-
-  if (!select) return;
-
-
-  const oldValue =
-    select.value;
-
-
-  select.innerHTML = `
-
-    <option value="">
-      انتخاب ورزشکار
-    </option>
-
-  `;
-
-
-  if (
-    !athletes ||
-    athletes.length === 0
-  ) {
-
-    const option =
-      document.createElement(
-        "option"
-      );
-
-    option.value =
-      "";
-
-    option.textContent =
-      "هیچ ورزشکاری ثبت نشده است";
-
-    option.disabled =
-      true;
-
-    select.appendChild(
-      option
-    );
-
-    return;
-  }
-
-
-  athletes.forEach(
-    athlete => {
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-
-      option.value =
-        athlete.id;
-
-
-      const name =
-        [
-          athlete.first_name,
-          athlete.last_name
-        ]
-          .filter(Boolean)
-          .join(" ") ||
-        "بدون نام";
-
-
-      option.textContent =
-        athlete.age_group
-          ? `${name} — ${athlete.age_group}`
-          : name;
-
-
-      select.appendChild(
-        option
-      );
-
-    }
-  );
-
-
-  if (
-    oldValue &&
-    athletes.some(
-      athlete =>
-        athlete.id ===
-        oldValue
-    )
-  ) {
-
-    select.value =
-      oldValue;
-
-  }
-
-}
-
-
-// ======================================
-// LOAD PERIODS
-// ======================================
-
-async function loadEvaluationPeriods() {
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from(
-        "evaluation_periods"
-      )
-      .select(`
-        id,
-        title,
-        start_date,
-        end_date,
-        created_at
-      `)
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-
-  if (error) {
-
-    console.error(
-      "Evaluation periods error:",
-      error
-    );
-
-    showEvaluationMessage(
-      "خطا در دریافت دوره‌های ارزیابی",
-      error.message
-    );
-
-    return;
-  }
-
-
-  evaluationPeriods =
-    data || [];
-
-
-  fillEvaluationPeriods();
-
-}
-
-
-// ======================================
-// FILL PERIOD SELECT
-// ======================================
-
-function fillEvaluationPeriods() {
-
-  const select =
-    document.getElementById(
-      "evaluationPeriodSelect"
-    );
-
-  if (!select) return;
-
-
-  const oldValue =
-    select.value;
-
-
-  select.innerHTML = `
-
-    <option value="">
-      انتخاب دوره ارزیابی
-    </option>
-
-  `;
-
-
-  if (
-    !evaluationPeriods ||
-    evaluationPeriods.length === 0
-  ) {
-
-    const option =
-      document.createElement(
-        "option"
-      );
-
-    option.value =
-      "";
-
-    option.textContent =
-      "هیچ دوره‌ای ثبت نشده است";
-
-    option.disabled =
-      true;
-
-    select.appendChild(
-      option
-    );
-
-    return;
-  }
-
-
-  evaluationPeriods.forEach(
-    period => {
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-
-      option.value =
-        period.id;
-
-
-      let text =
-        period.title;
-
-
-      if (
-        period.start_date ||
-        period.end_date
-      ) {
-
-        const dates = [];
-
-        if (period.start_date) {
-          dates.push(
-            formatDate(
-              period.start_date
-            )
-          );
-        }
-
-        if (period.end_date) {
-          dates.push(
-            formatDate(
-              period.end_date
-            )
-          );
-        }
-
-        text +=
-          ` (${dates.join(" تا ")})`;
-
-      }
-
-
-      option.textContent =
-        text;
-
-
-      select.appendChild(
-        option
-      );
-
-    }
-  );
-
-
-  if (
-    oldValue &&
-    evaluationPeriods.some(
-      period =>
-        period.id ===
-        oldValue
-    )
-  ) {
-
-    select.value =
-      oldValue;
-
-  }
-
-}
-
-
-// ======================================
-// LOAD CRITERIA
-// ======================================
-
-async function loadEvaluationCriteria() {
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from(
-        "evaluation_criteria"
-      )
-      .select(`
-        id,
-        name,
-        description,
-        active,
-        created_at
-      `)
-      .eq(
-        "active",
-        true
-      )
-      .order(
-        "created_at",
-        {
-          ascending: true
-        }
-      );
-
-
-  if (error) {
-
-    console.error(
-      "Evaluation criteria error:",
-      error
-    );
-
-    evaluationCriteria =
-      [];
-
-    return;
-  }
-
-
-  evaluationCriteria =
-    data || [];
-
-
-  console.log(
-    "Evaluation criteria:",
-    evaluationCriteria
-  );
-
-}
-
-
-// ======================================
-// SELECT CHANGE EVENTS
-// ======================================
-
-if (
-  evaluationAthleteSelect
-) {
-
-  evaluationAthleteSelect.addEventListener(
-    "change",
-    () => {
-
-      loadEvaluations();
-
-    }
-  );
-
-}
-
-
-if (
-  evaluationPeriodSelect
-) {
-
-  evaluationPeriodSelect.addEventListener(
-    "change",
-    () => {
-
-      loadEvaluations();
-
-    }
-  );
-
-}
-
-
-// ======================================
-// LOAD EVALUATIONS
-// ======================================
-
-async function loadEvaluations() {
-
-  if (!evaluationsList) {
-    return;
-  }
-
-
-  const athleteId =
-    evaluationAthleteSelect
-      ? evaluationAthleteSelect.value
-      : "";
-
-
-  const periodId =
-    evaluationPeriodSelect
-      ? evaluationPeriodSelect.value
-      : "";
-
-
-  if (
-    !athleteId ||
-    !periodId
-  ) {
-
-    evaluationsList.innerHTML = `
-
-      <div class="evaluation-empty">
-
-        <div class="evaluation-empty-icon">
-          📊
-        </div>
-
-        <h2>
-          انتخاب ورزشکار و دوره
-        </h2>
-
-        <p>
-          برای مشاهده ارزیابی‌ها، یک ورزشکار و یک دوره ارزیابی انتخاب کنید.
-        </p>
-
-      </div>
-
-    `;
-
-    return;
-  }
-
-
-  evaluationsList.innerHTML = `
-
-    <div class="evaluation-empty">
-
-      <div class="evaluation-empty-icon">
-        ⏳
-      </div>
-
-      <h2>
-        در حال دریافت...
-      </h2>
-
-      <p>
-        لطفاً چند لحظه صبر کنید.
-      </p>
-
-    </div>
-
-  `;
-
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from(
-        "evaluations"
-      )
-      .select(`
-        id,
-        athlete_id,
-        period_id,
-        coach_id,
-        total_score,
-        notes,
-        evaluated_at
-      `)
-      .eq(
-        "athlete_id",
-        athleteId
-      )
-      .eq(
-        "period_id",
-        periodId
-      )
-      .order(
-        "evaluated_at",
-        {
-          ascending: false
-        }
-      );
-
-
-  if (error) {
-
-    console.error(
-      "Load evaluations error:",
-      error
-    );
-
-    showEvaluationMessage(
-      "خطا در دریافت ارزیابی‌ها",
-      error.message
-    );
-
-    return;
-  }
-
-
-  evaluations =
-    data || [];
-
-
-  if (
-    evaluations.length === 0
-  ) {
-
-    evaluationsList.innerHTML = `
-
-      <div class="evaluation-empty">
-
-        <div class="evaluation-empty-icon">
-          📊
-        </div>
-
-        <h2>
-          هنوز ارزیابی‌ای ثبت نشده است
-        </h2>
-
-        <p>
-          برای شروع روی «ارزیابی جدید» بزنید.
-        </p>
-
-      </div>
-
-    `;
-
-    return;
-  }
-
-
-  await renderEvaluations(
-    evaluations
-  );
-
-}
-
-
-// ======================================
-// RENDER EVALUATIONS
-// ======================================
-
-async function renderEvaluations(
-  list
-) {
-
-  if (!evaluationsList) return;
-
-
-  const athlete =
-    athletes.find(
-      item =>
-        item.id ===
-        evaluationAthleteSelect.value
-    );
-
-
-  const athleteName =
-    athlete
-      ? [
-          athlete.first_name,
-          athlete.last_name
-        ]
-          .filter(Boolean)
-          .join(" ")
-      : "ورزشکار";
-
-
-  evaluationsList.innerHTML =
-    "";
-
-
-  for (
-    const evaluation of list
-  ) {
-
-    const card =
-      document.createElement(
-        "div"
-      );
-
-
-    card.className =
-      "evaluation-card";
-
-
-    const scores =
-      await getEvaluationScores(
-        evaluation.id
-      );
-
-
-    const scoreRows =
-      scores.length > 0
-        ? scores
-            .map(
-              item => {
-
-                const percent =
-                  Math.max(
-                    0,
-                    Math.min(
-                      100,
-                      Number(
-                        item.score
-                      ) * 10
-                    )
-                  );
-
-
-                return `
-
-                  <div
-                    class="criteria-preview-row"
-                  >
-
-                    <div
-                      class="criteria-preview-name"
-                    >
-                      ${escapeHTML(
-                        item.criterion_name
-                      )}
-                    </div>
-
-                    <div
-                      class="criteria-preview-bar"
-                    >
-
-                      <div
-                        class="criteria-preview-fill"
-                        style="width:${percent}%"
-                      ></div>
-
-                    </div>
-
-                    <div
-                      class="criteria-preview-score"
-                    >
-                      ${escapeHTML(
-                        toPersianNumber(
-                          item.score
-                        )
-                      )}
-                      /۱۰
-                    </div>
-
-                  </div>
-
-                `;
-
-              }
-            )
-            .join("")
-        : `
-
-            <p class="muted">
-              برای این ارزیابی امتیازی ثبت نشده است.
-            </p>
-
-          `;
-
-
-    const period =
-      evaluationPeriods.find(
-        item =>
-          item.id ===
-          evaluation.period_id
-      );
-
-
-    card.innerHTML = `
-
-      <div
-        class="evaluation-card-header"
-      >
-
-        <div
-          class="evaluation-athlete"
-        >
-
-          <div
-            class="evaluation-avatar"
+              ۰
+            </div>
+
+          </div>
+
+          ${
+            criterion.description
+              ? `
+                <div class="evaluation-criterion-description">
+                  ${escapeHTML(criterion.description)}
+                </div>
+              `
+              : ""
+          }
+
+          <input
+            type="range"
+            min="0"
+            max="10"
+            step="0.1"
+            value="0"
+            class="evaluation-range"
+            data-criterion-id="${escapeHTML(criterion.id)}"
+            data-value-id="scoreValue-${criterion.id}"
           >
-            🥋
-          </div>
 
-          <div>
-
-            <h3>
-              ${escapeHTML(
-                athleteName
-              )}
-            </h3>
-
-            <p>
-              ${
-                period
-                  ? escapeHTML(
-                      period.title
-                    )
-                  : "دوره ارزیابی"
-              }
-              —
-              ${escapeHTML(
-                formatDateTime(
-                  evaluation.evaluated_at
-                )
-              )}
-            </p>
-
+          <div class="evaluation-range-labels">
+            <span>۰</span>
+            <span>۲</span>
+            <span>۴</span>
+            <span>۶</span>
+            <span>۸</span>
+            <span>۱۰</span>
           </div>
 
         </div>
 
+      `;
+    })
+    .join("");
 
-        <div
-          class="evaluation-score"
-        >
+  // ======================================
+  // ساخت Modal
+  // ======================================
 
-          <span>
-            امتیاز نهایی
-          </span>
+  const modal = document.createElement("div");
 
+  modal.id = "newEvaluationModal";
+
+  modal.innerHTML = `
+
+    <div class="evaluation-modal-card">
+
+      <button
+        type="button"
+        id="closeNewEvaluationModal"
+      >
+        ×
+      </button>
+
+      <div class="evaluation-new-header">
+
+        <span class="eyebrow">
+          NEW EVALUATION
+        </span>
+
+        <h2>
+          ارزیابی جدید
+        </h2>
+
+        <div class="evaluation-info">
+
+          ورزشکار:
           <strong>
-            ${escapeHTML(
-              toPersianNumber(
-                Number(
-                  evaluation.total_score || 0
-                ).toFixed(2)
-              )
-            )}
+            ${escapeHTML(athleteName)}
+          </strong>
+
+          <br>
+
+          دوره:
+          <strong>
+            ${
+              period
+                ? escapeHTML(period.title)
+                : ""
+            }
           </strong>
 
         </div>
 
       </div>
 
-
-      <div
-        class="criteria-preview"
-      >
-        ${scoreRows}
-      </div>
-
-
-      ${
-        evaluation.notes
-          ? `
-            <div
-              style="
-                margin-top:18px;
-                padding:12px;
-                background:#f7f7f7;
-                border-radius:12px;
-                color:#111;
-              "
-            >
-
-              <strong>
-                توضیحات:
-              </strong>
-
-              <div
-                style="margin-top:5px;color:#111;"
-              >
-                ${escapeHTML(
-                  evaluation.notes
-                )}
-              </div>
-
-            </div>
-          `
-          : ""
-      }
-
-    `;
-
-
-    evaluationsList.appendChild(
-      card
-    );
-
-  }
-
-}
-
-
-// ======================================
-// GET SCORES
-// ======================================
-
-async function getEvaluationScores(
-  evaluationId
-) {
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from(
-        "evaluation_scores"
-      )
-      .select(`
-        id,
-        evaluation_id,
-        criterion_id,
-        score
-      `)
-      .eq(
-        "evaluation_id",
-        evaluationId
-      );
-
-
-  if (error) {
-
-    console.error(
-      "Evaluation scores error:",
-      error
-    );
-
-    return [];
-
-  }
-
-
-  return (
-    data || []
-  ).map(
-    score => {
-
-      const criterion =
-        evaluationCriteria.find(
-          item =>
-            item.id ===
-            score.criterion_id
-        );
-
-
-      return {
-
-        ...score,
-
-        criterion_name:
-          criterion
-            ? criterion.name
-            : "معیار حذف‌شده"
-
-      };
-
-    }
-  );
-
-}
-
-
-// ======================================
-// NEW EVALUATION BUTTON
-// ======================================
-
-if (newEvaluationBtn) {
-
-  newEvaluationBtn.addEventListener(
-    "click",
-    openNewEvaluationModal
-  );
-
-}
-
-
-// ======================================
-// NEW EVALUATION MODAL
-// ======================================
-
-function openNewEvaluationModal() {
-
-  const athleteId =
-    evaluationAthleteSelect
-      ? evaluationAthleteSelect.value
-      : "";
-
-
-  const periodId =
-    evaluationPeriodSelect
-      ? evaluationPeriodSelect.value
-      : "";
-
-
-  if (!athleteId) {
-
-    alert(
-      "ابتدا یک ورزشکار انتخاب کنید."
-    );
-
-    return;
-  }
-
-
-  if (!periodId) {
-
-    alert(
-      "ابتدا یک دوره ارزیابی انتخاب کنید."
-    );
-
-    return;
-  }
-
-
-  if (
-    !evaluationCriteria ||
-    evaluationCriteria.length === 0
-  ) {
-
-    alert(
-      "هیچ معیار فعالی برای ارزیابی وجود ندارد."
-    );
-
-    return;
-  }
-
-
-  createEvaluationModal(
-    athleteId,
-    periodId
-  );
-
-}
-
-
-// ======================================
-// CREATE EVALUATION MODAL
-// SLIDER VERSION
-// ======================================
-
-function createEvaluationModal(
-  athleteId,
-  periodId
-) {
-
-  const oldModal =
-    document.getElementById(
-      "newEvaluationModal"
-    );
-
-
-  if (oldModal) {
-    oldModal.remove();
-  }
-
-
-  const athlete =
-    athletes.find(
-      item =>
-        item.id ===
-        athleteId
-    );
-
-
-  const period =
-    evaluationPeriods.find(
-      item =>
-        item.id ===
-        periodId
-    );
-
-
-  const athleteName =
-    athlete
-      ? [
-          athlete.first_name,
-          athlete.last_name
-        ]
-          .filter(Boolean)
-          .join(" ")
-      : "ورزشکار";
-
-
-  const criteriaHTML =
-    evaluationCriteria
-      .map(
-        criterion => `
-
-          <div
-            style="
-              background:#ffffff;
-              padding:16px;
-              border-radius:14px;
-              margin-bottom:12px;
-              border:1px solid #e5e5e5;
-            "
-          >
-
-            <div
-              style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                gap:10px;
-                margin-bottom:10px;
-              "
-            >
-
-              <strong
-                style="
-                  color:#111111 !important;
-                  font-size:15px;
-                "
-              >
-                ${escapeHTML(
-                  criterion.name
-                )}
-              </strong>
-
-
-              <span
-                class="evaluation-score-display"
-                data-display-id="${escapeHTML(
-                  criterion.id
-                )}"
-                style="
-                  display:inline-flex;
-                  align-items:center;
-                  justify-content:center;
-                  min-width:55px;
-                  height:38px;
-                  padding:0 10px;
-                  background:#f1f1f1 !important;
-                  color:#111111 !important;
-                  border:1px solid #cccccc;
-                  border-radius:9px;
-                  font-size:17px;
-                  font-weight:700;
-                "
-              >
-                ۰
-              </span>
-
-            </div>
-
-
-            ${
-              criterion.description
-                ? `
-                  <div
-                    style="
-                      color:#555555 !important;
-                      font-size:12px;
-                      margin-bottom:12px;
-                    "
-                  >
-                    ${escapeHTML(
-                      criterion.description
-                    )}
-                  </div>
-                `
-                : ""
-            }
-
-
-            <input
-              type="range"
-              min="0"
-              max="10"
-              step="0.1"
-              value="0"
-              class="evaluation-score-input"
-              data-criterion-id="${escapeHTML(
-                criterion.id
-              )}"
-              style="
-                display:block;
-                width:100%;
-                height:8px;
-                margin:12px 0 8px;
-                accent-color:#111111;
-                cursor:pointer;
-                opacity:1;
-              "
-            >
-
-
-            <div
-              style="
-                display:flex;
-                justify-content:space-between;
-                color:#333333 !important;
-                font-size:12px;
-                font-weight:600;
-              "
-            >
-
-              <span>۰</span>
-
-              <span>۵</span>
-
-              <span>۱۰</span>
-
-            </div>
-
-          </div>
-
-        `
-      )
-      .join("");
-
-
-  const modal =
-    document.createElement(
-      "div"
-    );
-
-
-  modal.id =
-    "newEvaluationModal";
-
-
-  modal.className =
-    "modal";
-
-
-  modal.innerHTML = `
-
-    <div
-      class="modal-card"
-      style="
-        max-height:90vh;
-        overflow-y:auto;
-        color:#111111;
-      "
-    >
-
-      <button
-        type="button"
-        class="close"
-        id="closeNewEvaluationModal"
-      >
-        ×
-      </button>
-
-
-      <span class="eyebrow">
-        NEW EVALUATION
-      </span>
-
-
-      <h2
-        style="
-          color:#111111 !important;
-        "
-      >
-        ارزیابی جدید
-      </h2>
-
-
-      <p
-        class="muted"
-        style="color:#555555 !important;"
-      >
-        ورزشکار:
-        <strong
-          style="color:#111111 !important;"
-        >
-          ${escapeHTML(
-            athleteName
-          )}
-        </strong>
-      </p>
-
-
-      <p
-        class="muted"
-        style="color:#555555 !important;"
-      >
-        دوره:
-        <strong
-          style="color:#111111 !important;"
-        >
-          ${
-            period
-              ? escapeHTML(
-                  period.title
-                )
-              : ""
-          }
-        </strong>
-      </p>
-
-
-      <div
-        style="
-          margin-top:20px;
-        "
-      >
-
+      <div>
         ${criteriaHTML}
-
       </div>
 
+      <label class="evaluation-notes-label">
 
-      <label
-        style="
-          display:block;
-          margin-top:15px;
-          color:#111111 !important;
-        "
-      >
-
-        توضیحات
+        توضیحات مربی
 
         <textarea
           id="newEvaluationNotes"
           rows="4"
           placeholder="توضیحات مربی درباره عملکرد ورزشکار..."
-          style="
-            width:100%;
-            margin-top:7px;
-            padding:12px;
-            border:1px solid #ddd;
-            border-radius:12px;
-            font-family:inherit;
-            resize:vertical;
-            color:#111111 !important;
-            background:#ffffff !important;
-          "
         ></textarea>
 
       </label>
 
-
-      <div
-        style="
-          margin-top:15px;
-          padding:14px;
-          background:#f3f6f4;
-          border-radius:12px;
-          text-align:center;
-          color:#111111 !important;
-        "
-      >
+      <div class="evaluation-total-box">
 
         امتیاز نهایی:
 
-        <strong
-          id="newEvaluationTotal"
-          style="
-            font-size:22px;
-            color:#111111 !important;
-          "
-        >
+        <strong id="newEvaluationTotal">
           ۰
         </strong>
 
@@ -2611,14 +591,9 @@ function createEvaluationModal(
 
       </div>
 
-
       <button
-        class="primary wide"
         id="saveNewEvaluationBtn"
         type="button"
-        style="
-          margin-top:15px;
-        "
       >
         ثبت ارزیابی
       </button>
@@ -2627,94 +602,57 @@ function createEvaluationModal(
 
   `;
 
+  document.body.appendChild(modal);
 
-  document.body.appendChild(
-    modal
-  );
-
-
-  modal.classList.remove(
-    "hidden"
-  );
-
+  // ======================================
+  // مدیریت نوارهای امتیاز
+  // ======================================
 
   const scoreInputs =
-    modal.querySelectorAll(
-      ".evaluation-score-input"
-    );
-
+    modal.querySelectorAll(".evaluation-range");
 
   function updateTotal() {
 
     let total = 0;
 
+    scoreInputs.forEach(input => {
 
-    scoreInputs.forEach(
-      input => {
+      let value = Number(input.value);
 
-        let value =
-          Number(
-            input.value
-          );
-
-
-        if (
-          Number.isNaN(value)
-        ) {
-
-          value = 0;
-
-        }
-
-
-        value =
-          Math.max(
-            0,
-            Math.min(
-              10,
-              value
-            )
-          );
-
-
-        total +=
-          value;
-
-
-        const display =
-          modal.querySelector(
-            `[data-display-id="${input.dataset.criterionId}"]`
-          );
-
-
-        if (display) {
-
-          display.textContent =
-            toPersianNumber(
-              value.toFixed(1)
-            );
-
-        }
-
+      if (Number.isNaN(value)) {
+        value = 0;
       }
-    );
 
-
-    const count =
-      scoreInputs.length;
-
-
-    const average =
-      count > 0
-        ? total / count
-        : 0;
-
-
-    const totalElement =
-      modal.querySelector(
-        "#newEvaluationTotal"
+      value = Math.max(
+        0,
+        Math.min(10, value)
       );
 
+      total += value;
+
+      const valueId =
+        input.dataset.valueId;
+
+      const valueElement =
+        modal.querySelector(`#${valueId}`);
+
+      if (valueElement) {
+
+        valueElement.textContent =
+          toPersianNumber(
+            value.toFixed(1)
+          );
+      }
+
+    });
+
+    const average =
+      scoreInputs.length > 0
+        ? total / scoreInputs.length
+        : 0;
+
+    const totalElement =
+      modal.querySelector("#newEvaluationTotal");
 
     if (totalElement) {
 
@@ -2722,77 +660,72 @@ function createEvaluationModal(
         toPersianNumber(
           average.toFixed(2)
         );
-
     }
-
   }
 
+  scoreInputs.forEach(input => {
 
-  scoreInputs.forEach(
-    input => {
+    input.addEventListener(
+      "input",
+      updateTotal
+    );
 
-      input.addEventListener(
-        "input",
-        updateTotal
-      );
+    input.addEventListener(
+      "change",
+      updateTotal
+    );
 
-    }
-  );
-
+  });
 
   updateTotal();
 
+  // ======================================
+  // بستن پنجره
+  // ======================================
 
   const closeBtn =
     modal.querySelector(
       "#closeNewEvaluationModal"
     );
 
-
   if (closeBtn) {
 
     closeBtn.addEventListener(
       "click",
       () => {
-
         modal.remove();
-
       }
     );
 
   }
 
-
   modal.addEventListener(
     "click",
     event => {
 
-      if (
-        event.target ===
-        modal
-      ) {
-
+      if (event.target === modal) {
         modal.remove();
-
       }
 
     }
   );
 
+  // ======================================
+  // ثبت ارزیابی
+  // ======================================
 
   const saveBtn =
     modal.querySelector(
       "#saveNewEvaluationBtn"
     );
 
-
   if (saveBtn) {
 
     saveBtn.addEventListener(
       "click",
-      () => {
+      async () => {
 
-        saveNewEvaluation(
+        await saveNewEvaluation(
           athleteId,
           periodId,
           scoreInputs,
@@ -2805,556 +738,3 @@ function createEvaluationModal(
   }
 
 }
-
-
-// ======================================
-// SAVE NEW EVALUATION
-// ======================================
-
-async function saveNewEvaluation(
-  athleteId,
-  periodId,
-  scoreInputs,
-  saveBtn
-) {
-
-  if (
-    !athleteId ||
-    !periodId
-  ) {
-
-    alert(
-      "ورزشکار یا دوره انتخاب نشده است."
-    );
-
-    return;
-  }
-
-
-  const {
-    data: sessionData,
-    error: sessionError
-  } =
-    await supabaseClient.auth.getSession();
-
-
-  if (sessionError) {
-
-    alert(
-      "خطا در دریافت حساب مربی."
-    );
-
-    return;
-  }
-
-
-  const user =
-    sessionData?.session?.user;
-
-
-  if (!user) {
-
-    alert(
-      "جلسه ورود مربی پیدا نشد."
-    );
-
-    redirectToLogin();
-
-    return;
-  }
-
-
-  const scores = [];
-
-
-  scoreInputs.forEach(
-    input => {
-
-      let score =
-        Number(
-          input.value
-        );
-
-
-      if (
-        Number.isNaN(score)
-      ) {
-
-        score = 0;
-
-      }
-
-
-      score =
-        Math.max(
-          0,
-          Math.min(
-            10,
-            score
-          )
-        );
-
-
-      scores.push({
-
-        criterion_id:
-          input.dataset
-            .criterionId,
-
-        score:
-          score
-
-      });
-
-    }
-  );
-
-
-  if (
-    scores.length === 0
-  ) {
-
-    alert(
-      "هیچ معیاری برای ارزیابی وجود ندارد."
-    );
-
-    return;
-  }
-
-
-  const total =
-    scores.reduce(
-      (
-        sum,
-        item
-      ) =>
-        sum +
-        Number(
-          item.score
-        ),
-      0
-    );
-
-
-  const average =
-    total /
-    scores.length;
-
-
-  const notes =
-    document.getElementById(
-      "newEvaluationNotes"
-    )?.value.trim() ||
-    null;
-
-
-  if (saveBtn) {
-
-    saveBtn.disabled =
-      true;
-
-    saveBtn.textContent =
-      "در حال ثبت...";
-
-  }
-
-
-  try {
-
-    // ==================================
-    // INSERT EVALUATION
-    // ==================================
-
-    const {
-      data: evaluation,
-      error: evaluationError
-    } =
-      await supabaseClient
-        .from(
-          "evaluations"
-        )
-        .insert({
-
-          athlete_id:
-            athleteId,
-
-          period_id:
-            periodId,
-
-          coach_id:
-            user.id,
-
-          total_score:
-            Number(
-              average.toFixed(2)
-            ),
-
-          notes:
-            notes
-
-        })
-        .select()
-        .single();
-
-
-    if (evaluationError) {
-
-      console.error(
-        "Create evaluation error:",
-        evaluationError
-      );
-
-      throw new Error(
-        "ثبت ارزیابی انجام نشد:\n" +
-        evaluationError.message
-      );
-
-    }
-
-
-    // ==================================
-    // INSERT SCORES
-    // ==================================
-
-    const scoreRows =
-      scores.map(
-        item => ({
-
-          evaluation_id:
-            evaluation.id,
-
-          criterion_id:
-            item.criterion_id,
-
-          score:
-            item.score
-
-        })
-      );
-
-
-    const {
-      error: scoresError
-    } =
-      await supabaseClient
-        .from(
-          "evaluation_scores"
-        )
-        .insert(
-          scoreRows
-        );
-
-
-    if (scoresError) {
-
-      console.error(
-        "Create scores error:",
-        scoresError
-      );
-
-
-      await supabaseClient
-        .from(
-          "evaluations"
-        )
-        .delete()
-        .eq(
-          "id",
-          evaluation.id
-        );
-
-
-      throw new Error(
-        "ثبت امتیاز معیارها انجام نشد:\n" +
-        scoresError.message
-      );
-
-    }
-
-
-    // ==================================
-    // UPDATE ATHLETE SCORE
-    // ==================================
-
-    const {
-      error: athleteUpdateError
-    } =
-      await supabaseClient
-        .from(
-          "athletes"
-        )
-        .update({
-
-          total_score:
-            Number(
-              average.toFixed(2)
-            )
-
-        })
-        .eq(
-          "id",
-          athleteId
-        );
-
-
-    if (athleteUpdateError) {
-
-      console.warn(
-        "Athlete total score update warning:",
-        athleteUpdateError
-      );
-
-    }
-
-
-    alert(
-      "ارزیابی با موفقیت ثبت شد. ✅"
-    );
-
-
-    const modal =
-      document.getElementById(
-        "newEvaluationModal"
-      );
-
-
-    if (modal) {
-
-      modal.remove();
-
-    }
-
-
-    await loadAthletes();
-
-    await loadEvaluationPage();
-
-
-    if (evaluationAthleteSelect) {
-
-      evaluationAthleteSelect.value =
-        athleteId;
-
-    }
-
-
-    if (evaluationPeriodSelect) {
-
-      evaluationPeriodSelect.value =
-        periodId;
-
-    }
-
-
-    await loadEvaluations();
-
-
-  } catch (error) {
-
-    console.error(
-      "Save evaluation error:",
-      error
-    );
-
-
-    alert(
-      error.message ||
-      "خطایی هنگام ثبت ارزیابی رخ داد."
-    );
-
-
-  } finally {
-
-    if (saveBtn) {
-
-      saveBtn.disabled =
-        false;
-
-      saveBtn.textContent =
-        "ثبت ارزیابی";
-
-    }
-
-  }
-
-}
-
-
-// ======================================
-// EVALUATION MESSAGE
-// ======================================
-
-function showEvaluationMessage(
-  title,
-  message = ""
-) {
-
-  if (!evaluationsList) {
-    return;
-  }
-
-
-  evaluationsList.innerHTML = `
-
-    <div class="evaluation-empty">
-
-      <div class="evaluation-empty-icon">
-        ⚠️
-      </div>
-
-      <h2>
-        ${escapeHTML(title)}
-      </h2>
-
-      ${
-        message
-          ? `
-            <p
-              style="
-                margin-top:10px;
-                direction:ltr;
-                word-break:break-word;
-              "
-            >
-              ${escapeHTML(message)}
-            </p>
-          `
-          : ""
-      }
-
-    </div>
-
-  `;
-
-}
-
-
-// ======================================
-// DATE
-// ======================================
-
-function formatDate(
-  value
-) {
-
-  if (!value) {
-    return "";
-  }
-
-
-  try {
-
-    const date =
-      new Date(
-        value
-      );
-
-
-    if (
-      Number.isNaN(
-        date.getTime()
-      )
-    ) {
-
-      return String(
-        value
-      );
-
-    }
-
-
-    return date.toLocaleDateString(
-      "fa-IR"
-    );
-
-  } catch {
-
-    return String(
-      value
-    );
-
-  }
-
-}
-
-
-// ======================================
-// DATE + TIME
-// ======================================
-
-function formatDateTime(
-  value
-) {
-
-  if (!value) {
-    return "";
-  }
-
-
-  try {
-
-    const date =
-      new Date(
-        value
-      );
-
-
-    if (
-      Number.isNaN(
-        date.getTime()
-      )
-    ) {
-
-      return String(
-        value
-      );
-
-    }
-
-
-    return date.toLocaleString(
-      "fa-IR",
-      {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit"
-      }
-    );
-
-  } catch {
-
-    return String(
-      value
-    );
-
-  }
-
-}
-
-
-// ======================================
-// START
-// ======================================
-
-async function startCoachApp() {
-
-  const allowed =
-    await checkCoachAccess();
-
-
-  if (!allowed) {
-    return;
-  }
-
-
-  await loadAthletes();
-
-
-  await loadEvaluationPage();
-
-}
-
-
-startCoachApp();
