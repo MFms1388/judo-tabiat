@@ -1547,3 +1547,4 @@ async function startCoachApp() {
 
 
 startCoachApp();
+alert("نسخه جدید coach.js اجرا شد");
