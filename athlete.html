@@ -1,202 +1,443 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>پروفایل ورزشکار | جودو طبیعت</title>
-  <meta name="description" content="صفحه اختصاصی ورزشکاران جودو طبیعت">
+
+  <meta
+    name="description"
+    content="پروفایل اختصاصی ورزشکاران جودو طبیعت"
+  >
 
   <link rel="stylesheet" href="style.css">
 
   <style>
-    .athlete-page {
+
+    :root {
+      --nature: #198754;
+      --nature-dark: #126b42;
+      --bg: #f4f6f5;
+      --card: #ffffff;
+      --text: #171a19;
+      --muted: #68716d;
+      --border: #e4e8e6;
+      --shadow: 0 10px 30px rgba(0, 0, 0, .06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        Tahoma,
+        Arial,
+        sans-serif;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    .athlete-header {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-inner {
       max-width: 1100px;
-      margin: 0 auto;
-      padding: 30px 20px 60px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: var(--nature);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .brand-text strong {
+      display: block;
+      font-size: 17px;
+      color: var(--text);
+    }
+
+    .brand-text span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
     }
 
     .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 25px;
-      padding: 10px 16px;
-      border: 1px solid #ddd;
+      border: 0;
+      background: var(--nature);
+      color: #fff;
+      padding: 11px 17px;
       border-radius: 12px;
-      background: #fff;
-      color: #222;
       text-decoration: none;
       cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: .2s;
     }
+
+    .back-btn:hover {
+      background: var(--nature-dark);
+      transform: translateY(-1px);
+    }
+
+    /* =========================
+       MAIN
+    ========================= */
+
+    .athlete-page {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    .page-title {
+      margin-bottom: 20px;
+    }
+
+    .page-title small {
+      color: var(--nature);
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: .5px;
+    }
+
+    .page-title h1 {
+      margin: 7px 0 5px;
+      font-size: 28px;
+      color: var(--text);
+    }
+
+    .page-title p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* =========================
+       PROFILE
+    ========================= */
 
     .profile-header {
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 20px;
-      background: #fff;
+
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 22px;
       padding: 25px;
-      margin-bottom: 25px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
     }
 
     .athlete-avatar {
       width: 90px;
       height: 90px;
-      border-radius: 50%;
+      border-radius: 22px;
+
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #111;
-      color: #fff;
-      font-size: 36px;
+
+      background: #e8f5ee;
+      color: var(--nature);
+      font-size: 38px;
     }
 
-    .profile-info h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
+    .profile-info h2 {
+      margin: 0 0 9px;
+      font-size: 25px;
+      color: var(--text);
     }
 
     .profile-info p {
       margin: 5px 0;
-      color: #777;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--nature) !important;
+      font-weight: bold;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--nature);
     }
 
     .overall-score {
+      min-width: 145px;
       text-align: center;
-      min-width: 130px;
-      padding: 15px;
+      padding: 18px;
       border-radius: 18px;
-      background: #f4f7f5;
+      background: #edf8f2;
+      border: 1px solid #d7eddf;
     }
 
     .overall-score span {
       display: block;
-      color: #777;
-      font-size: 14px;
+      color: var(--muted);
+      font-size: 13px;
       margin-bottom: 5px;
     }
 
     .overall-score strong {
-      font-size: 38px;
+      display: block;
+      color: var(--nature);
+      font-size: 40px;
+      line-height: 1;
     }
+
+    .overall-score small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* =========================
+       INFO
+    ========================= */
 
     .info-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-      margin-bottom: 25px;
+      gap: 14px;
+      margin-bottom: 18px;
     }
 
     .info-card {
-      background: #fff;
-      border-radius: 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 17px;
       padding: 18px;
-      box-shadow: 0 8px 25px rgba(0,0,0,.05);
+      box-shadow: var(--shadow);
     }
 
     .info-card span {
       display: block;
-      color: #888;
+      color: var(--muted);
       font-size: 13px;
-      margin-bottom: 7px;
+      margin-bottom: 8px;
     }
 
     .info-card strong {
+      color: var(--text);
       font-size: 18px;
     }
 
+    .important-number {
+      color: var(--nature) !important;
+    }
+
+    /* =========================
+       SECTION
+    ========================= */
+
     .section-card {
-      background: #fff;
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 22px;
-      padding: 25px;
-      margin-bottom: 25px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+      padding: 23px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
     }
 
     .section-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       margin-bottom: 20px;
     }
 
-    .section-title h2 {
-      margin: 0;
-      font-size: 21px;
+    .section-title small {
+      color: var(--nature);
+      font-size: 11px;
+      font-weight: bold;
     }
+
+    .section-title h2 {
+      margin: 5px 0 0;
+      font-size: 20px;
+      color: var(--text);
+    }
+
+    /* =========================
+       CRITERIA
+    ========================= */
 
     .criteria-list {
       display: grid;
-      gap: 14px;
+      gap: 15px;
     }
 
     .criterion {
       display: grid;
-      grid-template-columns: 170px 1fr 55px;
+      grid-template-columns: 150px 1fr 55px;
       align-items: center;
       gap: 15px;
     }
 
     .criterion-name {
-      font-weight: 600;
+      font-weight: bold;
+      color: var(--text);
     }
 
     .progress {
-      height: 11px;
-      background: #eee;
+      height: 10px;
+      background: #e9eeeb;
       border-radius: 20px;
       overflow: hidden;
     }
 
     .progress-bar {
       height: 100%;
-      width: 0;
       border-radius: 20px;
-      background: #111;
+      background: var(--nature);
       transition: width .5s ease;
     }
 
     .criterion-score {
-      font-weight: bold;
       text-align: left;
+      color: var(--nature);
+      font-weight: bold;
+    }
+
+    /* =========================
+       TABLE
+    ========================= */
+
+    .table-wrapper {
+      overflow-x: auto;
     }
 
     .history-table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 500px;
     }
 
     .history-table th,
     .history-table td {
       padding: 14px 10px;
       text-align: right;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--border);
     }
 
     .history-table th {
-      color: #777;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: normal;
+    }
+
+    .history-table td {
+      color: var(--text);
       font-size: 14px;
     }
 
-    .empty-history {
-      color: #888;
-      text-align: center;
-      padding: 25px;
+    .history-score {
+      color: var(--nature);
+      font-weight: bold;
     }
+
+    /* =========================
+       NOTICE
+    ========================= */
 
     .notice {
-      background: #f7f7f7;
-      border-radius: 15px;
-      padding: 15px;
-      color: #666;
-      margin-top: 15px;
-      font-size: 14px;
+      margin-top: 20px;
+      background: #f5f8f6;
+      border-right: 4px solid var(--nature);
+      border-radius: 12px;
+      padding: 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
     }
 
+    .empty {
+      text-align: center;
+      padding: 30px 15px;
+      color: var(--muted);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 70px 15px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .error-box {
+      background: #fff;
+      border: 1px solid #eadcdc;
+      border-radius: 18px;
+      padding: 25px;
+      text-align: center;
+      color: #8a3333;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    .athlete-footer {
+      text-align: center;
+      padding: 25px 15px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
     @media (max-width: 800px) {
+
       .profile-header {
         grid-template-columns: auto 1fr;
       }
@@ -208,12 +449,45 @@
       .info-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+
     }
 
     @media (max-width: 550px) {
+
+      .athlete-header {
+        padding: 12px;
+      }
+
+      .header-inner {
+        gap: 8px;
+      }
+
+      .brand-text span {
+        display: none;
+      }
+
+      .brand-logo {
+        width: 42px;
+        height: 42px;
+      }
+
+      .back-btn {
+        padding: 9px 12px;
+        font-size: 12px;
+      }
+
+      .athlete-page {
+        padding: 20px 12px 45px;
+      }
+
+      .page-title h1 {
+        font-size: 23px;
+      }
+
       .profile-header {
         grid-template-columns: 1fr;
         text-align: center;
+        padding: 20px;
       }
 
       .athlete-avatar {
@@ -224,417 +498,542 @@
         grid-template-columns: 1fr 1fr;
       }
 
+      .info-card {
+        padding: 15px;
+      }
+
       .criterion {
         grid-template-columns: 1fr 45px;
+        gap: 9px;
       }
 
       .criterion .progress {
         grid-column: 1 / -1;
+        grid-row: 2;
       }
 
-      .history-table {
-        font-size: 13px;
+      .criterion-score {
+        grid-column: 2;
+        grid-row: 1;
       }
+
+      .section-card {
+        padding: 18px;
+      }
+
     }
+
   </style>
 </head>
 
+
 <body>
 
-<header class="topbar">
-  <div class="brand">
-    <div class="logo-mark">ط</div>
+  <!-- =========================
+       HEADER
+  ========================== -->
 
-    <div>
-      <strong>جودو طبیعت</strong>
-      <span>عملکرد و پیشرفت ورزشکاران</span>
-    </div>
-  </div>
+  <header class="athlete-header">
 
-  <a href="index.html" class="login-btn" style="text-decoration:none;">
-    بازگشت
-  </a>
-</header>
+    <div class="header-inner">
 
+      <div class="brand">
 
-<main class="athlete-page">
-
-  <a href="index.html" class="back-btn">
-    ← بازگشت به ورزشکاران
-  </a>
-
-
-  <!-- اطلاعات اصلی ورزشکار -->
-  <section class="profile-header">
-
-    <div class="athlete-avatar">
-      🥋
-    </div>
-
-    <div class="profile-info">
-      <h1 id="athleteName">نام ورزشکار</h1>
-
-      <p id="athleteCategory">
-        رده سنی: —
-      </p>
-
-      <p id="athleteStatus">
-        وضعیت: فعال
-      </p>
-    </div>
-
-    <div class="overall-score">
-      <span>امتیاز کلی</span>
-      <strong id="overallScore">—</strong>
-      <small>از ۱۰</small>
-    </div>
-
-  </section>
-
-
-  <!-- اطلاعات پایه -->
-  <section class="info-grid">
-
-    <div class="info-card">
-      <span>وزن</span>
-      <strong id="athleteWeight">—</strong>
-    </div>
-
-    <div class="info-card">
-      <span>رده سنی</span>
-      <strong id="athleteAgeGroup">—</strong>
-    </div>
-
-    <div class="info-card">
-      <span>کمربند</span>
-      <strong id="athleteBelt">—</strong>
-    </div>
-
-    <div class="info-card">
-      <span>تعداد ارزیابی</span>
-      <strong id="evaluationCount">0</strong>
-    </div>
-
-  </section>
-
-
-  <!-- معیارهای ارزیابی -->
-  <section class="section-card">
-
-    <div class="section-title">
-
-      <div>
-        <span class="eyebrow">EVALUATION</span>
-        <h2>معیارهای ارزیابی</h2>
-      </div>
-
-    </div>
-
-    <div id="criteriaList" class="criteria-list">
-
-      <!-- معیارها توسط JavaScript ساخته می‌شوند -->
-
-    </div>
-
-    <div class="notice">
-      تمام معیارها به صورت برابر در امتیاز نهایی محاسبه می‌شوند و هیچ ضریبی در سیستم وجود ندارد.
-    </div>
-
-  </section>
-
-
-  <!-- سابقه ارزیابی -->
-  <section class="section-card">
-
-    <div class="section-title">
-
-      <div>
-        <span class="eyebrow">HISTORY</span>
-        <h2>سابقه ارزیابی</h2>
-      </div>
-
-    </div>
-
-    <div style="overflow-x:auto;">
-
-      <table class="history-table">
-
-        <thead>
-          <tr>
-            <th>دوره</th>
-            <th>تاریخ</th>
-            <th>امتیاز</th>
-          </tr>
-        </thead>
-
-        <tbody id="historyBody">
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-  </section>
-
-
-  <!-- پیشرفت -->
-  <section class="section-card">
-
-    <div class="section-title">
-
-      <div>
-        <span class="eyebrow">PROGRESS</span>
-        <h2>روند پیشرفت</h2>
-      </div>
-
-    </div>
-
-    <div id="progressMessage" class="empty-history">
-      سابقه کافی برای نمایش روند پیشرفت وجود ندارد.
-    </div>
-
-  </section>
-
-</main>
-
-
-<footer>
-  جودو طبیعت • سامانه عملکرد و پیشرفت ورزشکاران
-</footer>
-
-
-<script>
-
-  /*
-    نسخه آزمایشی صفحه ورزشکار
-
-    در مرحله بعد:
-    این اطلاعات مستقیماً از Supabase دریافت خواهند شد.
-  */
-
-  const athlete = {
-
-    name: "محمد احمدی",
-
-    category: "نوجوانان",
-
-    status: "فعال",
-
-    weight: "۶۶ کیلوگرم",
-
-    ageGroup: "نوجوانان",
-
-    belt: "قهوه‌ای",
-
-    evaluations: [
-
-      {
-        period: "ارزیابی مرداد",
-        date: "۱۴۰۵/۰۵/۲۰",
-        score: 8.2
-      },
-
-      {
-        period: "ارزیابی تیر",
-        date: "۱۴۰۵/۰۴/۱۸",
-        score: 7.7
-      },
-
-      {
-        period: "ارزیابی خرداد",
-        date: "۱۴۰۵/۰۳/۲۰",
-        score: 7.1
-      }
-
-    ],
-
-    criteria: [
-
-      {
-        name: "قدرت",
-        score: 8
-      },
-
-      {
-        name: "سرعت",
-        score: 9
-      },
-
-      {
-        name: "استقامت",
-        score: 7
-      },
-
-      {
-        name: "تکنیک",
-        score: 9
-      },
-
-      {
-        name: "انعطاف‌پذیری",
-        score: 8
-      },
-
-      {
-        name: "آمادگی جسمانی",
-        score: 8
-      },
-
-      {
-        name: "عملکرد در خاک",
-        score: 9
-      },
-
-      {
-        name: "عملکرد ایستاده",
-        score: 8
-      }
-
-    ]
-
-  };
-
-
-  // اطلاعات اصلی
-
-  document.getElementById("athleteName").textContent =
-    athlete.name;
-
-  document.getElementById("athleteCategory").textContent =
-    "رده سنی: " + athlete.category;
-
-  document.getElementById("athleteStatus").textContent =
-    "وضعیت: " + athlete.status;
-
-  document.getElementById("athleteWeight").textContent =
-    athlete.weight;
-
-  document.getElementById("athleteAgeGroup").textContent =
-    athlete.ageGroup;
-
-  document.getElementById("athleteBelt").textContent =
-    athlete.belt;
-
-
-  // محاسبه امتیاز کلی
-
-  const total = athlete.criteria.reduce(
-    (sum, item) => sum + item.score,
-    0
-  );
-
-  const average = total / athlete.criteria.length;
-
-  document.getElementById("overallScore").textContent =
-    average.toFixed(1);
-
-
-  // تعداد ارزیابی‌ها
-
-  document.getElementById("evaluationCount").textContent =
-    athlete.evaluations.length;
-
-
-  // نمایش معیارها
-
-  const criteriaList =
-    document.getElementById("criteriaList");
-
-  athlete.criteria.forEach(item => {
-
-    const row = document.createElement("div");
-
-    row.className = "criterion";
-
-    row.innerHTML = `
-
-      <div class="criterion-name">
-        ${item.name}
-      </div>
-
-      <div class="progress">
-        <div
-          class="progress-bar"
-          style="width:${item.score * 10}%">
+        <div class="brand-logo">
+          🥋
         </div>
+
+        <div class="brand-text">
+
+          <strong>
+            جودو طبیعت
+          </strong>
+
+          <span>
+            سامانه عملکرد و پیشرفت ورزشکاران
+          </span>
+
+        </div>
+
       </div>
 
-      <div class="criterion-score">
-        ${item.score}/10
+
+      <a
+        href="coach.html"
+        class="back-btn"
+      >
+        ← بازگشت
+      </a>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================
+       MAIN
+  ========================== -->
+
+  <main class="athlete-page">
+
+    <div class="page-title">
+
+      <small>
+        ATHLETE PROFILE
+      </small>
+
+      <h1>
+        پروفایل ورزشکار
+      </h1>
+
+      <p>
+        اطلاعات، ارزیابی‌ها و روند پیشرفت ورزشکار
+      </p>
+
+    </div>
+
+
+    <div id="pageContent">
+
+      <div class="loading">
+        در حال دریافت اطلاعات ورزشکار...
       </div>
 
-    `;
+    </div>
 
-    criteriaList.appendChild(row);
-
-  });
+  </main>
 
 
-  // نمایش سابقه
-
-  const historyBody =
-    document.getElementById("historyBody");
-
-  athlete.evaluations.forEach(item => {
-
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-
-      <td>${item.period}</td>
-
-      <td>${item.date}</td>
-
-      <td>
-        <strong>${item.score}</strong> / 10
-      </td>
-
-    `;
-
-    historyBody.appendChild(row);
-
-  });
+  <footer class="athlete-footer">
+    جودو طبیعت • سامانه باشگاه
+  </footer>
 
 
-  // وضعیت پیشرفت
+  <!-- =========================
+       SUPABASE
+  ========================== -->
 
-  if (athlete.evaluations.length >= 2) {
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    const first =
-      athlete.evaluations[
-        athlete.evaluations.length - 1
-      ].score;
 
-    const latest =
-      athlete.evaluations[0].score;
+  <script>
 
-    const difference =
-      latest - first;
+    const SUPABASE_URL =
+      "https://bkkdgywdptufjsaepehc.supabase.co";
 
-    const message =
-      document.getElementById("progressMessage");
+    const SUPABASE_KEY =
+      "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
 
-    if (difference > 0) {
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
 
-      message.textContent =
-        `امتیاز کلی ورزشکار نسبت به اولین ارزیابی ${difference.toFixed(1)} نمره افزایش داشته است.`;
 
-    } else if (difference < 0) {
+    const pageContent =
+      document.getElementById(
+        "pageContent"
+      );
 
-      message.textContent =
-        `امتیاز کلی ورزشکار نسبت به اولین ارزیابی ${Math.abs(difference).toFixed(1)} نمره کاهش داشته است.`;
 
-    } else {
+    function escapeHTML(value) {
 
-      message.textContent =
-        "امتیاز کلی ورزشکار نسبت به اولین ارزیابی تغییری نداشته است.";
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
     }
 
-  }
 
-</script>
+    function showError(message) {
+
+      pageContent.innerHTML = `
+
+        <div class="error-box">
+
+          <div style="font-size:35px;">
+            ⚠️
+          </div>
+
+          <h2>
+            دریافت اطلاعات انجام نشد
+          </h2>
+
+          <p>
+            ${escapeHTML(message)}
+          </p>
+
+        </div>
+
+      `;
+
+    }
+
+
+    async function loadAthlete() {
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+      const athleteId =
+        params.get("id");
+
+
+      if (!athleteId) {
+
+        showError(
+          "شناسه ورزشکار در آدرس صفحه وجود ندارد."
+        );
+
+        return;
+
+      }
+
+
+      const {
+        data: athlete,
+        error
+      } =
+        await supabaseClient
+          .from("athletes")
+          .select(`
+            id,
+            first_name,
+            last_name,
+            national_id,
+            age_group,
+            weight,
+            photo_url,
+            total_score,
+            bio
+          `)
+          .eq("id", athleteId)
+          .single();
+
+
+      if (error) {
+
+        console.error(
+          "Athlete error:",
+          error
+        );
+
+        showError(
+          "اطلاعات ورزشکار از پایگاه داده دریافت نشد."
+        );
+
+        return;
+
+      }
+
+
+      renderAthlete(
+        athlete
+      );
+
+    }
+
+
+    function renderAthlete(
+      athlete
+    ) {
+
+      const fullName =
+        [
+          athlete.first_name,
+          athlete.last_name
+        ]
+          .filter(Boolean)
+          .join(" ") ||
+        "بدون نام";
+
+
+      const score =
+        athlete.total_score !== null &&
+        athlete.total_score !== undefined
+          ? Number(
+              athlete.total_score
+            ).toFixed(1)
+          : "—";
+
+
+      const weight =
+        athlete.weight !== null &&
+        athlete.weight !== undefined
+          ? `${athlete.weight} کیلوگرم`
+          : "ثبت نشده";
+
+
+      const ageGroup =
+        athlete.age_group ||
+        "ثبت نشده";
+
+
+      const nationalId =
+        athlete.national_id ||
+        "ثبت نشده";
+
+
+      const avatar =
+        athlete.photo_url
+          ? `
+            <img
+              src="${escapeHTML(athlete.photo_url)}"
+              alt="${escapeHTML(fullName)}"
+              style="
+                width:100%;
+                height:100%;
+                object-fit:cover;
+                border-radius:22px;
+              "
+            >
+          `
+          : "🥋";
+
+
+      pageContent.innerHTML = `
+
+        <!-- PROFILE -->
+
+        <section class="profile-header">
+
+          <div class="athlete-avatar">
+            ${avatar}
+          </div>
+
+
+          <div class="profile-info">
+
+            <h2>
+              ${escapeHTML(fullName)}
+            </h2>
+
+            <p>
+              رده سنی:
+              <strong>
+                ${escapeHTML(ageGroup)}
+              </strong>
+            </p>
+
+            <p class="status">
+              <span class="status-dot"></span>
+              وضعیت: فعال
+            </p>
+
+          </div>
+
+
+          <div class="overall-score">
+
+            <span>
+              امتیاز کلی
+            </span>
+
+            <strong>
+              ${escapeHTML(score)}
+            </strong>
+
+            <small>
+              از ۱۰
+            </small>
+
+          </div>
+
+        </section>
+
+
+        <!-- INFO -->
+
+        <section class="info-grid">
+
+          <div class="info-card">
+
+            <span>
+              وزن
+            </span>
+
+            <strong>
+              ${escapeHTML(weight)}
+            </strong>
+
+          </div>
+
+
+          <div class="info-card">
+
+            <span>
+              رده سنی
+            </span>
+
+            <strong>
+              ${escapeHTML(ageGroup)}
+            </strong>
+
+          </div>
+
+
+          <div class="info-card">
+
+            <span>
+              کد ملی
+            </span>
+
+            <strong>
+              ${escapeHTML(nationalId)}
+            </strong>
+
+          </div>
+
+
+          <div class="info-card">
+
+            <span>
+              امتیاز کلی
+            </span>
+
+            <strong class="important-number">
+              ${escapeHTML(score)}
+            </strong>
+
+          </div>
+
+        </section>
+
+
+        <!-- EVALUATION -->
+
+        <section class="section-card">
+
+          <div class="section-title">
+
+            <small>
+              EVALUATION
+            </small>
+
+            <h2>
+              معیارهای ارزیابی
+            </h2>
+
+          </div>
+
+
+          <div
+            id="criteriaList"
+            class="criteria-list"
+          >
+
+            <div class="empty">
+              هنوز ارزیابی‌ای برای این ورزشکار ثبت نشده است.
+            </div>
+
+          </div>
+
+
+          <div class="notice">
+            تمام معیارها به صورت برابر در امتیاز نهایی محاسبه می‌شوند و هیچ ضریبی در سیستم وجود ندارد.
+          </div>
+
+        </section>
+
+
+        <!-- HISTORY -->
+
+        <section class="section-card">
+
+          <div class="section-title">
+
+            <small>
+              HISTORY
+            </small>
+
+            <h2>
+              سابقه ارزیابی
+            </h2>
+
+          </div>
+
+
+          <div class="table-wrapper">
+
+            <table class="history-table">
+
+              <thead>
+
+                <tr>
+                  <th>دوره</th>
+                  <th>تاریخ</th>
+                  <th>امتیاز</th>
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                <tr>
+                  <td colspan="3">
+                    <div class="empty">
+                      هنوز سابقه ارزیابی ثبت نشده است.
+                    </div>
+                  </td>
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+
+        <!-- BIO -->
+
+        <section class="section-card">
+
+          <div class="section-title">
+
+            <small>
+              INFORMATION
+            </small>
+
+            <h2>
+              درباره ورزشکار
+            </h2>
+
+          </div>
+
+
+          <p
+            style="
+              color:#68716d;
+              line-height:2;
+              margin:0;
+            "
+          >
+            ${
+              athlete.bio
+                ? escapeHTML(athlete.bio)
+                : "توضیحی برای این ورزشکار ثبت نشده است."
+            }
+          </p>
+
+        </section>
+
+      `;
+
+    }
+
+
+    loadAthlete();
+
+  </script>
 
 </body>
+
 </html>
