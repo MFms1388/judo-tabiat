@@ -24,9 +24,7 @@ async function checkCoachAccess() {
   const {
     data,
     error
-  } =
-    await supabaseClient.auth.getSession();
-
+  } = await supabaseClient.auth.getSession();
 
   if (error) {
 
@@ -35,26 +33,19 @@ async function checkCoachAccess() {
     redirectToLogin();
 
     return false;
-
   }
 
-
-  const session =
-    data?.session;
-
+  const session = data?.session;
 
   if (!session) {
 
     redirectToLogin();
 
     return false;
-
   }
-
 
   const email =
     session.user?.email?.toLowerCase();
-
 
   if (
     email !==
@@ -70,34 +61,31 @@ async function checkCoachAccess() {
     redirectToLogin();
 
     return false;
-
   }
-
 
   const coachEmail =
     document.getElementById(
       "coachEmail"
     );
 
-
   if (coachEmail) {
 
     coachEmail.textContent =
       session.user.email;
-
   }
 
-
   return true;
-
 }
 
+
+// ======================================
+// REDIRECT
+// ======================================
 
 function redirectToLogin() {
 
   window.location.href =
     "index.html";
-
 }
 
 
@@ -110,24 +98,20 @@ const sidebar =
     "coachSidebar"
   );
 
-
 const menuBtn =
   document.getElementById(
     "menuBtn"
   );
-
 
 const logoutBtn =
   document.getElementById(
     "logoutBtn"
   );
 
-
 const navItems =
   document.querySelectorAll(
     ".nav-item"
   );
-
 
 const coachPages =
   document.querySelectorAll(
@@ -161,9 +145,7 @@ if (menuBtn) {
 // PAGE NAVIGATION
 // ======================================
 
-function openPage(
-  pageName
-) {
+function openPage(pageName) {
 
   coachPages.forEach(
     page => {
@@ -227,6 +209,10 @@ function openPage(
 
 }
 
+
+// ======================================
+// NAVIGATION EVENTS
+// ======================================
 
 navItems.forEach(
   item => {
@@ -299,6 +285,7 @@ if (logoutBtn) {
 
       await supabaseClient.auth.signOut();
 
+
       window.location.href =
         "index.html";
 
@@ -327,7 +314,9 @@ async function loadAthletes() {
   } =
     await supabaseClient
       .from("athletes")
-      .select("*")
+      .select(
+        "id, profile_id, first_name, last_name, national_id, age_group, weight, photo_url, total_scor, bio, created_at, updated_at"
+      )
       .order(
         "created_at",
         {
@@ -356,9 +345,11 @@ async function loadAthletes() {
 
   updateDashboardStats();
 
+
   createCoachCategoryFilter(
     athletes
   );
+
 
   renderCoachAthletes(
     athletes
@@ -386,12 +377,6 @@ function updateDashboardStats() {
 
   }
 
-
-  /*
-    ارزیابی‌ها، حضور و غیاب و مقام‌ها
-    بعد از ساخت جدول‌های مربوطه
-    به صورت واقعی از Supabase خوانده می‌شوند.
-  */
 
   const totalEvaluations =
     document.getElementById(
@@ -441,9 +426,7 @@ function updateDashboardStats() {
 // RENDER ATHLETES
 // ======================================
 
-function renderCoachAthletes(
-  list
-) {
+function renderCoachAthletes(list) {
 
   const grid =
     document.getElementById(
@@ -472,7 +455,8 @@ function renderCoachAthletes(
         </h2>
 
         <p>
-          از گزینه «افزودن ورزشکار» برای ثبت ورزشکار جدید استفاده کنید.
+          از گزینه «افزودن ورزشکار»
+          برای ثبت ورزشکار جدید استفاده کنید.
         </p>
 
       </div>
@@ -519,16 +503,30 @@ function renderCoachAthletes(
           : "وزن ثبت نشده";
 
 
-      const belt =
-        athlete.belt ||
-        "کمربند ثبت نشده";
+      const score =
+        athlete.total_scor !== null &&
+        athlete.total_scor !== undefined
+          ? athlete.total_scor
+          : "—";
 
 
       card.innerHTML = `
 
         <div class="coach-athlete-icon">
-          🥋
+
+          ${
+            athlete.photo_url
+              ? `<img
+                  src="${escapeHTML(
+                    athlete.photo_url
+                  )}"
+                  alt=""
+                >`
+              : "🥋"
+          }
+
         </div>
+
 
         <div class="coach-athlete-info">
 
@@ -540,24 +538,30 @@ function renderCoachAthletes(
             ${escapeHTML(category)}
           </p>
 
+
           <div class="coach-athlete-meta">
 
             <span>
-              ⚖️ ${escapeHTML(weight)}
+              ⚖️
+              ${escapeHTML(weight)}
             </span>
 
             <span>
-              ${escapeHTML(belt)}
+              امتیاز:
+              ${escapeHTML(score)}
             </span>
 
           </div>
 
         </div>
 
+
         <button
           class="athlete-view-btn"
           type="button"
-          data-athlete-id="${athlete.id}"
+          data-athlete-id="${escapeHTML(
+            athlete.id
+          )}"
         >
           مشاهده
         </button>
@@ -579,8 +583,11 @@ function renderCoachAthletes(
 
             event.stopPropagation();
 
+
             window.location.href =
-              `athlete.html?id=${athlete.id}`;
+              `athlete.html?id=${encodeURIComponent(
+                athlete.id
+              )}`;
 
           }
         );
@@ -588,7 +595,22 @@ function renderCoachAthletes(
       }
 
 
-      grid.appendChild(card);
+      card.addEventListener(
+        "click",
+        () => {
+
+          window.location.href =
+            `athlete.html?id=${encodeURIComponent(
+              athlete.id
+            )}`;
+
+        }
+      );
+
+
+      grid.appendChild(
+        card
+      );
 
     }
   );
@@ -597,12 +619,49 @@ function renderCoachAthletes(
 
 
 // ======================================
+// ERROR
+// ======================================
+
+function showAthleteError() {
+
+  const grid =
+    document.getElementById(
+      "coachAthleteGrid"
+    );
+
+
+  if (!grid) return;
+
+
+  grid.innerHTML = `
+
+    <div class="empty-panel">
+
+      <div>
+        ⚠️
+      </div>
+
+      <h2>
+        خطا در دریافت ورزشکاران
+      </h2>
+
+      <p>
+        دریافت اطلاعات از سامانه انجام نشد.
+        لطفاً اتصال اینترنت و دسترسی دیتابیس را بررسی کنید.
+      </p>
+
+    </div>
+
+  `;
+
+}
+
+
+// ======================================
 // HTML ESCAPE
 // ======================================
 
-function escapeHTML(
-  value
-) {
+function escapeHTML(value) {
 
   return String(value)
     .replace(
@@ -675,15 +734,22 @@ function filterCoachAthletes() {
           .toLowerCase();
 
 
+        const nationalId =
+          athlete.national_id
+            ? String(
+                athlete.national_id
+              ).toLowerCase()
+            : "";
+
+
         const athleteCategory =
           athlete.age_group ||
           "";
 
 
         const matchesSearch =
-          name.includes(
-            search
-          );
+          name.includes(search) ||
+          nationalId.includes(search);
 
 
         const matchesCategory =
@@ -822,6 +888,7 @@ function openAthleteModal() {
 
   if (!athleteModal) return;
 
+
   athleteModal.classList.remove(
     "hidden"
   );
@@ -832,6 +899,7 @@ function openAthleteModal() {
 function closeAthleteForm() {
 
   if (!athleteModal) return;
+
 
   athleteModal.classList.add(
     "hidden"
@@ -911,15 +979,21 @@ async function saveAthlete() {
     )?.value.trim();
 
 
-  const belt =
-    document.getElementById(
-      "athleteBelt"
-    )?.value.trim();
-
-
   const nationalId =
     document.getElementById(
       "athleteNationalId"
+    )?.value.trim();
+
+
+  const bio =
+    document.getElementById(
+      "athleteBio"
+    )?.value.trim();
+
+
+  const photoUrl =
+    document.getElementById(
+      "athletePhotoUrl"
     )?.value.trim();
 
 
@@ -937,9 +1011,7 @@ async function saveAthlete() {
   }
 
 
-  if (
-    !nationalId
-  ) {
+  if (!nationalId) {
 
     alert(
       "کد ملی ورزشکار را وارد کنید."
@@ -950,7 +1022,29 @@ async function saveAthlete() {
   }
 
 
-  saveAthleteBtn.disabled = true;
+  if (
+    !/^\d{10}$/.test(
+      nationalId
+    )
+  ) {
+
+    alert(
+      "کد ملی باید ۱۰ رقم باشد."
+    );
+
+    return;
+
+  }
+
+
+  if (!saveAthleteBtn) {
+    return;
+  }
+
+
+  saveAthleteBtn.disabled =
+    true;
+
 
   saveAthleteBtn.textContent =
     "در حال ثبت...";
@@ -962,6 +1056,20 @@ async function saveAthlete() {
       weightValue
         ? Number(weightValue)
         : null;
+
+
+    if (
+      weightValue &&
+      Number.isNaN(weight)
+    ) {
+
+      alert(
+        "وزن وارد شده صحیح نیست."
+      );
+
+      return;
+
+    }
 
 
     const {
@@ -978,17 +1086,20 @@ async function saveAthlete() {
           last_name:
             lastName,
 
+          national_id:
+            nationalId,
+
           age_group:
             ageGroup || null,
 
           weight:
             weight,
 
-          belt:
-            belt || null,
+          photo_url:
+            photoUrl || null,
 
-          national_id:
-            nationalId
+          bio:
+            bio || null
 
         })
         .select()
@@ -1002,10 +1113,12 @@ async function saveAthlete() {
         error
       );
 
+
       alert(
         "ثبت ورزشکار انجام نشد.\n\n" +
         error.message
       );
+
 
       return;
 
@@ -1019,23 +1132,33 @@ async function saveAthlete() {
 
     clearAthleteForm();
 
+
     closeAthleteForm();
+
 
     await loadAthletes();
 
 
+    openPage(
+      "athletes"
+    );
+
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     alert(
       "خطایی هنگام ثبت ورزشکار رخ داد."
     );
 
-
   } finally {
 
-    saveAthleteBtn.disabled = false;
+    saveAthleteBtn.disabled =
+      false;
+
 
     saveAthleteBtn.textContent =
       "ثبت ورزشکار";
@@ -1071,9 +1194,11 @@ function clearAthleteForm() {
 
     "athleteWeight",
 
-    "athleteBelt",
+    "athleteNationalId",
 
-    "athleteNationalId"
+    "athleteBio",
+
+    "athletePhotoUrl"
 
   ];
 
@@ -1082,7 +1207,9 @@ function clearAthleteForm() {
     id => {
 
       const input =
-        document.getElementById(id);
+        document.getElementById(
+          id
+        );
 
 
       if (input) {
