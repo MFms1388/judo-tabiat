@@ -3,13 +3,17 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>جودو طبیعت | عملکرد ورزشکاران</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+
+  <title>جودو طبیعت | سامانه باشگاه</title>
 
   <meta
     name="description"
-    content="سامانه عملکرد و پیشرفت ورزشکاران جودو طبیعت"
+    content="سامانه رسمی جودو طبیعت"
   >
 
   <link rel="stylesheet" href="style.css">
@@ -17,178 +21,119 @@
 
 <body>
 
-  <!-- ==============================
-       HEADER
-  =============================== -->
+  <!-- =================================
+       HOME
+  ================================== -->
 
-  <header class="topbar">
+  <main class="home-page">
 
-    <div class="brand">
+    <section class="home-content">
 
-      <div class="logo-mark">
-        ط
+      <!-- LOGO -->
+
+      <div class="home-logo">
+
+        <div class="logo-symbol">
+          🥋
+        </div>
+
       </div>
 
-      <div>
-        <strong>جودو طبیعت</strong>
 
-        <span>
-          عملکرد و پیشرفت ورزشکاران
-        </span>
-      </div>
+      <!-- BRAND -->
 
-    </div>
-
-    <button
-      class="login-btn"
-      id="loginBtn"
-    >
-      ورود
-    </button>
-
-  </header>
-
-
-  <!-- ==============================
-       MAIN
-  =============================== -->
-
-  <main>
-
-    <!-- HERO -->
-
-    <section class="hero">
-
-      <div>
-
-        <span class="eyebrow">
-          ACADEMY PERFORMANCE
-        </span>
+      <div class="brand-title">
 
         <h1>
-          عملکرد جودوکاران
-          <br>
-          <em>طبیعت</em>
+          جودو طبیعت
         </h1>
 
         <p>
-          سامانه‌ای برای ثبت، ارزیابی و مشاهده
-          مسیر پیشرفت ورزشکاران باشگاه.
+          سامانه باشگاه جودو طبیعت
         </p>
 
       </div>
 
 
-      <div class="hero-card">
+      <!-- INTRO -->
 
-        <div class="hero-icon">
-          🥋
-        </div>
+      <div class="home-intro">
 
-        <div>
+        <span>
+          NATURE JUDO ACADEMY
+        </span>
 
-          <b>
-            پیشرفت، نه مقایسه
-          </b>
-
-          <span>
-            هر ورزشکار مسیر خودش را می‌سازد.
-          </span>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ==============================
-         ATHLETES
-    =============================== -->
-
-    <section class="athletes-section">
-
-      <div class="section-head">
-
-        <div>
-
-          <span class="eyebrow">
-            ATHLETES
-          </span>
-
-          <h2>
-            ورزشکاران باشگاه
-          </h2>
-
-        </div>
-
-
-        <div class="tools">
-
-          <input
-            id="search"
-            type="search"
-            placeholder="جستجوی ورزشکار..."
-          >
-
-          <select id="filter">
-
-            <option value="all">
-              همه رده‌ها
-            </option>
-
-          </select>
-
-        </div>
-
-      </div>
-
-
-      <!-- EMPTY STATE -->
-
-      <div
-        id="emptyState"
-        class="empty-state"
-      >
-
-        <div class="empty-icon">
-          🥋
-        </div>
-
-        <h3>
-          هنوز ورزشکاری ثبت نشده است
-        </h3>
+        <h2>
+          مسیر پیشرفت
+          <br>
+          از همین‌جا شروع می‌شود
+        </h2>
 
         <p>
-          پس از ورود مربی، ورزشکاران
-          از پنل مربی اضافه می‌شوند.
+          سامانه‌ای برای مدیریت، ارزیابی و
+          پیگیری مسیر پیشرفت جودوکاران طبیعت.
         </p>
-
-        <button
-          class="primary"
-          id="coachLogin"
-        >
-          ورود مربی
-        </button>
 
       </div>
 
 
-      <!-- ATHLETE GRID -->
+      <!-- LOGIN -->
 
-      <div
-        id="athleteGrid"
-        class="grid hidden"
-      ></div>
+      <button
+        class="home-login-btn"
+        id="loginBtn"
+        type="button"
+      >
+
+        <span>
+          🔐
+        </span>
+
+        ورود به سامانه
+
+      </button>
+
+
+      <!-- FEATURES -->
+
+      <div class="home-features">
+
+        <div>
+          <strong>ارزیابی</strong>
+          <span>عملکرد</span>
+        </div>
+
+        <div>
+          <strong>پیشرفت</strong>
+          <span>مسیر رشد</span>
+        </div>
+
+        <div>
+          <strong>افتخار</strong>
+          <span>موفقیت</span>
+        </div>
+
+      </div>
 
     </section>
+
+
+    <!-- FOOTER -->
+
+    <footer class="home-footer">
+
+      جودو طبیعت
+      <span>•</span>
+      سامانه باشگاه
+
+    </footer>
 
   </main>
 
 
-  <!-- ==============================
+  <!-- =================================
        LOGIN MODAL
-  =============================== -->
+  ================================== -->
 
   <div
     class="modal hidden"
@@ -200,6 +145,8 @@
       <button
         class="close"
         id="closeModal"
+        type="button"
+        aria-label="بستن"
       >
         ×
       </button>
@@ -211,24 +158,24 @@
 
 
       <h2>
-        ورود به جودو طبیعت
+        ورود به سامانه
       </h2>
 
 
       <p class="muted">
-        ورود مخصوص مربی باشگاه
+        نام کاربری و رمز عبور خود را وارد کنید.
       </p>
 
 
       <label>
 
-        ایمیل مربی
+        نام کاربری
 
         <input
           id="username"
-          type="email"
+          type="text"
           autocomplete="username"
-          placeholder="ایمیل مربی"
+          placeholder="نام کاربری"
         >
 
       </label>
@@ -251,13 +198,14 @@
       <button
         class="primary wide"
         id="loginSubmit"
+        type="button"
       >
         ورود
       </button>
 
 
       <small>
-        ورود مربی از طریق حساب امن سامانه انجام می‌شود.
+        سیستم به‌صورت خودکار نوع حساب شما را تشخیص می‌دهد.
       </small>
 
     </div>
@@ -265,24 +213,11 @@
   </div>
 
 
-  <!-- ==============================
-       FOOTER
-  =============================== -->
-
-  <footer>
-
-    جودو طبیعت • سامانه عملکرد و پیشرفت ورزشکاران
-
-  </footer>
-
-
-  <!-- ==============================
+  <!-- =================================
        SUPABASE
-  =============================== -->
+  ================================== -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- APP -->
 
   <script src="app.js"></script>
 
