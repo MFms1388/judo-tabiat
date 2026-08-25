@@ -910,3 +910,47 @@ async function saveNewEvaluation(
   }
 
 }
+// ======================================
+// LOAD SAVED EVALUATIONS
+// ======================================
+
+function loadEvaluations() {
+
+  try {
+
+    const saved =
+      localStorage.getItem("evaluations");
+
+    if (!saved) {
+      window.evaluations = [];
+      return;
+    }
+
+    const parsed =
+      JSON.parse(saved);
+
+    if (Array.isArray(parsed)) {
+      window.evaluations = parsed;
+    } else {
+      window.evaluations = [];
+    }
+
+  } catch (error) {
+
+    console.error(
+      "خطا در بارگذاری ارزیابی‌ها:",
+      error
+    );
+
+    window.evaluations = [];
+
+  }
+
+}
+
+
+// ======================================
+// INITIALIZE EVALUATIONS
+// ======================================
+
+loadEvaluations();
