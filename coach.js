@@ -176,7 +176,6 @@ function createEvaluationModal(athleteId, periodId) {
       font-weight: 800 !important;
     }
 
-    /* عدد امتیاز */
     .evaluation-criterion-value {
       min-width: 58px !important;
 
@@ -212,7 +211,7 @@ function createEvaluationModal(athleteId, periodId) {
     }
 
     /* ======================================
-       نوار کشیدنی ۰ تا ۱۰
+       نوار امتیاز ۰ تا ۱۰
        ====================================== */
 
     .evaluation-range {
@@ -239,7 +238,6 @@ function createEvaluationModal(athleteId, periodId) {
       cursor: pointer !important;
     }
 
-    /* Chrome / Android */
     .evaluation-range::-webkit-slider-thumb {
       appearance: none !important;
 
@@ -261,7 +259,6 @@ function createEvaluationModal(athleteId, periodId) {
       cursor: pointer !important;
     }
 
-    /* Firefox */
     .evaluation-range::-moz-range-thumb {
       width: 30px !important;
 
@@ -279,7 +276,6 @@ function createEvaluationModal(athleteId, periodId) {
       cursor: pointer !important;
     }
 
-    /* اعداد زیر نوار */
     .evaluation-range-labels {
       display: flex !important;
 
@@ -303,7 +299,7 @@ function createEvaluationModal(athleteId, periodId) {
     }
 
     /* ======================================
-       توضیحات
+       توضیحات مربی
        ====================================== */
 
     .evaluation-notes-label {
@@ -642,6 +638,7 @@ function createEvaluationModal(athleteId, periodId) {
           toPersianNumber(
             value.toFixed(1)
           );
+
       }
 
     });
@@ -660,7 +657,9 @@ function createEvaluationModal(athleteId, periodId) {
         toPersianNumber(
           average.toFixed(2)
         );
+
     }
+
   }
 
   scoreInputs.forEach(input => {
@@ -734,6 +733,179 @@ function createEvaluationModal(athleteId, periodId) {
 
       }
     );
+
+  }
+
+}
+
+
+// ======================================
+// SAVE NEW EVALUATION
+// ======================================
+
+async function saveNewEvaluation(
+  athleteId,
+  periodId,
+  scoreInputs,
+  saveBtn
+) {
+
+  try {
+
+    saveBtn.disabled = true;
+
+    saveBtn.textContent =
+      "در حال ثبت...";
+
+    const scores = [];
+
+    scoreInputs.forEach(input => {
+
+      scores.push({
+
+        criterion_id:
+          input.dataset.criterionId,
+
+        score:
+          Number(input.value)
+
+      });
+
+    });
+
+    // ======================================
+    // محاسبه امتیاز نهایی
+    // ======================================
+
+    const total =
+      scores.length > 0
+        ? scores.reduce(
+            (sum, item) =>
+              sum + item.score,
+            0
+          ) / scores.length
+        : 0;
+
+    // ======================================
+    // توضیحات مربی
+    // ======================================
+
+    const notesElement =
+      document.getElementById(
+        "newEvaluationNotes"
+      );
+
+    const notes =
+      notesElement
+        ? notesElement.value.trim()
+        : "";
+
+    // ======================================
+    // ساخت ارزیابی
+    // ======================================
+
+    const evaluation = {
+
+      id:
+        crypto.randomUUID(),
+
+      athlete_id:
+        athleteId,
+
+      period_id:
+        periodId,
+
+      scores:
+        scores,
+
+      total_score:
+        Number(total.toFixed(2)),
+
+      notes:
+        notes,
+
+      created_at:
+        new Date().toISOString()
+
+    };
+
+    // ======================================
+    // ساخت آرایه ارزیابی‌ها
+    // ======================================
+
+    if (
+      typeof evaluations === "undefined"
+    ) {
+
+      window.evaluations = [];
+
+    }
+
+    // جلوگیری از خطا
+    if (!Array.isArray(evaluations)) {
+
+      window.evaluations = [];
+
+    }
+
+    // ======================================
+    // ذخیره
+    // ======================================
+
+    evaluations.push(
+      evaluation
+    );
+
+    localStorage.setItem(
+      "evaluations",
+      JSON.stringify(evaluations)
+    );
+
+    // ======================================
+    // بستن Modal
+    // ======================================
+
+    const modal =
+      document.getElementById(
+        "newEvaluationModal"
+      );
+
+    if (modal) {
+      modal.remove();
+    }
+
+    // ======================================
+    // بروزرسانی صفحه
+    // ======================================
+
+    if (
+      typeof renderEvaluations ===
+      "function"
+    ) {
+
+      renderEvaluations();
+
+    }
+
+    alert(
+      "ارزیابی با موفقیت ثبت شد."
+    );
+
+  } catch (error) {
+
+    console.error(
+      "خطا در ثبت ارزیابی:",
+      error
+    );
+
+    alert(
+      "خطا در ثبت ارزیابی."
+    );
+
+    saveBtn.disabled = false;
+
+    saveBtn.textContent =
+      "ثبت ارزیابی";
 
   }
 
