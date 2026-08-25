@@ -1,1348 +1,1576 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-
-<head>
-
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>پنل مربی | جودو طبیعت</title>
-
-  <link
-    rel="stylesheet"
-    href="style.css"
-  >
-
-  <style>
-
-    /* =====================================================
-       BASIC COACH PAGE
-    ====================================================== */
-
-    .coach-page {
-      display: none;
-    }
-
-    .coach-page.active {
-      display: block;
-    }
-
-    button,
-    select,
-    input,
-    textarea {
-      font-family: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-
-    /* =====================================================
-       TOOLBAR
-    ====================================================== */
-
-    .toolbar {
-      display: grid;
-      grid-template-columns: 1fr 220px;
-      gap: 12px;
-      margin-bottom: 22px;
-    }
-
-    .toolbar input,
-    .toolbar select {
-      width: 100%;
-      min-height: 48px;
-      box-sizing: border-box;
-      padding: 10px 14px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      background: #fff;
-      font-family: inherit;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .toolbar input:focus,
-    .toolbar select:focus {
-      border-color: #16834b;
-    }
-
-
-    /* =====================================================
-       EVALUATION TOOLBAR
-    ====================================================== */
-
-    .evaluation-toolbar {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 12px;
-      margin-bottom: 25px;
-    }
-
-    .evaluation-toolbar select {
-      width: 100%;
-      min-height: 48px;
-      box-sizing: border-box;
-      padding: 10px 14px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      background: #fff;
-      font-family: inherit;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .evaluation-toolbar select:focus {
-      border-color: #16834b;
-    }
-
-
-    /* =====================================================
-       EVALUATION CARD
-    ====================================================== */
-
-    .evaluation-card {
-      background: #fff;
-      border-radius: 20px;
-      padding: 22px;
-      margin-bottom: 18px;
-      box-shadow: 0 8px 25px rgba(0,0,0,.05);
-    }
-
-    .evaluation-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 18px;
-    }
-
-    .evaluation-athlete {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .evaluation-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f1f1f1;
-      font-size: 22px;
-      overflow: hidden;
-    }
-
-    .evaluation-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .evaluation-athlete h3 {
-      margin: 0 0 4px;
-      font-size: 17px;
-    }
-
-    .evaluation-athlete p {
-      margin: 0;
-      color: #777;
-      font-size: 13px;
-    }
-
-    .evaluation-score {
-      min-width: 85px;
-      text-align: center;
-      padding: 10px;
-      border-radius: 14px;
-      background: #f4f7f5;
-    }
-
-    .evaluation-score span {
-      display: block;
-      color: #777;
-      font-size: 12px;
-    }
-
-    .evaluation-score strong {
-      display: block;
-      margin-top: 3px;
-      font-size: 24px;
-    }
-
-
-    /* =====================================================
-       EMPTY
-    ====================================================== */
-
-    .evaluation-empty {
-      text-align: center;
-      padding: 45px 20px;
-      color: #777;
-      background: #fff;
-      border-radius: 18px;
-    }
-
-    .evaluation-empty-icon {
-      font-size: 45px;
-      margin-bottom: 10px;
-    }
-
-    .evaluation-empty h2 {
-      color: #222;
-      margin: 0 0 8px;
-    }
-
-    .evaluation-empty p {
-      margin: 0;
-    }
-
-    .empty-panel {
-      background: #fff;
-      border-radius: 20px;
-      padding: 50px 25px;
-      text-align: center;
-      box-shadow: 0 8px 25px rgba(0,0,0,.05);
-    }
-
-    .empty-panel > div:first-child {
-      font-size: 50px;
-      margin-bottom: 12px;
-    }
-
-    .empty-panel h2 {
-      margin: 0 0 8px;
-    }
-
-    .empty-panel p {
-      color: #777;
-      margin: 0;
-    }
-
-
-    /* =====================================================
-       MODAL FIX
-    ====================================================== */
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-    }
-
-    .modal.hidden {
-      display: none !important;
-    }
-
-
-    /* =====================================================
-       MOBILE
-    ====================================================== */
-
-    @media (max-width: 750px) {
-
-      .toolbar {
-        grid-template-columns: 1fr;
-      }
-
-      .evaluation-toolbar {
-        grid-template-columns: 1fr;
-      }
-
-      .evaluation-card-header {
-        align-items: flex-start;
-      }
-
-    }
-
-
-    @media (max-width: 500px) {
-
-      .evaluation-card-header {
-        flex-direction: column;
-      }
-
-      .evaluation-score {
-        width: 100%;
-        box-sizing: border-box;
-      }
-
-    }
-
-  </style>
-
-</head>
-
-
-<body>
-
-
-  <!-- =====================================================
-       COACH APP
-  ====================================================== -->
-
-  <div class="coach-app">
-
-
-    <!-- ===================================================
-         TOPBAR
-    ==================================================== -->
-
-    <header class="coach-topbar">
-
-      <div class="coach-brand">
+// ============================================================
+// طبیعت جودو | ATHLETE.JS
+// پروفایل کامل ورزشکار
+// ============================================================
+
+
+// ============================================================
+// SUPABASE
+// ============================================================
+
+const SUPABASE_URL =
+  "https://bkkdgywdptufjsaepehc.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+// ============================================================
+// STATE
+// ============================================================
+
+let currentAthlete = null;
+
+let attendanceRecords = [];
+
+let athleteEvaluations = [];
+
+let evaluationScores = [];
+
+let evaluationPeriods = [];
+
+let evaluationCriteria = [];
+
+
+// ============================================================
+// HELPERS
+// ============================================================
+
+function escapeHTML(value) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    value === null ||
+    value === undefined
+      ? ""
+      : String(value);
+
+  return div.innerHTML;
+}
+
+
+function persianNumber(value) {
+
+  return String(value).replace(
+    /\d/g,
+    d => "۰۱۲۳۴۵۶۷۸۹"[d]
+  );
+
+}
+
+
+function getAthleteName(athlete) {
+
+  if (!athlete) {
+    return "بدون نام";
+  }
+
+  const name = [
+    athlete.first_name,
+    athlete.last_name
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
+  return name || "بدون نام";
+}
+
+
+function formatDate(dateValue) {
+
+  if (!dateValue) {
+    return "—";
+  }
+
+  try {
+
+    return new Date(dateValue)
+      .toLocaleDateString(
+        "fa-IR"
+      );
+
+  } catch {
+
+    return String(dateValue);
+
+  }
+
+}
+
+
+function showError(title, error) {
+
+  console.error(
+    title,
+    error
+  );
+
+  const message =
+    error?.message ||
+    error?.details ||
+    error?.hint ||
+    "خطای نامشخص";
+
+  const container =
+    document.getElementById(
+      "profileContainer"
+    );
+
+  if (container) {
+
+    container.innerHTML = `
+
+      <div class="error-box">
+
+        <strong>
+          ${escapeHTML(title)}
+        </strong>
+
+        <p>
+          ${escapeHTML(message)}
+        </p>
 
         <button
-          class="menu-btn"
-          id="menuBtn"
           type="button"
-          aria-label="باز کردن منو"
+          onclick="location.reload()"
         >
-          ☰
+          تلاش دوباره
         </button>
 
-        <div class="coach-logo">
-          🥋
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+// ============================================================
+// GET ATHLETE ID
+// ============================================================
+
+function getAthleteIdFromURL() {
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  return params.get("id");
+
+}
+
+
+// ============================================================
+// LOAD ATHLETE
+// ============================================================
+
+async function loadAthlete() {
+
+  const athleteId =
+    getAthleteIdFromURL();
+
+
+  if (!athleteId) {
+
+    showError(
+      "شناسه ورزشکار پیدا نشد",
+      {
+        message:
+          "آدرس صفحه باید به شکل athlete.html?id=شناسه-ورزشکار باشد."
+      }
+    );
+
+    return null;
+
+  }
+
+
+  console.log(
+    "Athlete ID:",
+    athleteId
+  );
+
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("athletes")
+        .select("*")
+        .eq(
+          "id",
+          athleteId
+        )
+        .single();
+
+
+    if (error) {
+
+      showError(
+        "اطلاعات ورزشکار دریافت نشد",
+        error
+      );
+
+      return null;
+
+    }
+
+
+    currentAthlete =
+      data;
+
+
+    console.log(
+      "Current athlete:",
+      currentAthlete
+    );
+
+
+    renderProfile();
+
+
+    return currentAthlete;
+
+  } catch (error) {
+
+    showError(
+      "خطا در دریافت ورزشکار",
+      error
+    );
+
+    return null;
+
+  }
+
+}
+
+
+// ============================================================
+// RENDER PROFILE
+// ============================================================
+
+function renderProfile() {
+
+  const container =
+    document.getElementById(
+      "profileContainer"
+    );
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!currentAthlete) {
+
+    container.innerHTML = `
+
+      <div class="empty">
+
+        <div class="empty-icon">
+          👤
         </div>
 
-        <div>
+        <h3>
+          ورزشکار پیدا نشد
+        </h3>
 
-          <strong>
-            جودو طبیعت
-          </strong>
+      </div>
 
-          <span>
-            پنل مدیریت مربی
-          </span>
+    `;
 
-        </div>
+    return;
+
+  }
+
+
+  const name =
+    getAthleteName(
+      currentAthlete
+    );
+
+
+  const ageGroup =
+    currentAthlete.age_group ||
+    "ثبت نشده";
+
+
+  const weight =
+    currentAthlete.weight !== null &&
+    currentAthlete.weight !== undefined
+      ? `${currentAthlete.weight} کیلوگرم`
+      : "ثبت نشده";
+
+
+  const nationalId =
+    currentAthlete.national_id ||
+    "ثبت نشده";
+
+
+  const photo =
+    currentAthlete.photo_url ||
+    "";
+
+
+  const bio =
+    currentAthlete.bio ||
+    "توضیحاتی برای این ورزشکار ثبت نشده است.";
+
+
+  container.innerHTML = `
+
+    <div class="profile-card">
+
+      <div class="profile-photo">
+
+        ${
+          photo
+            ? `
+              <img
+                src="${escapeHTML(photo)}"
+                alt="${escapeHTML(name)}"
+                onerror="
+                  this.style.display='none';
+                  this.parentElement.innerHTML='🥋';
+                "
+              >
+            `
+            : `
+              🥋
+            `
+        }
 
       </div>
 
 
-      <button
-        class="logout-btn"
-        id="logoutBtn"
-        type="button"
-      >
-        خروج
-      </button>
+      <div class="profile-info">
 
-    </header>
+        <h1>
+          ${escapeHTML(name)}
+        </h1>
 
 
-    <!-- ===================================================
-         SIDEBAR
-    ==================================================== -->
-
-    <aside
-      class="coach-sidebar"
-      id="coachSidebar"
-    >
-
-      <div class="sidebar-title">
-        مدیریت باشگاه
-      </div>
+        <p class="bio">
+          ${escapeHTML(bio)}
+        </p>
 
 
-      <nav>
+        <div class="profile-meta">
+
+          <div class="meta-item">
+            رده:
+            <strong>
+              ${escapeHTML(ageGroup)}
+            </strong>
+          </div>
 
 
-        <button
-          class="nav-item active"
-          data-page="dashboard"
-          type="button"
-        >
-
-          <span>🏠</span>
-
-          داشبورد
-
-        </button>
+          <div class="meta-item">
+            وزن:
+            <strong>
+              ${escapeHTML(weight)}
+            </strong>
+          </div>
 
 
-        <button
-          class="nav-item"
-          data-page="athletes"
-          type="button"
-        >
+          <div class="meta-item">
+            کد ملی:
+            <strong>
+              ${escapeHTML(nationalId)}
+            </strong>
+          </div>
 
-          <span>👥</span>
-
-          ورزشکاران
-
-        </button>
-
-
-        <button
-          class="nav-item"
-          data-page="evaluations"
-          type="button"
-        >
-
-          <span>📊</span>
-
-          ارزیابی
-
-        </button>
-
-
-        <button
-          class="nav-item"
-          data-page="attendance"
-          type="button"
-        >
-
-          <span>🟢</span>
-
-          حضور و غیاب
-
-        </button>
-
-
-        <button
-          class="nav-item"
-          data-page="achievements"
-          type="button"
-        >
-
-          <span>🏆</span>
-
-          مقام‌ها و افتخارات
-
-        </button>
-
-
-        <button
-          class="nav-item"
-          data-page="events"
-          type="button"
-        >
-
-          <span>📅</span>
-
-          مسابقات و اطلاعیه‌ها
-
-        </button>
-
-
-        <button
-          class="nav-item"
-          data-page="records"
-          type="button"
-        >
-
-          <span>📈</span>
-
-          آمار و رکوردها
-
-        </button>
-
-
-        <button
-          class="nav-item"
-          data-page="settings"
-          type="button"
-        >
-
-          <span>⚙️</span>
-
-          تنظیمات سایت
-
-        </button>
-
-
-      </nav>
-
-
-      <div class="sidebar-footer">
-
-        <span>
-          مربی
-        </span>
-
-        <small id="coachEmail">
-          در حال بارگذاری...
-        </small>
+        </div>
 
       </div>
-
-    </aside>
-
-
-    <!-- ===================================================
-         MAIN
-    ==================================================== -->
-
-    <main class="coach-main">
-
-
-      <!-- =================================================
-           DASHBOARD
-      ================================================== -->
-
-      <section
-        class="coach-page active"
-        id="page-dashboard"
-      >
-
-        <div class="page-heading">
-
-          <div>
-
-            <span class="eyebrow">
-              DASHBOARD
-            </span>
-
-            <h1>
-              داشبورد مربی
-            </h1>
-
-            <p>
-              مدیریت کامل باشگاه جودو طبیعت
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="stats-grid">
-
-
-          <div class="stat-card">
-
-            <span>
-              👥
-            </span>
-
-            <div>
-
-              <small>
-                ورزشکاران
-              </small>
-
-              <strong id="totalAthletes">
-                ۰
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <span>
-              📊
-            </span>
-
-            <div>
-
-              <small>
-                ارزیابی‌ها
-              </small>
-
-              <strong id="totalEvaluations">
-                ۰
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <span>
-              🟢
-            </span>
-
-            <div>
-
-              <small>
-                حضور امروز
-              </small>
-
-              <strong id="todayAttendance">
-                ۰
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <span>
-              🏆
-            </span>
-
-            <div>
-
-              <small>
-                مقام‌ها
-              </small>
-
-              <strong id="totalAchievements">
-                ۰
-              </strong>
-
-            </div>
-
-          </div>
-
-
-        </div>
-
-
-        <div class="dashboard-section">
-
-          <div class="section-title">
-
-            <h2>
-              دسترسی سریع
-            </h2>
-
-          </div>
-
-
-          <div class="quick-grid">
-
-
-            <button
-              class="quick-card"
-              data-go="athletes"
-              type="button"
-            >
-
-              <span>
-                ➕
-              </span>
-
-              <strong>
-                افزودن ورزشکار
-              </strong>
-
-              <small>
-                ثبت ورزشکار جدید
-              </small>
-
-            </button>
-
-
-            <button
-              class="quick-card"
-              data-go="evaluations"
-              type="button"
-            >
-
-              <span>
-                📋
-              </span>
-
-              <strong>
-                ارزیابی جدید
-              </strong>
-
-              <small>
-                ثبت عملکرد ورزشکار
-              </small>
-
-            </button>
-
-
-            <button
-              class="quick-card"
-              data-go="attendance"
-              type="button"
-            >
-
-              <span>
-                🟢
-              </span>
-
-              <strong>
-                حضور و غیاب
-              </strong>
-
-              <small>
-                ثبت حضور امروز
-              </small>
-
-            </button>
-
-
-            <button
-              class="quick-card"
-              data-go="achievements"
-              type="button"
-            >
-
-              <span>
-                🏆
-              </span>
-
-              <strong>
-                ثبت مقام
-              </strong>
-
-              <small>
-                افزودن افتخار جدید
-              </small>
-
-            </button>
-
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           ATHLETES
-      ================================================== -->
-
-      <section
-        class="coach-page"
-        id="page-athletes"
-      >
-
-        <div class="page-heading">
-
-          <div>
-
-            <span class="eyebrow">
-              ATHLETES
-            </span>
-
-            <h1>
-              ورزشکاران
-            </h1>
-
-            <p>
-              مدیریت ورزشکاران باشگاه
-            </p>
-
-          </div>
-
-
-          <button
-            class="primary"
-            id="addAthleteBtn"
-            type="button"
-          >
-
-            ➕ افزودن ورزشکار
-
-          </button>
-
-        </div>
-
-
-        <div class="toolbar">
-
-          <input
-            id="coachSearch"
-            type="search"
-            placeholder="جستجوی نام یا کد ملی..."
-            autocomplete="off"
-          >
-
-
-          <select id="coachFilter">
-
-            <option value="all">
-              همه رده‌ها
-            </option>
-
-          </select>
-
-        </div>
-
-
-        <div
-          id="coachAthleteGrid"
-          class="coach-athlete-grid"
-        ></div>
-
-      </section>
-
-
-      <!-- =================================================
-           EVALUATIONS
-      ================================================== -->
-
-      <section
-        class="coach-page"
-        id="page-evaluations"
-      >
-
-        <div class="page-heading">
-
-          <div>
-
-            <span class="eyebrow">
-              EVALUATION
-            </span>
-
-            <h1>
-              ارزیابی ورزشکاران
-            </h1>
-
-            <p>
-              ثبت و بررسی عملکرد ورزشکاران
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="evaluation-toolbar">
-
-
-          <select
-            id="evaluationAthleteSelect"
-          >
-
-            <option value="">
-              انتخاب ورزشکار
-            </option>
-
-          </select>
-
-
-          <select
-            id="evaluationPeriodSelect"
-          >
-
-            <option value="">
-              انتخاب دوره ارزیابی
-            </option>
-
-          </select>
-
-
-          <button
-            class="primary"
-            id="newEvaluationBtn"
-            type="button"
-          >
-
-            ➕ ارزیابی جدید
-
-          </button>
-
-
-        </div>
-
-
-        <div id="evaluationsList">
-
-          <div class="evaluation-empty">
-
-            <div class="evaluation-empty-icon">
-              📊
-            </div>
-
-            <h2>
-              هنوز ارزیابی‌ای ثبت نشده است
-            </h2>
-
-            <p>
-              برای شروع، یک ورزشکار و دوره ارزیابی انتخاب کنید.
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           ATTENDANCE
-      ================================================== -->
-
-      <section
-        class="coach-page"
-        id="page-attendance"
-      >
-
-        <div class="page-heading">
-
-          <div>
-
-            <span class="eyebrow">
-              ATTENDANCE
-            </span>
-
-            <h1>
-              حضور و غیاب
-            </h1>
-
-            <p>
-              ثبت حضور و غیاب ورزشکاران
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="empty-panel">
-
-          <div>
-            🟢
-          </div>
-
-          <h2>
-            حضور و غیاب
-          </h2>
-
-          <p>
-            ثبت حضور، غیبت و سابقه حضور ورزشکاران.
-          </p>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           ACHIEVEMENTS
-      ================================================== -->
-
-      <section
-        class="coach-page"
-        id="page-achievements"
-      >
-
-        <div class="page-heading">
-
-          <div>
-
-            <span class="eyebrow">
-              ACHIEVEMENTS
-            </span>
-
-            <h1>
-              مقام‌ها و افتخارات
-            </h1>
-
-            <p>
-              ثبت افتخارات و نتایج ورزشکاران
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="empty-panel">
-
-          <div>
-            🏆
-          </div>
-
-          <h2>
-            مقام‌ها و افتخارات
-          </h2>
-
-          <p>
-            ثبت و مدیریت مقام‌های کسب‌شده توسط ورزشکاران.
-          </p>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           EVENTS
-      ================================================== -->
-
-      <section
-        class="coach-page"
-        id="page-events"
-      >
-
-        <div class="page-heading">
-
-          <div>
-
-            <span class="eyebrow">
-              EVENTS
-            </span>
-
-            <h1>
-              مسابقات و اطلاعیه‌ها
-            </h1>
-
-            <p>
-              مدیریت مسابقات، تقویم و اطلاعیه‌های باشگاه
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="empty-panel">
-
-          <div>
-            📅
-          </div>
-
-          <h2>
-            مسابقات و اطلاعیه‌ها
-          </h2>
-
-          <p>
-            مسابقات آینده، تقویم و اطلاعیه‌های باشگاه در این بخش قرار می‌گیرند.
-          </p>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           RECORDS
-      ================================================== -->
-
-      <section
-        class="coach-page"
-        id="page-records"
-      >
-
-        <div class="page-heading">
-
-          <div>
-
-            <span class="eyebrow">
-              RECORDS
-            </span>
-
-            <h1>
-              آمار و رکوردها
-            </h1>
-
-            <p>
-              بررسی آمار و روند پیشرفت ورزشکاران
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="empty-panel">
-
-          <div>
-            📈
-          </div>
-
-          <h2>
-            آمار و رکوردها
-          </h2>
-
-          <p>
-            آمار تمرینی و رکوردهای ورزشکاران در این بخش نمایش داده می‌شود.
-          </p>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           SETTINGS
-      ================================================== -->
-
-      <section
-        class="coach-page"
-        id="page-settings"
-      >
-
-        <div class="page-heading">
-
-          <div>
-
-            <span class="eyebrow">
-              SETTINGS
-            </span>
-
-            <h1>
-              تنظیمات سایت
-            </h1>
-
-            <p>
-              مدیریت اطلاعات و محتوای باشگاه
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="settings-grid">
-
-
-          <div class="setting-card">
-
-            <span>
-              🏢
-            </span>
-
-            <h3>
-              اطلاعات باشگاه
-            </h3>
-
-            <p>
-              نام، توضیحات و اطلاعات اصلی باشگاه
-            </p>
-
-          </div>
-
-
-          <div class="setting-card">
-
-            <span>
-              📞
-            </span>
-
-            <h3>
-              راه‌های ارتباطی
-            </h3>
-
-            <p>
-              مربی می‌تواند اطلاعات تماس باشگاه را وارد یا ویرایش کند.
-            </p>
-
-          </div>
-
-
-          <div class="setting-card">
-
-            <span>
-              📍
-            </span>
-
-            <h3>
-              آدرس باشگاه
-            </h3>
-
-            <p>
-              آدرس و موقعیت باشگاه
-            </p>
-
-          </div>
-
-
-          <div class="setting-card">
-
-            <span>
-              ⚙️
-            </span>
-
-            <h3>
-              تنظیمات عمومی
-            </h3>
-
-            <p>
-              تنظیمات کلی سامانه
-            </p>
-
-          </div>
-
-
-        </div>
-
-      </section>
-
-
-    </main>
-
-  </div>
-
-
-  <!-- =====================================================
-       ADD ATHLETE MODAL
-  ====================================================== -->
-
-  <div
-    class="modal hidden"
-    id="athleteModal"
-  >
-
-    <div class="modal-card">
-
-
-      <button
-        class="close"
-        id="closeAthleteModal"
-        type="button"
-        aria-label="بستن"
-      >
-        ×
-      </button>
-
-
-      <span class="eyebrow">
-        NEW ATHLETE
-      </span>
-
-
-      <h2>
-        افزودن ورزشکار
-      </h2>
-
-
-      <p class="muted">
-        اطلاعات ورزشکار را وارد کنید.
-      </p>
-
-
-      <label>
-
-        نام
-
-        <input
-          id="athleteFirstName"
-          type="text"
-          placeholder="نام ورزشکار"
-        >
-
-      </label>
-
-
-      <label>
-
-        نام خانوادگی
-
-        <input
-          id="athleteLastName"
-          type="text"
-          placeholder="نام خانوادگی"
-        >
-
-      </label>
-
-
-      <label>
-
-        رده سنی
-
-        <input
-          id="athleteAgeGroup"
-          type="text"
-          placeholder="مثلاً نوجوانان"
-        >
-
-      </label>
-
-
-      <label>
-
-        وزن
-
-        <input
-          id="athleteWeight"
-          type="number"
-          step="0.1"
-          placeholder="وزن به کیلوگرم"
-        >
-
-      </label>
-
-
-      <label>
-
-        کد ملی
-
-        <input
-          id="athleteNationalId"
-          type="text"
-          inputmode="numeric"
-          maxlength="10"
-          placeholder="کد ملی ورزشکار"
-        >
-
-      </label>
-
-
-      <label>
-
-        توضیحات
-
-        <textarea
-          id="athleteBio"
-          rows="3"
-          placeholder="توضیحات درباره ورزشکار"
-        ></textarea>
-
-      </label>
-
-
-      <label>
-
-        لینک عکس
-
-        <input
-          id="athletePhotoUrl"
-          type="url"
-          placeholder="https://..."
-        >
-
-      </label>
-
-
-      <button
-        class="primary wide"
-        id="saveAthleteBtn"
-        type="button"
-      >
-        ثبت ورزشکار
-      </button>
-
 
     </div>
 
-  </div>
+  `;
+
+}
 
 
-  <!-- =====================================================
-       SUPABASE
-  ====================================================== -->
+// ============================================================
+// LOAD ATTENDANCE
+// ============================================================
 
-  <script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-  ></script>
+async function loadAttendance() {
 
-
-  <!-- =====================================================
-       ONLY COACH.JS
-       
-       app.js عمداً اینجا حذف شده است.
-       coach.js تنها کنترل‌کننده پنل مربی است.
-  ====================================================== -->
-
-  <script src="coach.js?v=2"></script>
+  if (!currentAthlete) {
+    return;
+  }
 
 
-</body>
+  const container =
+    document.getElementById(
+      "attendanceContainer"
+    );
 
-</html>
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("attendance")
+        .select("*")
+        .eq(
+          "athlete_id",
+          currentAthlete.id
+        )
+        .order(
+          "attendance_date",
+          {
+            ascending: false
+          }
+        );
+
+
+    if (error) {
+
+      console.error(
+        "Attendance error:",
+        error
+      );
+
+
+      if (container) {
+
+        container.innerHTML = `
+
+          <div class="empty">
+
+            <div class="empty-icon">
+              🟢
+            </div>
+
+            <h3>
+              اطلاعات حضور و غیاب قابل دریافت نیست
+            </h3>
+
+            <p>
+              ${escapeHTML(
+                error.message ||
+                "خطای نامشخص"
+              )}
+            </p>
+
+          </div>
+
+        `;
+
+      }
+
+      return;
+
+    }
+
+
+    attendanceRecords =
+      data || [];
+
+
+    console.log(
+      "Attendance:",
+      attendanceRecords
+    );
+
+
+    renderAttendance();
+
+  } catch (error) {
+
+    console.error(
+      "Load attendance error:",
+      error
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// ATTENDANCE STATUS
+// ============================================================
+
+function normalizeAttendanceStatus(
+  status
+) {
+
+  const value =
+    String(
+      status || ""
+    )
+      .trim()
+      .toLowerCase();
+
+
+  if (
+    value === "present" ||
+    value === "حاضر" ||
+    value === "حضور" ||
+    value === "p"
+  ) {
+
+    return "present";
+
+  }
+
+
+  if (
+    value === "absent" ||
+    value === "غایب" ||
+    value === "غیبت" ||
+    value === "a"
+  ) {
+
+    return "absent";
+
+  }
+
+
+  return "other";
+
+}
+
+
+function attendanceStatusText(
+  status
+) {
+
+  const normalized =
+    normalizeAttendanceStatus(
+      status
+    );
+
+
+  if (
+    normalized === "present"
+  ) {
+
+    return "حاضر";
+
+  }
+
+
+  if (
+    normalized === "absent"
+  ) {
+
+    return "غایب";
+
+  }
+
+
+  return status || "ثبت نشده";
+
+}
+
+
+// ============================================================
+// RENDER ATTENDANCE
+// ============================================================
+
+function renderAttendance() {
+
+  const container =
+    document.getElementById(
+      "attendanceContainer"
+    );
+
+
+  if (!container) {
+    return;
+  }
+
+
+  const total =
+    attendanceRecords.length;
+
+
+  const present =
+    attendanceRecords.filter(
+      record =>
+        normalizeAttendanceStatus(
+          record.status
+        ) === "present"
+    ).length;
+
+
+  const absent =
+    attendanceRecords.filter(
+      record =>
+        normalizeAttendanceStatus(
+          record.status
+        ) === "absent"
+    ).length;
+
+
+  const percentage =
+    total > 0
+      ? (present / total) * 100
+      : 0;
+
+
+  if (!total) {
+
+    container.innerHTML = `
+
+      <div class="attendance-section">
+
+        <div class="attendance-stats">
+
+          <div class="attendance-stat">
+            <div class="icon">📅</div>
+            <small>کل جلسات</small>
+            <strong>۰</strong>
+          </div>
+
+
+          <div class="attendance-stat present">
+            <div class="icon">🟢</div>
+            <small>حاضر</small>
+            <strong>۰</strong>
+          </div>
+
+
+          <div class="attendance-stat absent">
+            <div class="icon">🔴</div>
+            <small>غایب</small>
+            <strong>۰</strong>
+          </div>
+
+
+          <div class="attendance-stat percent">
+            <div class="icon">📈</div>
+            <small>درصد حضور</small>
+            <strong>۰٪</strong>
+          </div>
+
+        </div>
+
+
+        <div class="empty">
+
+          <div class="empty-icon">
+            🟢
+          </div>
+
+          <h3>
+            هنوز سابقه حضور و غیابی ثبت نشده است
+          </h3>
+
+          <p>
+            به محض ثبت حضور و غیاب، سوابق اینجا نمایش داده می‌شود.
+          </p>
+
+        </div>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  container.innerHTML = `
+
+    <div class="attendance-section">
+
+      <div class="attendance-stats">
+
+        <div class="attendance-stat">
+
+          <div class="icon">
+            📅
+          </div>
+
+          <small>
+            کل جلسات
+          </small>
+
+          <strong>
+            ${persianNumber(total)}
+          </strong>
+
+        </div>
+
+
+        <div class="attendance-stat present">
+
+          <div class="icon">
+            🟢
+          </div>
+
+          <small>
+            حاضر
+          </small>
+
+          <strong>
+            ${persianNumber(present)}
+          </strong>
+
+        </div>
+
+
+        <div class="attendance-stat absent">
+
+          <div class="icon">
+            🔴
+          </div>
+
+          <small>
+            غایب
+          </small>
+
+          <strong>
+            ${persianNumber(absent)}
+          </strong>
+
+        </div>
+
+
+        <div class="attendance-stat percent">
+
+          <div class="icon">
+            📈
+          </div>
+
+          <small>
+            درصد حضور
+          </small>
+
+          <strong>
+            ${persianNumber(
+              percentage.toFixed(1)
+            )}٪
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="attendance-table-wrap">
+
+        <table class="attendance-table">
+
+          <thead>
+
+            <tr>
+
+              <th>
+                تاریخ
+              </th>
+
+              <th>
+                وضعیت
+              </th>
+
+              <th>
+                توضیحات
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            ${
+              attendanceRecords
+                .map(
+                  record => {
+
+                    const normalized =
+                      normalizeAttendanceStatus(
+                        record.status
+                      );
+
+
+                    let statusClass =
+                      "status-other";
+
+
+                    let icon =
+                      "⚪";
+
+
+                    if (
+                      normalized ===
+                      "present"
+                    ) {
+
+                      statusClass =
+                        "status-present";
+
+                      icon =
+                        "🟢";
+
+                    }
+
+
+                    if (
+                      normalized ===
+                      "absent"
+                    ) {
+
+                      statusClass =
+                        "status-absent";
+
+                      icon =
+                        "🔴";
+
+                    }
+
+
+                    return `
+
+                      <tr>
+
+                        <td>
+                          ${escapeHTML(
+                            formatDate(
+                              record.attendance_date
+                            )
+                          )}
+                        </td>
+
+
+                        <td>
+
+                          <span
+                            class="status-badge ${statusClass}"
+                          >
+                            ${icon}
+                            ${escapeHTML(
+                              attendanceStatusText(
+                                record.status
+                              )
+                            )}
+                          </span>
+
+                        </td>
+
+
+                        <td>
+                          ${escapeHTML(
+                            record.notes ||
+                            "—"
+                          )}
+                        </td>
+
+                      </tr>
+
+                    `;
+
+                  }
+                )
+                .join("")
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+// ============================================================
+// LOAD EVALUATION PERIODS
+// ============================================================
+
+async function loadEvaluationPeriods() {
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("evaluation_periods")
+        .select("*");
+
+
+    if (error) {
+
+      console.error(
+        "Periods error:",
+        error
+      );
+
+      return;
+
+    }
+
+
+    evaluationPeriods =
+      data || [];
+
+  } catch (error) {
+
+    console.error(
+      "Load periods error:",
+      error
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// LOAD EVALUATION CRITERIA
+// ============================================================
+
+async function loadEvaluationCriteria() {
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("evaluation_criteria")
+        .select("*")
+        .eq(
+          "active",
+          true
+        );
+
+
+    if (error) {
+
+      console.error(
+        "Criteria error:",
+        error
+      );
+
+      return;
+
+    }
+
+
+    evaluationCriteria =
+      data || [];
+
+  } catch (error) {
+
+    console.error(
+      "Load criteria error:",
+      error
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// LOAD EVALUATIONS
+// ============================================================
+
+async function loadAthleteEvaluations() {
+
+  if (!currentAthlete) {
+    return;
+  }
+
+
+  const container =
+    document.getElementById(
+      "evaluationsContainer"
+    );
+
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("evaluations")
+        .select("*")
+        .eq(
+          "athlete_id",
+          currentAthlete.id
+        )
+        .order(
+          "evaluated_at",
+          {
+            ascending: false
+          }
+        );
+
+
+    if (error) {
+
+      console.error(
+        "Evaluations error:",
+        error
+      );
+
+
+      if (container) {
+
+        container.innerHTML = `
+
+          <div class="empty">
+
+            <div class="empty-icon">
+              📊
+            </div>
+
+            <h3>
+              ارزیابی‌ها قابل دریافت نیستند
+            </h3>
+
+            <p>
+              ${escapeHTML(
+                error.message ||
+                "خطای نامشخص"
+              )}
+            </p>
+
+          </div>
+
+        `;
+
+      }
+
+      return;
+
+    }
+
+
+    athleteEvaluations =
+      data || [];
+
+
+    console.log(
+      "Athlete evaluations:",
+      athleteEvaluations
+    );
+
+
+    await loadEvaluationScores();
+
+
+    renderEvaluations();
+
+  } catch (error) {
+
+    console.error(
+      "Load evaluations error:",
+      error
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// LOAD SCORES
+// ============================================================
+
+async function loadEvaluationScores() {
+
+  if (!athleteEvaluations.length) {
+
+    evaluationScores = [];
+
+    return;
+
+  }
+
+
+  const evaluationIds =
+    athleteEvaluations.map(
+      evaluation =>
+        evaluation.id
+    );
+
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("evaluation_scores")
+        .select("*")
+        .in(
+          "evaluation_id",
+          evaluationIds
+        );
+
+
+    if (error) {
+
+      console.error(
+        "Evaluation scores error:",
+        error
+      );
+
+      evaluationScores = [];
+
+      return;
+
+    }
+
+
+    evaluationScores =
+      data || [];
+
+
+    console.log(
+      "Evaluation scores:",
+      evaluationScores
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Load scores error:",
+      error
+    );
+
+    evaluationScores = [];
+
+  }
+
+}
+
+
+// ============================================================
+// FIND PERIOD
+// ============================================================
+
+function getPeriodById(
+  periodId
+) {
+
+  return evaluationPeriods.find(
+    period =>
+      String(period.id) ===
+      String(periodId)
+  );
+
+}
+
+
+// ============================================================
+// FIND CRITERION
+// ============================================================
+
+function getCriterionById(
+  criterionId
+) {
+
+  return evaluationCriteria.find(
+    criterion =>
+      String(criterion.id) ===
+      String(criterionId)
+  );
+
+}
+
+
+// ============================================================
+// RENDER EVALUATIONS
+// ============================================================
+
+function renderEvaluations() {
+
+  const container =
+    document.getElementById(
+      "evaluationsContainer"
+    );
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!athleteEvaluations.length) {
+
+    container.innerHTML = `
+
+      <div class="empty">
+
+        <div class="empty-icon">
+          📊
+        </div>
+
+        <h3>
+          هنوز ارزیابی‌ای ثبت نشده است
+        </h3>
+
+        <p>
+          ارزیابی‌های ورزشکار پس از ثبت در این قسمت نمایش داده می‌شوند.
+        </p>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  container.innerHTML = `
+
+    <div class="evaluation-grid">
+
+      ${
+        athleteEvaluations
+          .map(
+            evaluation => {
+
+              const period =
+                getPeriodById(
+                  evaluation.period_id
+                );
+
+
+              const score =
+                Number(
+                  evaluation.total_score ||
+                  0
+                );
+
+
+              const scores =
+                evaluationScores.filter(
+                  item =>
+                    String(
+                      item.evaluation_id
+                    ) ===
+                    String(
+                      evaluation.id
+                    )
+                );
+
+
+              return `
+
+                <div class="evaluation-card">
+
+                  <div
+                    class="evaluation-card-header"
+                  >
+
+                    <div>
+
+                      <h3>
+                        ${escapeHTML(
+                          period?.title ||
+                          "دوره ارزیابی"
+                        )}
+                      </h3>
+
+
+                      <div class="evaluation-date">
+
+                        تاریخ ارزیابی:
+
+                        ${escapeHTML(
+                          formatDate(
+                            evaluation.evaluated_at
+                          )
+                        )}
+
+                      </div>
+
+                    </div>
+
+
+                    <div class="evaluation-score">
+
+                      <small>
+                        امتیاز نهایی
+                      </small>
+
+                      <strong>
+                        ${persianNumber(
+                          score.toFixed(2)
+                        )}
+                      </strong>
+
+                    </div>
+
+                  </div>
+
+
+                  ${
+                    scores.length
+                      ? `
+
+                        <div class="criteria-list">
+
+                          ${
+                            scores
+                              .map(
+                                scoreRow => {
+
+                                  const criterion =
+                                    getCriterionById(
+                                      scoreRow.criterion_id
+                                    );
+
+
+                                  const value =
+                                    Number(
+                                      scoreRow.score ||
+                                      0
+                                    );
+
+
+                                  const percent =
+                                    Math.max(
+                                      0,
+                                      Math.min(
+                                        100,
+                                        value * 10
+                                      )
+                                    );
+
+
+                                  return `
+
+                                    <div
+                                      class="criterion-row"
+                                    >
+
+                                      <div
+                                        class="criterion-name"
+                                      >
+                                        ${escapeHTML(
+                                          criterion?.name ||
+                                          "معیار"
+                                        )}
+                                      </div>
+
+
+                                      <div
+                                        class="criterion-bar"
+                                      >
+
+                                        <div
+                                          class="criterion-fill"
+                                          style="width:${percent}%"
+                                        ></div>
+
+                                      </div>
+
+
+                                      <div
+                                        class="criterion-score"
+                                      >
+                                        ${persianNumber(
+                                          value.toFixed(1)
+                                        )}
+                                      </div>
+
+                                    </div>
+
+                                  `;
+
+                                }
+                              )
+                              .join("")
+                          }
+
+                        </div>
+
+                      `
+                      : `
+                        <div class="evaluation-notes">
+                          جزئیات معیارهای این ارزیابی موجود نیست.
+                        </div>
+                      `
+                  }
+
+
+                  ${
+                    evaluation.notes
+                      ? `
+
+                        <div class="evaluation-notes">
+
+                          <strong>
+                            توضیحات مربی:
+                          </strong>
+
+                          <br>
+
+                          ${escapeHTML(
+                            evaluation.notes
+                          )}
+
+                        </div>
+
+                      `
+                      : ""
+                  }
+
+                </div>
+
+              `;
+
+            }
+          )
+          .join("")
+      }
+
+    </div>
+
+  `;
+
+}
+
+
+// ============================================================
+// BACK BUTTON
+// ============================================================
+
+function initializeBackButton() {
+
+  const button =
+    document.getElementById(
+      "backBtn"
+    );
+
+
+  if (!button) {
+    return;
+  }
+
+
+  button.addEventListener(
+    "click",
+    function () {
+
+      if (
+        document.referrer &&
+        document.referrer.includes(
+          window.location.origin
+        )
+      ) {
+
+        history.back();
+
+      } else {
+
+        window.location.href =
+          "coach.html";
+
+      }
+
+    }
+  );
+
+}
+
+
+// ============================================================
+// INITIALIZE
+// ============================================================
+
+async function initializeAthletePage() {
+
+  console.log(
+    "🥋 طبیعت جودو | Athlete Profile"
+  );
+
+
+  initializeBackButton();
+
+
+  const athlete =
+    await loadAthlete();
+
+
+  if (!athlete) {
+    return;
+  }
+
+
+  // مهم:
+  // اطلاعات حضور و غیاب را جداگانه
+  // و مستقیم از جدول attendance می‌گیریم.
+
+  await loadAttendance();
+
+
+  // اطلاعات ارزیابی
+
+  await loadEvaluationPeriods();
+
+  await loadEvaluationCriteria();
+
+  await loadAthleteEvaluations();
+
+
+  console.log(
+    "✅ پروفایل ورزشکار آماده شد."
+  );
+
+}
+
+
+// ============================================================
+// DOM READY
+// ============================================================
+
+if (
+  document.readyState ===
+  "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initializeAthletePage
+  );
+
+} else {
+
+  initializeAthletePage();
+
+}
