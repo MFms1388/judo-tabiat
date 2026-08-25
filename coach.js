@@ -1040,3 +1040,84 @@ function renderEvaluations() {
     })
     .join("");
 }
+// ======================================
+// EVALUATION HISTORY STYLE
+// ======================================
+
+(function addEvaluationHistoryStyle() {
+
+  if (document.getElementById("evaluation-history-style")) {
+    return;
+  }
+
+  const style = document.createElement("style");
+
+  style.id = "evaluation-history-style";
+
+  style.textContent = `
+
+    .evaluation-history-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+
+      padding: 16px;
+
+      margin-bottom: 12px;
+
+      background: #ffffff;
+
+      border: 1px solid #e1e7e3;
+
+      border-radius: 14px;
+
+      box-shadow:
+        0 4px 15px rgba(0,0,0,0.06);
+    }
+
+    .evaluation-history-card strong {
+      display: block;
+
+      color: #111111;
+
+      font-size: 16px;
+
+      margin-bottom: 5px;
+    }
+
+    .evaluation-history-card div {
+      color: #666666;
+
+      font-size: 13px;
+    }
+
+    .evaluation-history-score {
+      min-width: 75px;
+
+      padding: 10px;
+
+      text-align: center;
+
+      background: #edf7f1;
+
+      color: #16834b !important;
+
+      border-radius: 10px;
+
+      font-size: 18px;
+
+      font-weight: 900;
+    }
+
+    .evaluation-history-score small {
+      font-size: 11px;
+
+      color: #16834b !important;
+    }
+
+  `;
+
+  document.head.appendChild(style);
+
+})();
