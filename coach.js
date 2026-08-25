@@ -1,6 +1,6 @@
 // ============================================================
 // طبیعت جودو | COACH.JS
-// پنل مدیریت مربی - نسخه اصلاح شده
+// نسخه اصلاح شده کامل
 // ============================================================
 
 const SUPABASE_URL =
@@ -8,6 +8,11 @@ const SUPABASE_URL =
 
 const SUPABASE_KEY =
   "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
+
+
+// ============================================================
+// SUPABASE CLIENT
+// ============================================================
 
 const supabaseClient =
   window.supabase.createClient(
@@ -25,12 +30,14 @@ let evaluationPeriods = [];
 let evaluationCriteria = [];
 let evaluations = [];
 
+let currentCoach = null;
+
 
 // ============================================================
 // HELPERS
 // ============================================================
 
-function coachEscapeHTML(value) {
+function escapeHTML(value) {
 
   const div =
     document.createElement("div");
@@ -45,7 +52,7 @@ function coachEscapeHTML(value) {
 }
 
 
-function coachPersianNumber(value) {
+function persianNumber(value) {
 
   return String(value).replace(
     /\d/g,
@@ -61,14 +68,15 @@ function getAthleteName(athlete) {
     return "بدون نام";
   }
 
-  return [
+  const name = [
     athlete.first_name,
     athlete.last_name
   ]
     .filter(Boolean)
     .join(" ")
-    .trim() || "بدون نام";
+    .trim();
 
+  return name || "بدون نام";
 }
 
 
@@ -87,7 +95,6 @@ function showError(title, error) {
     "\n\n" +
     message
   );
-
 }
 
 
@@ -99,23 +106,45 @@ async function checkCoachSession() {
 
   try {
 
-    const result =
+    const {
+      data,
+      error
+    } =
       await supabaseClient.auth.getSession();
 
-    if (result.error) {
 
-      console.error(
-        "Session error:",
-        result.error
+    if (error) {
+
+      showError(
+        "خطا در بررسی ورود مربی",
+        error
       );
 
-      return;
+      return false;
 
     }
 
 
-    const session =
-      result.data?.session;
+    if (
+      !data ||
+      !data.session ||
+      !data.session.user
+    ) {
+
+      alert(
+        "جلسه ورود مربی پیدا نشد. لطفاً دوباره وارد شوید."
+      );
+
+      window.location.href =
+        "index.html";
+
+      return false;
+
+    }
+
+
+    currentCoach =
+      data.session.user;
 
 
     const emailElement =
@@ -124,33 +153,31 @@ async function checkCoachSession() {
       );
 
 
-    if (!session?.user) {
-
-      if (emailElement) {
-
-        emailElement.textContent =
-          "وارد نشده";
-
-      }
-
-      return;
-
-    }
-
-
     if (emailElement) {
 
       emailElement.textContent =
-        session.user.email || "مربی";
+        currentCoach.email || "مربی";
 
     }
 
+
+    console.log(
+      "Coach:",
+      currentCoach.id,
+      currentCoach.email
+    );
+
+
+    return true;
+
   } catch (error) {
 
-    console.error(
-      "Session check error:",
+    showError(
+      "خطا در بررسی حساب مربی",
       error
     );
+
+    return false;
 
   }
 
@@ -167,7 +194,9 @@ function openPage(pageName) {
     .querySelectorAll(".coach-page")
     .forEach(page => {
 
-      page.classList.remove("active");
+      page.classList.remove(
+        "active"
+      );
 
     });
 
@@ -180,7 +209,9 @@ function openPage(pageName) {
 
   if (target) {
 
-    target.classList.add("active");
+    target.classList.add(
+      "active"
+    );
 
   }
 
@@ -189,14 +220,19 @@ function openPage(pageName) {
     .querySelectorAll(".nav-item")
     .forEach(item => {
 
-      item.classList.remove("active");
+      item.classList.remove(
+        "active"
+      );
+
 
       if (
         item.dataset.page ===
         pageName
       ) {
 
-        item.classList.add("active");
+        item.classList.add(
+          "active"
+        );
 
       }
 
@@ -211,7 +247,9 @@ function openPage(pageName) {
 
   if (sidebar) {
 
-    sidebar.classList.remove("open");
+    sidebar.classList.remove(
+      "open"
+    );
 
   }
 
@@ -237,11 +275,6 @@ function openPage(pageName) {
 // ============================================================
 
 function initializeNavigation() {
-
-  console.log(
-    "Navigation initialized"
-  );
-
 
   document
     .querySelectorAll(".nav-item")
@@ -321,42 +354,6 @@ function initializeNavigation() {
 // LOGOUT
 // ============================================================
 
-async function logoutCoach() {
-
-  try {
-
-    const result =
-      await supabaseClient.auth.signOut();
-
-
-    if (result.error) {
-
-      showError(
-        "خروج انجام نشد.",
-        result.error
-      );
-
-      return;
-
-    }
-
-
-    window.location.href =
-      "index.html";
-
-
-  } catch (error) {
-
-    showError(
-      "خطا هنگام خروج.",
-      error
-    );
-
-  }
-
-}
-
-
 function initializeLogout() {
 
   const button =
@@ -378,7 +375,58 @@ function initializeLogout() {
 
   button.addEventListener(
     "click",
-    logoutCoach
+    async function () {
+
+      button.disabled = true;
+
+      button.textContent =
+        "در حال خروج...";
+
+
+      try {
+
+        const {
+          error
+        } =
+          await supabaseClient.auth.signOut();
+
+
+        if (error) {
+
+          showError(
+            "خروج انجام نشد",
+            error
+          );
+
+          button.disabled = false;
+
+          button.textContent =
+            "خروج";
+
+          return;
+
+        }
+
+
+        window.location.href =
+          "index.html";
+
+
+      } catch (error) {
+
+        showError(
+          "خطا هنگام خروج",
+          error
+        );
+
+        button.disabled = false;
+
+        button.textContent =
+          "خروج";
+
+      }
+
+    }
   );
 
 }
@@ -391,51 +439,40 @@ function initializeLogout() {
 async function loadAthletes() {
 
   console.log(
-    "Loading athletes..."
+    "در حال دریافت ورزشکاران..."
   );
 
 
   try {
 
-    /*
-      عمداً از created_at برای order
-      استفاده نمی‌کنیم.
-    */
-
-    let result =
+    const {
+      data,
+      error
+    } =
       await supabaseClient
-        .from("Athletes")
-        .select("*");
+        .from("athletes")
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        );
 
 
-    if (
-      result.error
-    ) {
-
-      console.warn(
-        "Athletes uppercase failed:",
-        result.error
-      );
-
-
-      result =
-        await supabaseClient
-          .from("athletes")
-          .select("*");
-
-    }
-
-
-    if (result.error) {
-
-      showError(
-        "ورزشکاران از Supabase خوانده نشدند.",
-        result.error
-      );
+    if (error) {
 
       athletes = [];
 
-      renderAthletes();
+      console.error(
+        "LOAD ATHLETES ERROR:",
+        error
+      );
+
+      showError(
+        "ورزشکاران از دیتابیس خوانده نشدند",
+        error
+      );
 
       return [];
 
@@ -443,7 +480,7 @@ async function loadAthletes() {
 
 
     athletes =
-      result.data || [];
+      data || [];
 
 
     console.log(
@@ -463,17 +500,14 @@ async function loadAthletes() {
 
     return athletes;
 
-
   } catch (error) {
-
-    showError(
-      "خطا در دریافت ورزشکاران.",
-      error
-    );
 
     athletes = [];
 
-    renderAthletes();
+    showError(
+      "خطا در دریافت ورزشکاران",
+      error
+    );
 
     return [];
 
@@ -499,30 +533,20 @@ function renderAthletes() {
   }
 
 
-  const searchInput =
-    document.getElementById(
-      "coachSearch"
-    );
+  const search =
+    document
+      .getElementById(
+        "coachSearch"
+      )
+      ?.value
+      .trim()
+      .toLowerCase() || "";
 
 
   const filter =
     document.getElementById(
       "coachFilter"
-    );
-
-
-  const search =
-    searchInput
-      ? searchInput.value
-          .trim()
-          .toLowerCase()
-      : "";
-
-
-  const filterValue =
-    filter
-      ? filter.value
-      : "all";
+    )?.value || "all";
 
 
   let list =
@@ -538,14 +562,16 @@ function renderAthletes() {
           const name =
             getAthleteName(
               athlete
-            ).toLowerCase();
+            )
+              .toLowerCase();
 
 
           const nationalId =
             String(
               athlete.national_id ||
               ""
-            ).toLowerCase();
+            )
+              .toLowerCase();
 
 
           return (
@@ -560,21 +586,15 @@ function renderAthletes() {
 
 
   if (
-    filterValue &&
-    filterValue !== "all"
+    filter !== "all"
   ) {
 
     list =
       list.filter(
-        athlete => {
-
-          return String(
+        athlete =>
+          String(
             athlete.age_group || ""
-          ) === String(
-            filterValue
-          );
-
-        }
+          ) === String(filter)
       );
 
   }
@@ -593,7 +613,8 @@ function renderAthletes() {
         </h2>
 
         <p>
-          هنوز ورزشکاری ثبت نشده یا نتیجه‌ای مطابق جستجو وجود ندارد.
+          اگر ورزشکار در Supabase وجود دارد،
+          خطای دسترسی دیتابیس را بررسی کنید.
         </p>
 
       </div>
@@ -621,8 +642,10 @@ function renderAthletes() {
 
 
         const weight =
-          athlete.weight ??
-          "—";
+          athlete.weight === null ||
+          athlete.weight === undefined
+            ? "—"
+            : athlete.weight;
 
 
         const nationalId =
@@ -639,7 +662,7 @@ function renderAthletes() {
 
           <div
             class="athlete-card"
-            data-athlete-id="${coachEscapeHTML(
+            data-athlete-id="${escapeHTML(
               athlete.id
             )}"
           >
@@ -650,10 +673,10 @@ function renderAthletes() {
                 photo
                   ? `
                     <img
-                      src="${coachEscapeHTML(
+                      src="${escapeHTML(
                         photo
                       )}"
-                      alt="${coachEscapeHTML(
+                      alt="${escapeHTML(
                         name
                       )}"
                     >
@@ -680,38 +703,30 @@ function renderAthletes() {
             <div class="athlete-card-content">
 
               <h3>
-                ${coachEscapeHTML(
-                  name
-                )}
+                ${escapeHTML(name)}
               </h3>
 
               <p>
                 رده:
-                ${coachEscapeHTML(
-                  ageGroup
-                )}
+                ${escapeHTML(ageGroup)}
               </p>
 
               <p>
                 وزن:
-                ${coachPersianNumber(
-                  weight
-                )}
+                ${persianNumber(weight)}
                 کیلو
               </p>
 
               <p>
                 کد ملی:
-                ${coachEscapeHTML(
-                  nationalId
-                )}
+                ${escapeHTML(nationalId)}
               </p>
 
 
               <button
                 type="button"
                 class="primary wide athlete-evaluation-btn"
-                data-athlete-id="${coachEscapeHTML(
+                data-athlete-id="${escapeHTML(
                   athlete.id
                 )}"
               >
@@ -736,18 +751,10 @@ function renderAthletes() {
 
       button.addEventListener(
         "click",
-        function (event) {
-
-          event.preventDefault();
-          event.stopPropagation();
-
-
-          const athleteId =
-            this.dataset.athleteId;
-
+        function () {
 
           openEvaluationForAthlete(
-            athleteId
+            this.dataset.athleteId
           );
 
         }
@@ -759,7 +766,7 @@ function renderAthletes() {
 
 
 // ============================================================
-// ATHLETE FILTER
+// FILTER
 // ============================================================
 
 function fillAthleteFilter() {
@@ -798,17 +805,11 @@ function fillAthleteFilter() {
       groups
         .map(
           group => `
-
-            <option
-              value="${coachEscapeHTML(
-                group
-              )}"
-            >
-              ${coachEscapeHTML(
-                group
-              )}
+            <option value="${escapeHTML(
+              group
+            )}">
+              ${escapeHTML(group)}
             </option>
-
           `
         )
         .join("")
@@ -818,10 +819,6 @@ function fillAthleteFilter() {
 
 }
 
-
-// ============================================================
-// ATHLETE SEARCH
-// ============================================================
 
 function initializeAthleteSearch() {
 
@@ -860,7 +857,7 @@ function initializeAthleteSearch() {
 
 
 // ============================================================
-// ADD ATHLETE MODAL
+// ATHLETE MODAL
 // ============================================================
 
 function openAthleteModal() {
@@ -874,7 +871,7 @@ function openAthleteModal() {
   if (!modal) {
 
     alert(
-      "athleteModal در coach.html پیدا نشد."
+      "پنجره افزودن ورزشکار در coach.html پیدا نشد."
     );
 
     return;
@@ -935,16 +932,7 @@ function clearAthleteForm() {
 }
 
 
-// ============================================================
-// ATHLETE MODAL INITIALIZE
-// ============================================================
-
 function initializeAthleteModal() {
-
-  console.log(
-    "Initializing athlete modal..."
-  );
-
 
   const openButton =
     document.getElementById(
@@ -964,13 +952,6 @@ function initializeAthleteModal() {
     );
 
 
-  console.log({
-    addAthleteBtn: !!openButton,
-    closeAthleteModal: !!closeButton,
-    saveAthleteBtn: !!saveButton
-  });
-
-
   if (openButton) {
 
     openButton.addEventListener(
@@ -982,6 +963,12 @@ function initializeAthleteModal() {
         openAthleteModal();
 
       }
+    );
+
+  } else {
+
+    console.error(
+      "addAthleteBtn پیدا نشد"
     );
 
   }
@@ -1010,8 +997,7 @@ function initializeAthleteModal() {
       function (event) {
 
         if (
-          event.target ===
-          modal
+          event.target === modal
         ) {
 
           closeAthleteModal();
@@ -1045,43 +1031,56 @@ async function saveAthlete() {
   const firstName =
     document.getElementById(
       "athleteFirstName"
-    )?.value.trim();
+    )
+      ?.value
+      .trim();
 
 
   const lastName =
     document.getElementById(
       "athleteLastName"
-    )?.value.trim();
+    )
+      ?.value
+      .trim();
 
 
   const ageGroup =
     document.getElementById(
       "athleteAgeGroup"
-    )?.value.trim();
+    )
+      ?.value
+      .trim();
 
 
   const weight =
     document.getElementById(
       "athleteWeight"
-    )?.value;
+    )
+      ?.value;
 
 
   const nationalId =
     document.getElementById(
       "athleteNationalId"
-    )?.value.trim();
+    )
+      ?.value
+      .trim();
 
 
   const bio =
     document.getElementById(
       "athleteBio"
-    )?.value.trim();
+    )
+      ?.value
+      .trim();
 
 
   const photoUrl =
     document.getElementById(
       "athletePhotoUrl"
-    )?.value.trim();
+    )
+      ?.value
+      .trim();
 
 
   if (!firstName || !lastName) {
@@ -1125,9 +1124,9 @@ async function saveAthlete() {
         ageGroup || null,
 
       weight:
-        weight
-          ? Number(weight)
-          : null,
+        weight === ""
+          ? null
+          : Number(weight),
 
       national_id:
         nationalId || null,
@@ -1141,9 +1140,12 @@ async function saveAthlete() {
     };
 
 
-    let result =
+    const {
+      data,
+      error
+    } =
       await supabaseClient
-        .from("Athletes")
+        .from("athletes")
         .insert(
           athleteData
         )
@@ -1151,36 +1153,22 @@ async function saveAthlete() {
         .single();
 
 
-    if (result.error) {
-
-      console.warn(
-        "Uppercase insert failed:",
-        result.error
-      );
-
-
-      result =
-        await supabaseClient
-          .from("athletes")
-          .insert(
-            athleteData
-          )
-          .select()
-          .single();
-
-    }
-
-
-    if (result.error) {
+    if (error) {
 
       showError(
-        "ثبت ورزشکار انجام نشد.",
-        result.error
+        "ثبت ورزشکار انجام نشد",
+        error
       );
 
       return;
 
     }
+
+
+    console.log(
+      "Athlete created:",
+      data
+    );
 
 
     alert(
@@ -1190,23 +1178,13 @@ async function saveAthlete() {
 
     closeAthleteModal();
 
-
     await loadAthletes();
-
-
-    fillAthleteFilter();
-
-
-    fillAthleteSelect();
-
-
-    updateDashboardStats();
 
 
   } catch (error) {
 
     showError(
-      "خطا هنگام ثبت ورزشکار.",
+      "خطا هنگام ثبت ورزشکار",
       error
     );
 
@@ -1227,37 +1205,41 @@ async function saveAthlete() {
 
 
 // ============================================================
-// LOAD EVALUATION PERIODS
+// LOAD PERIODS
 // ============================================================
 
 async function loadEvaluationPeriods() {
 
   console.log(
-    "Loading evaluation periods..."
+    "در حال دریافت دوره‌های ارزیابی..."
   );
 
 
   try {
 
-    /*
-      مهم:
-      اینجا دیگر created_at را استفاده نمی‌کنیم.
-    */
-
-    const result =
+    const {
+      data,
+      error
+    } =
       await supabaseClient
         .from("evaluation_periods")
-        .select("*");
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending: true
+          }
+        );
 
 
-    if (result.error) {
-
-      showError(
-        "دوره‌های ارزیابی خوانده نشدند.",
-        result.error
-      );
+    if (error) {
 
       evaluationPeriods = [];
+
+      showError(
+        "دوره‌های ارزیابی خوانده نشدند",
+        error
+      );
 
       return [];
 
@@ -1265,7 +1247,7 @@ async function loadEvaluationPeriods() {
 
 
     evaluationPeriods =
-      result.data || [];
+      data || [];
 
 
     console.log(
@@ -1274,17 +1256,19 @@ async function loadEvaluationPeriods() {
     );
 
 
-    return evaluationPeriods;
+    fillPeriodSelect();
 
+
+    return evaluationPeriods;
 
   } catch (error) {
 
+    evaluationPeriods = [];
+
     showError(
-      "خطا در دریافت دوره‌های ارزیابی.",
+      "خطا در دریافت دوره‌های ارزیابی",
       error
     );
-
-    evaluationPeriods = [];
 
     return [];
 
@@ -1300,26 +1284,39 @@ async function loadEvaluationPeriods() {
 async function loadEvaluationCriteria() {
 
   console.log(
-    "Loading evaluation criteria..."
+    "در حال دریافت معیارهای ارزیابی..."
   );
 
 
   try {
 
-    const result =
+    const {
+      data,
+      error
+    } =
       await supabaseClient
         .from("evaluation_criteria")
-        .select("*");
+        .select("*")
+        .eq(
+          "active",
+          true
+        )
+        .order(
+          "created_at",
+          {
+            ascending: true
+          }
+        );
 
 
-    if (result.error) {
-
-      showError(
-        "معیارهای ارزیابی خوانده نشدند.",
-        result.error
-      );
+    if (error) {
 
       evaluationCriteria = [];
+
+      showError(
+        "معیارهای ارزیابی خوانده نشدند",
+        error
+      );
 
       return [];
 
@@ -1327,7 +1324,7 @@ async function loadEvaluationCriteria() {
 
 
     evaluationCriteria =
-      result.data || [];
+      data || [];
 
 
     console.log(
@@ -1338,15 +1335,14 @@ async function loadEvaluationCriteria() {
 
     return evaluationCriteria;
 
-
   } catch (error) {
 
+    evaluationCriteria = [];
+
     showError(
-      "خطا در دریافت معیارها.",
+      "خطا در دریافت معیارهای ارزیابی",
       error
     );
-
-    evaluationCriteria = [];
 
     return [];
 
@@ -1362,26 +1358,35 @@ async function loadEvaluationCriteria() {
 async function loadEvaluations() {
 
   console.log(
-    "Loading evaluations..."
+    "در حال دریافت ارزیابی‌ها..."
   );
 
 
   try {
 
-    const result =
+    const {
+      data,
+      error
+    } =
       await supabaseClient
         .from("evaluations")
-        .select("*");
+        .select("*")
+        .order(
+          "evaluated_at",
+          {
+            ascending: false
+          }
+        );
 
 
-    if (result.error) {
-
-      showError(
-        "ارزیابی‌های قبلی خوانده نشدند.",
-        result.error
-      );
+    if (error) {
 
       evaluations = [];
+
+      showError(
+        "ارزیابی‌های قبلی خوانده نشدند",
+        error
+      );
 
       return [];
 
@@ -1389,7 +1394,7 @@ async function loadEvaluations() {
 
 
     evaluations =
-      result.data || [];
+      data || [];
 
 
     console.log(
@@ -1400,15 +1405,14 @@ async function loadEvaluations() {
 
     return evaluations;
 
-
   } catch (error) {
 
+    evaluations = [];
+
     showError(
-      "خطا در دریافت ارزیابی‌ها.",
+      "خطا در دریافت ارزیابی‌ها",
       error
     );
-
-    evaluations = [];
 
     return [];
 
@@ -1418,7 +1422,7 @@ async function loadEvaluations() {
 
 
 // ============================================================
-// ATHLETE SELECT
+// SELECT ATHLETE
 // ============================================================
 
 function fillAthleteSelect() {
@@ -1444,19 +1448,17 @@ function fillAthleteSelect() {
       athletes
         .map(
           athlete => `
-
             <option
-              value="${coachEscapeHTML(
+              value="${escapeHTML(
                 athlete.id
               )}"
             >
-              ${coachEscapeHTML(
+              ${escapeHTML(
                 getAthleteName(
                   athlete
                 )
               )}
             </option>
-
           `
         )
         .join("")
@@ -1468,7 +1470,7 @@ function fillAthleteSelect() {
 
 
 // ============================================================
-// PERIOD SELECT
+// SELECT PERIOD
 // ============================================================
 
 function fillPeriodSelect() {
@@ -1493,30 +1495,18 @@ function fillPeriodSelect() {
     ${
       evaluationPeriods
         .map(
-          period => {
-
-            const title =
-              period.title ||
-              period.name ||
-              period.period_name ||
-              "دوره بدون عنوان";
-
-
-            return `
-
-              <option
-                value="${coachEscapeHTML(
-                  period.id
-                )}"
-              >
-                ${coachEscapeHTML(
-                  title
-                )}
-              </option>
-
-            `;
-
-          }
+          period => `
+            <option
+              value="${escapeHTML(
+                period.id
+              )}"
+            >
+              ${escapeHTML(
+                period.title ||
+                "دوره بدون عنوان"
+              )}
+            </option>
+          `
         )
         .join("")
     }
@@ -1527,44 +1517,52 @@ function fillPeriodSelect() {
 
 
 // ============================================================
-// EVALUATION PAGE
+// NEW EVALUATION
 // ============================================================
 
-async function prepareEvaluationPage() {
+function initializeEvaluationButton() {
 
-  fillAthleteSelect();
+  const button =
+    document.getElementById(
+      "newEvaluationBtn"
+    );
 
-  fillPeriodSelect();
 
-  renderEvaluationList();
+  if (!button) {
+
+    console.error(
+      "newEvaluationBtn پیدا نشد"
+    );
+
+    return;
+
+  }
+
+
+  button.addEventListener(
+    "click",
+    function () {
+
+      openEvaluationFromSelectors();
+
+    }
+  );
 
 }
 
 
-// ============================================================
-// OPEN EVALUATION
-// ============================================================
-
 function openEvaluationFromSelectors() {
 
-  const athleteSelect =
+  const athleteId =
     document.getElementById(
       "evaluationAthleteSelect"
-    );
-
-
-  const periodSelect =
-    document.getElementById(
-      "evaluationPeriodSelect"
-    );
-
-
-  const athleteId =
-    athleteSelect?.value;
+    )?.value;
 
 
   const periodId =
-    periodSelect?.value;
+    document.getElementById(
+      "evaluationPeriodSelect"
+    )?.value;
 
 
   if (!athleteId) {
@@ -1598,7 +1596,7 @@ function openEvaluationFromSelectors() {
 
 
 // ============================================================
-// OPEN EVALUATION FOR ATHLETE
+// OPEN EVALUATION FROM ATHLETE
 // ============================================================
 
 function openEvaluationForAthlete(
@@ -1612,11 +1610,6 @@ function openEvaluationForAthlete(
 
   setTimeout(
     function () {
-
-      fillAthleteSelect();
-
-      fillPeriodSelect();
-
 
       const athleteSelect =
         document.getElementById(
@@ -1633,28 +1626,12 @@ function openEvaluationForAthlete(
       if (athleteSelect) {
 
         athleteSelect.value =
-          String(
-            athleteId
-          );
+          String(athleteId);
 
       }
 
 
       if (
-        !evaluationPeriods.length
-      ) {
-
-        alert(
-          "هیچ دوره ارزیابی‌ای در سیستم پیدا نشد."
-        );
-
-        return;
-
-      }
-
-
-      if (
-        periodSelect &&
         evaluationPeriods.length === 1
       ) {
 
@@ -1679,13 +1656,13 @@ function openEvaluationForAthlete(
       } else {
 
         alert(
-          "لطفاً یک دوره ارزیابی را انتخاب کنید."
+          "هیچ دوره ارزیابی‌ای پیدا نشد.\nابتدا یک دوره ارزیابی در دیتابیس ایجاد کنید."
         );
 
       }
 
     },
-    150
+    100
   );
 
 }
@@ -1724,7 +1701,7 @@ function addEvaluationModalStyle() {
 
       position: fixed;
       inset: 0;
-      z-index: 99999;
+      z-index: 999999;
 
       display: flex;
       align-items: center;
@@ -1750,10 +1727,10 @@ function addEvaluationModalStyle() {
         auto;
 
       background:
-        #fff;
+        #ffffff;
 
       color:
-        #111;
+        #111111;
 
       border-radius:
         20px;
@@ -1798,7 +1775,7 @@ function addEvaluationModalStyle() {
         50%;
 
       background:
-        #eee;
+        #eeeeee;
 
       font-size:
         25px;
@@ -1872,7 +1849,7 @@ function addEvaluationModalStyle() {
         #16834b;
 
       color:
-        #fff;
+        #ffffff;
 
       border-radius:
         9px;
@@ -1990,7 +1967,7 @@ function addEvaluationModalStyle() {
         #16834b;
 
       color:
-        white;
+        #ffffff;
 
       font-family:
         inherit;
@@ -2087,18 +2064,9 @@ function createEvaluationModal(
     "newEvaluationModal";
 
 
-  const periodTitle =
-    period.title ||
-    period.name ||
-    period.period_name ||
-    "دوره بدون عنوان";
-
-
   modal.innerHTML = `
 
-    <div
-      class="evaluation-modal-card"
-    >
+    <div class="evaluation-modal-card">
 
       <button
         class="evaluation-close"
@@ -2119,7 +2087,7 @@ function createEvaluationModal(
         ورزشکار:
 
         <strong>
-          ${coachEscapeHTML(
+          ${escapeHTML(
             getAthleteName(
               athlete
             )
@@ -2131,20 +2099,20 @@ function createEvaluationModal(
         دوره:
 
         <strong>
-          ${coachEscapeHTML(
-            periodTitle
+          ${escapeHTML(
+            period.title ||
+            "دوره بدون عنوان"
           )}
         </strong>
 
       </div>
 
 
-      <div
-        id="evaluationCriteriaContainer"
-      >
+      <div id="evaluationCriteriaContainer">
 
         ${
           evaluationCriteria.length
+
             ? evaluationCriteria
                 .map(
                   criterion => `
@@ -2158,9 +2126,8 @@ function createEvaluationModal(
                       >
 
                         <strong>
-                          ${coachEscapeHTML(
+                          ${escapeHTML(
                             criterion.name ||
-                            criterion.title ||
                             "معیار"
                           )}
                         </strong>
@@ -2168,7 +2135,7 @@ function createEvaluationModal(
 
                         <span
                           class="evaluation-item-score"
-                          id="score-${coachEscapeHTML(
+                          data-score-for="${escapeHTML(
                             criterion.id
                           )}"
                         >
@@ -2181,13 +2148,11 @@ function createEvaluationModal(
                       ${
                         criterion.description
                           ? `
-
                             <p>
-                              ${coachEscapeHTML(
+                              ${escapeHTML(
                                 criterion.description
                               )}
                             </p>
-
                           `
                           : ""
                       }
@@ -2200,7 +2165,7 @@ function createEvaluationModal(
                         max="10"
                         step="0.1"
                         value="0"
-                        data-criterion-id="${coachEscapeHTML(
+                        data-criterion-id="${escapeHTML(
                           criterion.id
                         )}"
                       >
@@ -2210,6 +2175,7 @@ function createEvaluationModal(
                   `
                 )
                 .join("")
+
             : `
 
               <div
@@ -2219,7 +2185,7 @@ function createEvaluationModal(
                   color:#777;
                 "
               >
-                هنوز هیچ معیاری برای ارزیابی ایجاد نشده است.
+                هنوز هیچ معیار فعالی برای ارزیابی وجود ندارد.
               </div>
 
             `
@@ -2241,9 +2207,7 @@ function createEvaluationModal(
       </label>
 
 
-      <div
-        class="evaluation-total"
-      >
+      <div class="evaluation-total">
 
         امتیاز نهایی:
 
@@ -2299,20 +2263,18 @@ function createEvaluationModal(
         total += value;
 
 
-        const score =
+        const scoreElement =
           modal.querySelector(
-            "#score-" +
-            CSS.escape(
-              range.dataset
-                .criterionId
-            )
+            `[data-score-for="${CSS.escape(
+              range.dataset.criterionId
+            )}"]`
           );
 
 
-        if (score) {
+        if (scoreElement) {
 
-          score.textContent =
-            coachPersianNumber(
+          scoreElement.textContent =
+            persianNumber(
               value.toFixed(1)
             );
 
@@ -2337,7 +2299,7 @@ function createEvaluationModal(
     if (totalElement) {
 
       totalElement.textContent =
-        coachPersianNumber(
+        persianNumber(
           average.toFixed(2)
         );
 
@@ -2361,31 +2323,21 @@ function createEvaluationModal(
   updateTotal();
 
 
-  const closeButton =
-    modal.querySelector(
+  modal
+    .querySelector(
       "#evaluationClose"
-    );
-
-
-  if (closeButton) {
-
-    closeButton.addEventListener(
+    )
+    .addEventListener(
       "click",
       () => modal.remove()
     );
 
-  }
 
-
-  const saveButton =
-    modal.querySelector(
+  modal
+    .querySelector(
       "#saveEvaluation"
-    );
-
-
-  if (saveButton) {
-
-    saveButton.addEventListener(
+    )
+    .addEventListener(
       "click",
       () =>
         saveEvaluation(
@@ -2395,8 +2347,6 @@ function createEvaluationModal(
           modal
         )
     );
-
-  }
 
 }
 
@@ -2418,10 +2368,20 @@ async function saveEvaluation(
     );
 
 
+  if (!currentCoach) {
+
+    alert(
+      "حساب مربی پیدا نشد. لطفاً دوباره وارد شوید."
+    );
+
+    return;
+
+  }
+
+
   if (button) {
 
-    button.disabled =
-      true;
+    button.disabled = true;
 
     button.textContent =
       "در حال ثبت...";
@@ -2432,22 +2392,23 @@ async function saveEvaluation(
   try {
 
     const scores =
-      [...ranges].map(
-        range => ({
+      [...ranges]
+        .map(
+          range => ({
 
-          criterion_id:
-            range.dataset
-              .criterionId,
+            criterion_id:
+              range.dataset
+                .criterionId,
 
-          score:
-            Number(
+            score:
               Number(
-                range.value
-              ).toFixed(1)
-            )
+                Number(
+                  range.value
+                ).toFixed(1)
+              )
 
-        })
-      );
+          })
+        );
 
 
     const totalScore =
@@ -2460,8 +2421,7 @@ async function saveEvaluation(
               sum +
               item.score,
             0
-          ) /
-          scores.length
+          ) / scores.length
         : 0;
 
 
@@ -2474,16 +2434,19 @@ async function saveEvaluation(
         .trim() || "";
 
 
-    /*
-      خیلی مهم:
-      created_at را دیگر
-      دستی ارسال نمی‌کنیم.
-    */
+    // ========================================================
+    // مهم:
+    // طبق ساختار واقعی جدول evaluations
+    // coach_id و evaluated_at استفاده می‌شوند.
+    // ========================================================
 
-    const payload = {
+    const evaluationPayload = {
 
       athlete_id:
         athleteId,
+
+      coach_id:
+        currentCoach.id,
 
       period_id:
         periodId,
@@ -2494,34 +2457,38 @@ async function saveEvaluation(
         ),
 
       notes:
-        notes || null
+        notes,
+
+      evaluated_at:
+        new Date().toISOString()
 
     };
 
 
     console.log(
-      "Saving evaluation:",
-      payload
+      "Evaluation payload:",
+      evaluationPayload
     );
 
 
-    const evaluationResult =
+    const {
+      data: evaluation,
+      error: evaluationError
+    } =
       await supabaseClient
         .from("evaluations")
         .insert(
-          payload
+          evaluationPayload
         )
         .select()
         .single();
 
 
-    if (
-      evaluationResult.error
-    ) {
+    if (evaluationError) {
 
       showError(
-        "ثبت ارزیابی انجام نشد.",
-        evaluationResult.error
+        "ثبت ارزیابی انجام نشد",
+        evaluationError
       );
 
       return;
@@ -2529,19 +2496,19 @@ async function saveEvaluation(
     }
 
 
-    const evaluationId =
-      evaluationResult
-        .data
-        ?.id;
+    console.log(
+      "Evaluation created:",
+      evaluation
+    );
 
 
-    /*
-      ثبت امتیاز معیارها
-    */
+    // ========================================================
+    // SCORE ROWS
+    // ========================================================
 
     if (
       scores.length &&
-      evaluationId
+      evaluation?.id
     ) {
 
       const scoreRows =
@@ -2549,7 +2516,7 @@ async function saveEvaluation(
           item => ({
 
             evaluation_id:
-              evaluationId,
+              evaluation.id,
 
             criterion_id:
               item.criterion_id,
@@ -2561,7 +2528,9 @@ async function saveEvaluation(
         );
 
 
-      const scoreResult =
+      const {
+        error: scoreError
+      } =
         await supabaseClient
           .from(
             "evaluation_scores"
@@ -2571,19 +2540,17 @@ async function saveEvaluation(
           );
 
 
-      if (
-        scoreResult.error
-      ) {
+      if (scoreError) {
 
         console.error(
-          "Score insert error:",
-          scoreResult.error
+          "Evaluation scores error:",
+          scoreError
         );
 
 
         alert(
-          "ارزیابی ثبت شد، اما امتیاز معیارها ثبت نشد.\n\n" +
-          scoreResult.error.message
+          "خود ارزیابی ثبت شد، اما امتیاز معیارها ثبت نشد.\n\n" +
+          scoreError.message
         );
 
       }
@@ -2592,7 +2559,7 @@ async function saveEvaluation(
 
 
     alert(
-      "ارزیابی با موفقیت ثبت شد."
+      "ارزیابی با موفقیت ثبت شد. ✅"
     );
 
 
@@ -2601,17 +2568,15 @@ async function saveEvaluation(
 
     await loadEvaluations();
 
+    renderEvaluationList();
 
     updateDashboardStats();
-
-
-    renderEvaluationList();
 
 
   } catch (error) {
 
     showError(
-      "خطا هنگام ثبت ارزیابی.",
+      "خطا هنگام ثبت ارزیابی",
       error
     );
 
@@ -2619,8 +2584,7 @@ async function saveEvaluation(
 
     if (button) {
 
-      button.disabled =
-        false;
+      button.disabled = false;
 
       button.textContent =
         "ثبت ارزیابی";
@@ -2653,9 +2617,7 @@ function renderEvaluationList() {
 
     container.innerHTML = `
 
-      <div
-        class="evaluation-empty"
-      >
+      <div class="evaluation-empty">
 
         <div
           class="evaluation-empty-icon"
@@ -2712,11 +2674,15 @@ function renderEvaluationList() {
             );
 
 
-          const periodTitle =
-            period?.title ||
-            period?.name ||
-            period?.period_name ||
-            "دوره نامشخص";
+          const date =
+            evaluation.evaluated_at
+              ? new Date(
+                  evaluation.evaluated_at
+                )
+                  .toLocaleDateString(
+                    "fa-IR"
+                  )
+              : "—";
 
 
           return `
@@ -2743,7 +2709,7 @@ function renderEvaluationList() {
                   <div>
 
                     <h3>
-                      ${coachEscapeHTML(
+                      ${escapeHTML(
                         getAthleteName(
                           athlete
                         )
@@ -2752,8 +2718,17 @@ function renderEvaluationList() {
 
 
                     <p>
-                      ${coachEscapeHTML(
-                        periodTitle
+                      ${escapeHTML(
+                        period?.title ||
+                        "دوره نامشخص"
+                      )}
+                    </p>
+
+
+                    <p>
+                      تاریخ:
+                      ${escapeHTML(
+                        date
                       )}
                     </p>
 
@@ -2772,7 +2747,7 @@ function renderEvaluationList() {
 
 
                   <strong>
-                    ${coachPersianNumber(
+                    ${persianNumber(
                       score.toFixed(2)
                     )}
                   </strong>
@@ -2785,19 +2760,17 @@ function renderEvaluationList() {
               ${
                 evaluation.notes
                   ? `
-
                     <p>
 
                       <strong>
                         توضیحات مربی:
                       </strong>
 
-                      ${coachEscapeHTML(
+                      ${escapeHTML(
                         evaluation.notes
                       )}
 
                     </p>
-
                   `
                   : ""
               }
@@ -2809,6 +2782,21 @@ function renderEvaluationList() {
         }
       )
       .join("");
+
+}
+
+
+// ============================================================
+// EVALUATION PAGE
+// ============================================================
+
+function prepareEvaluationPage() {
+
+  fillAthleteSelect();
+
+  fillPeriodSelect();
+
+  renderEvaluationList();
 
 }
 
@@ -2828,7 +2816,7 @@ function updateDashboardStats() {
   if (totalAthletes) {
 
     totalAthletes.textContent =
-      coachPersianNumber(
+      persianNumber(
         athletes.length
       );
 
@@ -2844,7 +2832,7 @@ function updateDashboardStats() {
   if (totalEvaluations) {
 
     totalEvaluations.textContent =
-      coachPersianNumber(
+      persianNumber(
         evaluations.length
       );
 
@@ -2882,38 +2870,97 @@ function updateDashboardStats() {
 
 
 // ============================================================
-// INITIALIZE EVALUATION BUTTON
+// START
 // ============================================================
 
-function initializeEvaluationButton() {
+async function initializeCoach() {
 
-  const button =
-    document.getElementById(
-      "newEvaluationBtn"
-    );
+  console.log(
+    "🥋 طبیعت جودو | Coach Panel"
+  );
 
 
-  if (!button) {
+  // اول دکمه‌ها را فعال می‌کنیم
+  initializeNavigation();
 
-    console.warn(
-      "newEvaluationBtn پیدا نشد"
-    );
+  initializeLogout();
 
+  initializeAthleteModal();
+
+  initializeAthleteSearch();
+
+  initializeEvaluationButton();
+
+
+  // سپس حساب مربی
+  const loggedIn =
+    await checkCoachSession();
+
+
+  if (!loggedIn) {
     return;
-
   }
 
 
-  button.addEventListener(
-    "click",
-    openEvaluationFromSelectors
+  // دریافت اطلاعات
+  await loadAthletes();
+
+  await loadEvaluationPeriods();
+
+  await loadEvaluationCriteria();
+
+  await loadEvaluations();
+
+
+  // نمایش
+  fillAthleteFilter();
+
+  fillAthleteSelect();
+
+  fillPeriodSelect();
+
+  renderAthletes();
+
+  renderEvaluationList();
+
+  updateDashboardStats();
+
+
+  openPage(
+    "dashboard"
+  );
+
+
+  console.log(
+    "✅ پنل مربی کاملاً آماده است."
   );
 
 }
 
 
 // ============================================================
-// GLOBAL DEBUG
+// DOM READY
+// ============================================================
+
+if (
+  document.readyState ===
+  "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initializeCoach
+  );
+
+} else {
+
+  initializeCoach();
+
+}
+
+
+// ============================================================
+// GLOBAL
 // ============================================================
 
 window.supabaseClient =
@@ -2939,109 +2986,3 @@ window.saveEvaluation =
 
 window.openEvaluationForAthlete =
   openEvaluationForAthlete;
-
-window.loadAthletes =
-  loadAthletes;
-
-window.loadEvaluationPeriods =
-  loadEvaluationPeriods;
-
-window.loadEvaluationCriteria =
-  loadEvaluationCriteria;
-
-window.loadEvaluations =
-  loadEvaluations;
-
-
-// ============================================================
-// START
-// ============================================================
-
-async function initializeCoach() {
-
-  console.log(
-    "===================================="
-  );
-
-  console.log(
-    "🥋 طبیعت جودو | Coach Panel"
-  );
-
-  console.log(
-    "Starting..."
-  );
-
-
-  /*
-    ترتیب مهم است:
-    اول Event ها را وصل می‌کنیم،
-    بعد اطلاعات Supabase را می‌خوانیم.
-  */
-
-  initializeNavigation();
-
-  initializeLogout();
-
-  initializeAthleteModal();
-
-  initializeAthleteSearch();
-
-  initializeEvaluationButton();
-
-
-  await checkCoachSession();
-
-
-  await loadAthletes();
-
-  await loadEvaluationPeriods();
-
-  await loadEvaluationCriteria();
-
-  await loadEvaluations();
-
-
-  fillAthleteFilter();
-
-  fillAthleteSelect();
-
-  fillPeriodSelect();
-
-  renderAthletes();
-
-  renderEvaluationList();
-
-  updateDashboardStats();
-
-
-  openPage(
-    "dashboard"
-  );
-
-
-  console.log(
-    "🥋 Coach panel ready."
-  );
-
-}
-
-
-// ============================================================
-// DOM READY
-// ============================================================
-
-if (
-  document.readyState ===
-  "loading"
-) {
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    initializeCoach
-  );
-
-} else {
-
-  initializeCoach();
-
-        }
