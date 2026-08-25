@@ -1,1121 +1,770 @@
 <!doctype html>
+<html lang="fa" dir="rtl">
 
-<html lang="fa" dir="rtl"><head>
-  <meta charset="UTF-8"><meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
+<head>
+  <meta charset="UTF-8">
 
-«»
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <title>پروفایل ورزشکار | جودو طبیعت</title>  <link rel="stylesheet" href="style.css">  <style>
+  <title>پروفایل ورزشکار | جودو طبیعت</title>
 
-    /* =========================================
-       ATHLETE PAGE
-    ========================================== */
+  <style>
 
-    body {
-      background: #f5f7f6;
-    }
-
-    .athlete-profile-page {
-      min-height: 100vh;
-      padding: 25px;
+    * {
       box-sizing: border-box;
     }
 
-    .athlete-profile-container {
-      width: min(1100px, 100%);
-      margin: 0 auto;
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background: #f4f7f5;
+      color: #222;
     }
 
+    button,
+    input,
+    textarea {
+      font-family: inherit;
+    }
 
-    /* =========================================
-       TOP BAR
-    ========================================== */
+    .page {
+      min-height: 100vh;
+    }
 
-    .athlete-profile-topbar {
+    /* =========================
+       HEADER
+    ========================= */
+
+    .topbar {
+      background: #16834b;
+      color: white;
+      padding: 18px 22px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 15px;
-      margin-bottom: 25px;
     }
 
-    .athlete-brand {
+    .brand {
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
-    .athlete-logo {
-      width: 50px;
-      height: 50px;
-      border-radius: 15px;
-      background: #16834b;
-      color: white;
+    .brand-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: white;
+      color: #16834b;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 25px;
-      box-shadow: 0 8px 20px rgba(22,131,75,.2);
     }
 
-    .athlete-brand strong {
+    .brand-text strong {
       display: block;
-      font-size: 19px;
+      font-size: 18px;
     }
 
-    .athlete-brand span {
+    .brand-text span {
       display: block;
-      color: #777;
-      font-size: 13px;
-      margin-top: 3px;
+      font-size: 12px;
+      opacity: .85;
+      margin-top: 4px;
     }
 
     .back-btn {
-      border: none;
-      background: white;
-      color: #16834b;
+      border: 0;
+      background: rgba(255,255,255,.15);
+      color: white;
+      padding: 11px 16px;
       border-radius: 12px;
-      padding: 11px 17px;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 5px 18px rgba(0,0,0,.06);
+      font-size: 14px;
     }
 
-    .back-btn:hover {
-      background: #edf7f1;
+    /* =========================
+       MAIN
+    ========================= */
+
+    .container {
+      width: min(1100px, calc(100% - 30px));
+      margin: 25px auto 50px;
     }
 
+    /* =========================
+       PROFILE HEADER
+    ========================= */
 
-    /* =========================================
-       PROFILE HERO
-    ========================================== */
-
-    .athlete-profile-hero {
+    .profile-card {
       background: white;
       border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 10px 35px rgba(0,0,0,.06);
+      padding: 25px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.06);
       display: grid;
-      grid-template-columns: 150px 1fr;
+      grid-template-columns: 130px 1fr;
       gap: 25px;
       align-items: center;
       margin-bottom: 22px;
     }
 
-    .athlete-photo {
-      width: 150px;
-      height: 150px;
-      border-radius: 25px;
+    .profile-photo {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
       overflow: hidden;
-      background: #edf7f1;
+      background: #edf3ef;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 65px;
+      font-size: 55px;
     }
 
-    .athlete-photo img {
+    .profile-photo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .athlete-hero-info h1 {
+    .profile-info h1 {
       margin: 0 0 8px;
-      font-size: 32px;
+      font-size: 28px;
     }
 
-    .athlete-hero-info p {
-      margin: 5px 0;
+    .profile-info .bio {
       color: #777;
+      line-height: 1.8;
+      margin: 0 0 15px;
     }
 
-    .athlete-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      margin-top: 12px;
-      padding: 7px 12px;
-      border-radius: 20px;
-      background: #edf7f1;
-      color: #16834b;
+    .profile-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .meta-item {
+      background: #f2f7f4;
+      border-radius: 12px;
+      padding: 9px 13px;
       font-size: 13px;
-      font-weight: 700;
     }
 
-    .athlete-status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #16834b;
+    .meta-item strong {
+      color: #16834b;
     }
 
+    /* =========================
+       SECTION
+    ========================= */
 
-    /* =========================================
-       INFO GRID
-    ========================================== */
+    .section {
+      margin-top: 22px;
+    }
 
-    .athlete-info-grid {
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 13px;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .section-header p {
+      margin: 5px 0 0;
+      color: #777;
+      font-size: 13px;
+    }
+
+    /* =========================
+       ATTENDANCE
+    ========================= */
+
+    .attendance-section {
+      background: white;
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.05);
+    }
+
+    .attendance-stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-      margin-bottom: 22px;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
-    .athlete-info-card {
-      background: white;
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: 0 7px 25px rgba(0,0,0,.05);
+    .attendance-stat {
+      border-radius: 16px;
+      padding: 17px;
+      background: #f6f8f7;
+      text-align: center;
     }
 
-    .athlete-info-card span {
+    .attendance-stat .icon {
+      font-size: 25px;
+    }
+
+    .attendance-stat small {
       display: block;
       color: #777;
+      margin-top: 6px;
+    }
+
+    .attendance-stat strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 24px;
+    }
+
+    .attendance-stat.present strong {
+      color: #16834b;
+    }
+
+    .attendance-stat.absent strong {
+      color: #d64545;
+    }
+
+    .attendance-stat.percent strong {
+      color: #2266aa;
+    }
+
+    .attendance-table-wrap {
+      overflow-x: auto;
+    }
+
+    .attendance-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 550px;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+      padding: 13px 12px;
+      border-bottom: 1px solid #eee;
+      text-align: right;
+    }
+
+    .attendance-table th {
+      background: #f6f8f7;
       font-size: 13px;
+    }
+
+    .attendance-table td {
+      font-size: 14px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 11px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .status-present {
+      background: #e5f6ed;
+      color: #16834b;
+    }
+
+    .status-absent {
+      background: #fdeaea;
+      color: #c93636;
+    }
+
+    .status-other {
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    /* =========================
+       EVALUATION
+    ========================= */
+
+    .evaluation-grid {
+      display: grid;
+      gap: 15px;
+    }
+
+    .evaluation-card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,.05);
+    }
+
+    .evaluation-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .evaluation-card h3 {
+      margin: 0 0 6px;
+    }
+
+    .evaluation-date {
+      color: #777;
+      font-size: 12px;
+    }
+
+    .evaluation-score {
+      min-width: 85px;
+      padding: 11px;
+      border-radius: 14px;
+      background: #edf7f1;
+      text-align: center;
+    }
+
+    .evaluation-score small {
+      display: block;
+      color: #777;
+      font-size: 11px;
+    }
+
+    .evaluation-score strong {
+      display: block;
+      color: #16834b;
+      font-size: 23px;
+      margin-top: 3px;
+    }
+
+    .criteria-list {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .criterion-row {
+      display: grid;
+      grid-template-columns: 150px 1fr 45px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .criterion-name {
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .criterion-bar {
+      height: 8px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #e9e9e9;
+    }
+
+    .criterion-fill {
+      height: 100%;
+      background: #16834b;
+      border-radius: 20px;
+    }
+
+    .criterion-score {
+      font-weight: bold;
+      text-align: left;
+      font-size: 12px;
+    }
+
+    .evaluation-notes {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #f7f8f8;
+      color: #555;
+      line-height: 1.8;
+      font-size: 13px;
+    }
+
+    /* =========================
+       EMPTY
+    ========================= */
+
+    .empty {
+      background: white;
+      border-radius: 20px;
+      padding: 35px 20px;
+      text-align: center;
+      color: #777;
+      box-shadow: 0 8px 25px rgba(0,0,0,.04);
+    }
+
+    .empty-icon {
+      font-size: 42px;
       margin-bottom: 8px;
     }
 
-    .athlete-info-card strong {
-      display: block;
-      font-size: 20px;
+    .empty h3 {
       color: #222;
+      margin: 0 0 7px;
     }
 
-
-    /* =========================================
-       SECTIONS
-    ========================================== */
-
-    .athlete-section {
-      background: white;
-      border-radius: 20px;
-      padding: 23px;
-      margin-bottom: 20px;
-      box-shadow: 0 7px 25px rgba(0,0,0,.05);
-    }
-
-    .athlete-section-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      margin-bottom: 18px;
-    }
-
-    .athlete-section-title h2 {
+    .empty p {
       margin: 0;
-      font-size: 20px;
+      line-height: 1.8;
     }
 
-    .athlete-section-title span {
-      color: #16834b;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-
-    /* =========================================
-       SCORE
-    ========================================== */
-
-    .total-score-box {
-      display: grid;
-      grid-template-columns: 170px 1fr;
-      gap: 25px;
-      align-items: center;
-    }
-
-    .total-score-number {
-      min-height: 150px;
-      border-radius: 22px;
-      background: #edf7f1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .total-score-number strong {
-      font-size: 45px;
-      color: #16834b;
-      line-height: 1;
-    }
-
-    .total-score-number span {
-      margin-top: 10px;
-      color: #777;
-      font-size: 13px;
-    }
-
-    .score-description {
-      color: #666;
-      line-height: 2;
-    }
-
-
-    /* =========================================
-       BIO
-    ========================================== */
-
-    .athlete-bio {
-      color: #555;
-      line-height: 2;
-      margin: 0;
-      white-space: pre-wrap;
-    }
-
-
-    /* =========================================
+    /* =========================
        LOADING
-    ========================================== */
+    ========================= */
 
-    .athlete-loading {
-      min-height: 70vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .loading-card {
-      width: min(450px, 100%);
-      background: white;
-      border-radius: 22px;
-      padding: 35px;
+    .loading {
       text-align: center;
-      box-shadow: 0 10px 35px rgba(0,0,0,.06);
+      padding: 70px 20px;
+      color: #777;
     }
 
     .loading-icon {
-      font-size: 50px;
+      font-size: 45px;
       margin-bottom: 12px;
     }
 
-    .loading-card h2 {
-      margin: 0 0 8px;
-    }
-
-    .loading-card p {
-      color: #777;
-      margin: 0;
-    }
-
-
-    /* =========================================
+    /* =========================
        ERROR
-    ========================================== */
+    ========================= */
 
-    .athlete-error {
-      min-height: 70vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .error-card {
-      width: min(500px, 100%);
-      background: white;
-      border-radius: 22px;
-      padding: 35px;
+    .error-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 35px 20px;
       text-align: center;
-      box-shadow: 0 10px 35px rgba(0,0,0,.06);
     }
 
-    .error-icon {
-      font-size: 55px;
-      margin-bottom: 12px;
+    .error-box strong {
+      display: block;
+      color: #c93636;
+      margin-bottom: 10px;
+      font-size: 18px;
     }
 
-    .error-card h2 {
-      margin: 0 0 8px;
+    .error-box button {
+      border: none;
+      background: #16834b;
+      color: white;
+      padding: 11px 20px;
+      border-radius: 10px;
+      cursor: pointer;
     }
 
-    .error-card p {
-      color: #777;
-      line-height: 1.9;
-      margin-bottom: 20px;
-    }
-
-
-    /* =========================================
+    /* =========================
        MOBILE
-    ========================================== */
+    ========================= */
 
     @media (max-width: 800px) {
 
-      .athlete-info-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .athlete-profile-hero {
-        grid-template-columns: 110px 1fr;
-      }
-
-      .athlete-photo {
-        width: 110px;
-        height: 110px;
-      }
-
-      .athlete-hero-info h1 {
-        font-size: 25px;
-      }
-
-    }
-
-
-    @media (max-width: 550px) {
-
-      .athlete-profile-page {
-        padding: 15px;
-      }
-
-      .athlete-profile-topbar {
-        align-items: flex-start;
-      }
-
-      .athlete-profile-hero {
+      .profile-card {
         grid-template-columns: 1fr;
         text-align: center;
       }
 
-      .athlete-photo {
-        margin: 0 auto;
+      .profile-photo {
+        margin: auto;
       }
 
-      .athlete-status {
+      .profile-meta {
         justify-content: center;
       }
 
-      .athlete-info-grid {
-        grid-template-columns: 1fr 1fr;
+      .attendance-stats {
+        grid-template-columns: repeat(2, 1fr);
       }
 
-      .total-score-box {
-        grid-template-columns: 1fr;
+    }
+
+    @media (max-width: 550px) {
+
+      .container {
+        width: min(100% - 20px, 1100px);
       }
 
-      .total-score-number {
-        min-height: 130px;
+      .topbar {
+        padding: 13px;
       }
 
-      .athlete-brand strong {
-        font-size: 16px;
+      .brand-text strong {
+        font-size: 15px;
       }
 
-      .athlete-brand span {
-        font-size: 11px;
+      .brand-text span {
+        font-size: 10px;
       }
 
       .back-btn {
-        padding: 9px 12px;
+        padding: 9px 11px;
         font-size: 12px;
       }
 
+      .profile-card {
+        padding: 20px 15px;
+      }
+
+      .profile-info h1 {
+        font-size: 23px;
+      }
+
+      .attendance-section {
+        padding: 15px;
+      }
+
+      .attendance-stats {
+        gap: 8px;
+      }
+
+      .attendance-stat {
+        padding: 13px 7px;
+      }
+
+      .attendance-stat strong {
+        font-size: 20px;
+      }
+
+      .evaluation-card {
+        padding: 15px;
+      }
+
+      .evaluation-card-header {
+        align-items: flex-start;
+      }
+
+      .criterion-row {
+        grid-template-columns: 100px 1fr 40px;
+      }
+
     }
 
-  </style></head><body>  <div class="athlete-profile-page"><div class="athlete-profile-container">
+  </style>
 
+</head>
 
-  <!-- =====================================
-       TOPBAR
-  ====================================== -->
+<body>
 
-  <div class="athlete-profile-topbar">
+  <div class="page">
 
-    <div class="athlete-brand">
+    <!-- HEADER -->
 
-      <div class="athlete-logo">
-        🥋
-      </div>
+    <header class="topbar">
 
-      <div>
+      <div class="brand">
 
-        <strong>
-          جودو طبیعت
-        </strong>
-
-        <span>
-          پروفایل ورزشکار
-        </span>
-
-      </div>
-
-    </div>
-
-
-    <button
-      class="back-btn"
-      type="button"
-      id="backBtn"
-    >
-      ← بازگشت
-    </button>
-
-  </div>
-
-
-  <!-- =====================================
-       CONTENT
-  ====================================== -->
-
-  <div id="athleteContent">
-
-    <div class="athlete-loading">
-
-      <div class="loading-card">
-
-        <div class="loading-icon">
+        <div class="brand-logo">
           🥋
         </div>
 
-        <h2>
-          در حال بارگذاری...
-        </h2>
+        <div class="brand-text">
 
-        <p>
-          اطلاعات ورزشکار در حال دریافت است.
-        </p>
+          <strong>
+            جودو طبیعت
+          </strong>
+
+          <span>
+            پروفایل ورزشکار
+          </span>
+
+        </div>
 
       </div>
 
-    </div>
+      <button
+        class="back-btn"
+        id="backBtn"
+        type="button"
+      >
+        ← بازگشت
+      </button>
 
-  </div>
+    </header>
 
 
-</div>
+    <main class="container">
 
-  </div>  <!-- =====================================
-       SUPABASE
-  ====================================== -->  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>  <!-- =====================================
-       ATHLETE JS
-  ====================================== -->  <script>
+      <!-- PROFILE -->
 
-    // =====================================================
-    // SUPABASE
-    // =====================================================
+      <div id="profileContainer">
 
-    const SUPABASE_URL =
-      "https://bkkdgywdptufjsaepehc.supabase.co";
+        <div class="loading">
 
-    const SUPABASE_KEY =
-      "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
-
-    const supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
-
-
-    // =====================================================
-    // HELPERS
-    // =====================================================
-
-    function escapeHTML(value) {
-
-      const div =
-        document.createElement("div");
-
-      div.textContent =
-        value === undefined ||
-        value === null
-          ? ""
-          : String(value);
-
-      return div.innerHTML;
-
-    }
-
-
-    function persianNumber(value) {
-
-      return String(value).replace(
-        /\d/g,
-        d => "۰۱۲۳۴۵۶۷۸۹"[d]
-      );
-
-    }
-
-
-    function getAthleteName(athlete) {
-
-      if (!athlete) {
-        return "بدون نام";
-      }
-
-      return [
-
-        athlete.first_name,
-        athlete.last_name
-
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .trim() || "بدون نام";
-
-    }
-
-
-    function formatWeight(weight) {
-
-      if (
-        weight === null ||
-        weight === undefined ||
-        weight === ""
-      ) {
-
-        return "—";
-
-      }
-
-      const number =
-        Number(weight);
-
-      if (Number.isNaN(number)) {
-        return String(weight);
-      }
-
-      return number
-        .toFixed(1)
-        .replace(".0", "");
-
-    }
-
-
-    // =====================================================
-    // GET ATHLETE ID
-    // =====================================================
-
-    function getAthleteId() {
-
-      const params =
-        new URLSearchParams(
-          window.location.search
-        );
-
-      return params.get("id");
-
-    }
-
-
-    // =====================================================
-    // LOAD ATHLETE
-    // =====================================================
-
-    async function loadAthlete() {
-
-      const athleteId =
-        getAthleteId();
-
-
-      if (!athleteId) {
-
-        showError(
-          "شناسه ورزشکار در آدرس صفحه وجود ندارد."
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        const result =
-          await supabaseClient
-            .from("athletes")
-            .select("*")
-            .eq("id", athleteId)
-            .single();
-
-
-        if (result.error) {
-
-          console.error(
-            "Athlete load error:",
-            result.error
-          );
-
-          showError(
-            "اطلاعات ورزشکار پیدا نشد."
-          );
-
-          return;
-
-        }
-
-
-        if (!result.data) {
-
-          showError(
-            "ورزشکار موردنظر وجود ندارد."
-          );
-
-          return;
-
-        }
-
-
-        renderAthlete(
-          result.data
-        );
-
-      } catch (error) {
-
-        console.error(
-          "Load athlete error:",
-          error
-        );
-
-        showError(
-          "خطایی هنگام دریافت اطلاعات ورزشکار رخ داد."
-        );
-
-      }
-
-    }
-
-
-    // =====================================================
-    // RENDER ATHLETE
-    // =====================================================
-
-    function renderAthlete(athlete) {
-
-      const container =
-        document.getElementById(
-          "athleteContent"
-        );
-
-
-      if (!container) {
-        return;
-      }
-
-
-      const name =
-        getAthleteName(
-          athlete
-        );
-
-
-      const ageGroup =
-        athlete.age_group ||
-        "—";
-
-
-      const weight =
-        formatWeight(
-          athlete.weight
-        );
-
-
-      const nationalId =
-        athlete.national_id ||
-        "—";
-
-
-      const totalScore =
-        Number(
-          athlete.total_score || 0
-        );
-
-
-      const photo =
-        athlete.photo_url ||
-        "";
-
-
-      container.innerHTML = `
-
-        <!-- =====================================
-             PROFILE HERO
-        ====================================== -->
-
-        <section
-          class="athlete-profile-hero"
-        >
-
-          <div
-            class="athlete-photo"
-          >
-
-            ${
-              photo
-                ? `
-                  <img
-                    src="${escapeHTML(photo)}"
-                    alt="${escapeHTML(name)}"
-                  >
-                `
-                : `
-                  🥋
-                `
-            }
-
+          <div class="loading-icon">
+            🥋
           </div>
 
+          در حال دریافت اطلاعات ورزشکار...
 
-          <div
-            class="athlete-hero-info"
-          >
+        </div>
 
-            <h1>
-              ${escapeHTML(name)}
-            </h1>
-
-            <p>
-              ورزشکار جودو طبیعت
-            </p>
-
-            <div
-              class="athlete-status"
-            >
-
-              <span
-                class="athlete-status-dot"
-              ></span>
-
-              فعال
-
-            </div>
-
-          </div>
-
-        </section>
+      </div>
 
 
-        <!-- =====================================
-             INFO
-        ====================================== -->
+      <!-- ATTENDANCE -->
 
-        <section
-          class="athlete-info-grid"
-        >
+      <section class="section">
 
-          <div
-            class="athlete-info-card"
-          >
+        <div class="section-header">
 
-            <span>
-              رده سنی
-            </span>
-
-            <strong>
-              ${escapeHTML(ageGroup)}
-            </strong>
-
-          </div>
-
-
-          <div
-            class="athlete-info-card"
-          >
-
-            <span>
-              وزن
-            </span>
-
-            <strong>
-              ${persianNumber(weight)}
-              ${
-                weight !== "—"
-                  ? " کیلو"
-                  : ""
-              }
-            </strong>
-
-          </div>
-
-
-          <div
-            class="athlete-info-card"
-          >
-
-            <span>
-              کد ملی
-            </span>
-
-            <strong>
-              ${escapeHTML(nationalId)}
-            </strong>
-
-          </div>
-
-
-          <div
-            class="athlete-info-card"
-          >
-
-            <span>
-              شناسه ورزشکار
-            </span>
-
-            <strong
-              style="
-                font-size:12px;
-                word-break:break-all;
-              "
-            >
-              ${escapeHTML(athlete.id)}
-            </strong>
-
-          </div>
-
-        </section>
-
-
-        <!-- =====================================
-             SCORE
-        ====================================== -->
-
-        <section
-          class="athlete-section"
-        >
-
-          <div
-            class="athlete-section-title"
-          >
+          <div>
 
             <h2>
-              📊 عملکرد کلی
-            </h2>
-
-            <span>
-              امتیاز فعلی
-            </span>
-
-          </div>
-
-
-          <div
-            class="total-score-box"
-          >
-
-            <div
-              class="total-score-number"
-            >
-
-              <strong>
-                ${persianNumber(
-                  totalScore.toFixed(2)
-                )}
-              </strong>
-
-              <span>
-                از ۱۰
-              </span>
-
-            </div>
-
-
-            <div
-              class="score-description"
-            >
-
-              ${
-                totalScore > 0
-                  ? `
-                    امتیاز فعلی ورزشکار بر اساس
-                    اطلاعات ثبت‌شده در سامانه نمایش داده می‌شود.
-                  `
-                  : `
-                    هنوز امتیاز ارزیابی برای این ورزشکار
-                    ثبت نشده است.
-                  `
-              }
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        <!-- =====================================
-             BIO
-        ====================================== -->
-
-        <section
-          class="athlete-section"
-        >
-
-          <div
-            class="athlete-section-title"
-          >
-
-            <h2>
-              📝 درباره ورزشکار
-            </h2>
-
-          </div>
-
-
-          ${
-            athlete.bio
-              ? `
-                <p class="athlete-bio">
-                  ${escapeHTML(
-                    athlete.bio
-                  )}
-                </p>
-              `
-              : `
-                <p
-                  class="athlete-bio"
-                  style="color:#999;"
-                >
-                  توضیحاتی برای این ورزشکار ثبت نشده است.
-                </p>
-              `
-          }
-
-        </section>
-
-
-        <!-- =====================================
-             NEXT STAGE
-        ====================================== -->
-
-        <section
-          class="athlete-section"
-        >
-
-          <div
-            class="athlete-section-title"
-          >
-
-            <h2>
-              🚀 اطلاعات بیشتر
-            </h2>
-
-          </div>
-
-
-          <p
-            style="
-              margin:0;
-              color:#777;
-              line-height:2;
-            "
-          >
-            تاریخچه ارزیابی‌ها، جزئیات معیارها،
-            روند پیشرفت، حضور و غیاب و مقام‌های
-            ورزشکار در مراحل بعدی به این صفحه اضافه خواهد شد.
-          </p>
-
-        </section>
-
-      `;
-
-    }
-
-
-    // =====================================================
-    // ERROR
-    // =====================================================
-
-    function showError(message) {
-
-      const container =
-        document.getElementById(
-          "athleteContent"
-        );
-
-
-      if (!container) {
-        return;
-      }
-
-
-      container.innerHTML = `
-
-        <div class="athlete-error">
-
-          <div class="error-card">
-
-            <div class="error-icon">
-              ⚠️
-            </div>
-
-            <h2>
-              ورزشکار پیدا نشد
+              🟢 حضور و غیاب
             </h2>
 
             <p>
-              ${escapeHTML(message)}
+              سابقه حضور و غیاب ورزشکار
             </p>
-
-            <button
-              class="back-btn"
-              type="button"
-              onclick="history.back()"
-            >
-              ← بازگشت
-            </button>
 
           </div>
 
         </div>
 
-      `;
 
-    }
+        <div id="attendanceContainer">
 
+          <div class="loading">
+            در حال دریافت اطلاعات حضور و غیاب...
+          </div>
 
-    // =====================================================
-    // BACK BUTTON
-    // =====================================================
+        </div>
 
-    document
-      .getElementById("backBtn")
-      ?.addEventListener(
-        "click",
-        function () {
-
-          if (
-            document.referrer &&
-            document.referrer.includes(
-              window.location.host
-            )
-          ) {
-
-            history.back();
-
-          } else {
-
-            window.location.href =
-              "coach.html";
-
-          }
-
-        }
-      );
+      </section>
 
 
-    // =====================================================
-    // START
-    // =====================================================
+      <!-- EVALUATIONS -->
 
-    if (
-      document.readyState ===
-      "loading"
-    ) {
+      <section class="section">
 
-      document.addEventListener(
-        "DOMContentLoaded",
-        loadAthlete
-      );
+        <div class="section-header">
 
-    } else {
+          <div>
 
-      loadAthlete();
+            <h2>
+              📊 ارزیابی‌ها
+            </h2>
 
-    }
+            <p>
+              تاریخچه ارزیابی عملکرد ورزشکار
+            </p>
 
-  </script></body></html>
+          </div>
+
+        </div>
+
+
+        <div id="evaluationsContainer">
+
+          <div class="loading">
+            در حال دریافت ارزیابی‌ها...
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ACHIEVEMENTS -->
+
+      <section class="section">
+
+        <div class="section-header">
+
+          <div>
+
+            <h2>
+              🏆 مقام‌ها و افتخارات
+            </h2>
+
+            <p>
+              افتخارات ورزشکار
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="empty">
+
+          <div class="empty-icon">
+            🏆
+          </div>
+
+          <h3>
+            بخش افتخارات
+          </h3>
+
+          <p>
+            این بخش در مرحله بعد به دیتابیس مقام‌ها متصل می‌شود.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- RECORDS -->
+
+      <section class="section">
+
+        <div class="section-header">
+
+          <div>
+
+            <h2>
+              📈 آمار و رکوردها
+            </h2>
+
+            <p>
+              آمار پیشرفت ورزشکار
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="empty">
+
+          <div class="empty-icon">
+            📈
+          </div>
+
+          <h3>
+            بخش آمار و رکوردها
+          </h3>
+
+          <p>
+            این بخش بعد از مشخص‌شدن ساختار جدول رکوردها تکمیل می‌شود.
+          </p>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <!-- SUPABASE -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+  <!-- ATHLETE JS -->
+
+  <script src="athlete.js"></script>
+
+</body>
+
+</html>
