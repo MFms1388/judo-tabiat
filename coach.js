@@ -1161,3 +1161,195 @@ function refreshEvaluationHistory() {
 
 window.refreshEvaluationHistory =
   refreshEvaluationHistory;
+// ======================================
+// CONNECT EVALUATION BUTTON
+// ======================================
+
+function openNewEvaluationForAthlete(athleteId) {
+
+  // اگر دوره‌ای وجود ندارد
+  if (
+    typeof evaluationPeriods === "undefined" ||
+    !Array.isArray(evaluationPeriods) ||
+    evaluationPeriods.length === 0
+  ) {
+
+    alert("ابتدا حداقل یک دوره ارزیابی ایجاد کنید.");
+
+    return;
+  }
+
+  // آخرین دوره
+  const period =
+    evaluationPeriods[
+      evaluationPeriods.length - 1
+    ];
+
+  // باز کردن Modal ارزیابی
+  createEvaluationModal(
+    athleteId,
+    period.id
+  );
+}
+
+
+// ======================================
+// اضافه کردن دکمه ارزیابی به کارت ورزشکار
+// ======================================
+
+function addEvaluationButtonToAthleteCard(
+  athleteId,
+  card
+) {
+
+  if (!card) {
+    return;
+  }
+
+  // جلوگیری از ایجاد دکمه تکراری
+  if (
+    card.querySelector(
+      ".open-new-evaluation-btn"
+    )
+  ) {
+    return;
+  }
+
+  const button =
+    document.createElement("button");
+
+  button.type = "button";
+
+  button.className =
+    "open-new-evaluation-btn";
+
+  button.textContent =
+    "ارزیابی جدید";
+
+  button.style.cssText = `
+    width: 100%;
+    min-height: 46px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #16834b;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+  `;
+
+  button.addEventListener(
+    "click",
+    event => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      openNewEvaluationForAthlete(
+        athleteId
+      );
+
+    }
+  );
+
+  card.appendChild(button);
+}
+
+
+// ======================================
+// دکمه ارزیابی شناور
+// ======================================
+
+function createFloatingEvaluationButton() {
+
+  const old =
+    document.getElementById(
+      "floatingEvaluationBtn"
+    );
+
+  if (old) {
+    old.remove();
+  }
+
+  const button =
+    document.createElement("button");
+
+  button.id =
+    "floatingEvaluationBtn";
+
+  button.type = "button";
+
+  button.textContent =
+    "＋ ارزیابی جدید";
+
+  button.style.cssText = `
+    position: fixed;
+    bottom: 22px;
+    right: 20px;
+    z-index: 9990;
+
+    min-height: 52px;
+    padding: 0 20px;
+
+    border: none;
+    border-radius: 15px;
+
+    background: #16834b;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+
+    box-shadow:
+      0 8px 25px rgba(0,0,0,.20);
+
+    cursor: pointer;
+  `;
+
+  button.addEventListener(
+    "click",
+    () => {
+
+      if (
+        typeof athletes === "undefined" ||
+        !Array.isArray(athletes) ||
+        athletes.length === 0
+      ) {
+
+        alert(
+          "ابتدا یک ورزشکار اضافه کنید."
+        );
+
+        return;
+      }
+
+      // انتخاب ورزشکار
+      const athlete =
+        athletes[0];
+
+      openNewEvaluationForAthlete(
+        athlete.id
+      );
+
+    }
+  );
+
+  document.body.appendChild(button);
+}
+
+
+// ======================================
+// اجرای دکمه شناور
+// ======================================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    createFloatingEvaluationButton();
+
+  }
+);
