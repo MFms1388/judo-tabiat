@@ -15,20 +15,48 @@
 
   <style>
     /* =====================================
-       EVALUATION PAGE
+       FIXES / COACH PAGE
     ====================================== */
 
-    .evaluation-toolbar {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 12px;
-      margin-bottom: 25px;
+    .coach-page {
+      display: none;
     }
 
-    .evaluation-toolbar select,
-    .evaluation-toolbar input {
+    .coach-page.active {
+      display: block;
+    }
+
+    .quick-card {
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      text-align: right;
+    }
+
+    .nav-item {
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+
+    .primary {
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .toolbar input,
+    .toolbar select {
       width: 100%;
       min-height: 48px;
+      box-sizing: border-box;
       padding: 10px 14px;
       border: 1px solid #ddd;
       border-radius: 12px;
@@ -38,9 +66,38 @@
       outline: none;
     }
 
-    .evaluation-toolbar select:focus,
-    .evaluation-toolbar input:focus {
-      border-color: #111;
+    .toolbar input:focus,
+    .toolbar select:focus {
+      border-color: #16834b;
+    }
+
+
+    /* =====================================
+       EVALUATION
+    ====================================== */
+
+    .evaluation-toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .evaluation-toolbar select {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .evaluation-toolbar select:focus {
+      border-color: #16834b;
     }
 
     .evaluation-card {
@@ -140,7 +197,7 @@
 
     .criteria-preview-fill {
       height: 100%;
-      background: #111;
+      background: #16834b;
       border-radius: 20px;
     }
 
@@ -154,6 +211,8 @@
       text-align: center;
       padding: 45px 20px;
       color: #777;
+      background: #fff;
+      border-radius: 18px;
     }
 
     .evaluation-empty-icon {
@@ -170,7 +229,52 @@
       margin: 0;
     }
 
+
+    /* =====================================
+       EMPTY PANELS
+    ====================================== */
+
+    .empty-panel {
+      background: #fff;
+      border-radius: 20px;
+      padding: 50px 25px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,.05);
+    }
+
+    .empty-panel > div:first-child {
+      font-size: 50px;
+      margin-bottom: 12px;
+    }
+
+    .empty-panel h2 {
+      margin: 0 0 8px;
+    }
+
+    .empty-panel p {
+      color: #777;
+      margin: 0;
+    }
+
+
+    /* =====================================
+       SETTINGS
+    ====================================== */
+
+    .setting-card {
+      cursor: default;
+    }
+
+
+    /* =====================================
+       MOBILE
+    ====================================== */
+
     @media (max-width: 750px) {
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
 
       .evaluation-toolbar {
         grid-template-columns: 1fr;
@@ -180,12 +284,8 @@
         align-items: flex-start;
       }
 
-      .criteria-preview-row {
-        grid-template-columns: 110px 1fr 40px;
-        gap: 8px;
-      }
-
     }
+
 
     @media (max-width: 500px) {
 
@@ -195,14 +295,7 @@
 
       .evaluation-score {
         width: 100%;
-      }
-
-      .criteria-preview-row {
-        grid-template-columns: 1fr 45px;
-      }
-
-      .criteria-preview-bar {
-        grid-column: 1 / -1;
+        box-sizing: border-box;
       }
 
     }
@@ -210,18 +303,19 @@
 
 </head>
 
+
 <body>
 
-  <!-- =================================
+  <!-- =====================================
        COACH APP
-  ================================== -->
+  ====================================== -->
 
   <div class="coach-app">
 
 
-    <!-- =================================
+    <!-- =====================================
          TOPBAR
-    ================================== -->
+    ====================================== -->
 
     <header class="coach-topbar">
 
@@ -259,9 +353,9 @@
     </header>
 
 
-    <!-- =================================
+    <!-- =====================================
          SIDEBAR
-    ================================== -->
+    ====================================== -->
 
     <aside
       class="coach-sidebar"
@@ -359,7 +453,9 @@
 
       <div class="sidebar-footer">
 
-        <span>مربی</span>
+        <span>
+          مربی
+        </span>
 
         <small id="coachEmail">
           در حال بارگذاری...
@@ -370,16 +466,16 @@
     </aside>
 
 
-    <!-- =================================
+    <!-- =====================================
          MAIN
-    ================================== -->
+    ====================================== -->
 
     <main class="coach-main">
 
 
-      <!-- =================================
+      <!-- =====================================
            DASHBOARD
-      ================================== -->
+      ====================================== -->
 
       <section
         class="coach-page active"
@@ -413,7 +509,9 @@
 
           <div class="stat-card">
 
-            <span>👥</span>
+            <span>
+              👥
+            </span>
 
             <div>
 
@@ -432,7 +530,9 @@
 
           <div class="stat-card">
 
-            <span>📊</span>
+            <span>
+              📊
+            </span>
 
             <div>
 
@@ -451,7 +551,9 @@
 
           <div class="stat-card">
 
-            <span>🟢</span>
+            <span>
+              🟢
+            </span>
 
             <div>
 
@@ -470,7 +572,9 @@
 
           <div class="stat-card">
 
-            <span>🏆</span>
+            <span>
+              🏆
+            </span>
 
             <div>
 
@@ -510,7 +614,9 @@
               type="button"
             >
 
-              <span>➕</span>
+              <span>
+                ➕
+              </span>
 
               <strong>
                 افزودن ورزشکار
@@ -529,7 +635,9 @@
               type="button"
             >
 
-              <span>📋</span>
+              <span>
+                📋
+              </span>
 
               <strong>
                 ارزیابی جدید
@@ -548,7 +656,9 @@
               type="button"
             >
 
-              <span>🟢</span>
+              <span>
+                🟢
+              </span>
 
               <strong>
                 حضور و غیاب
@@ -567,7 +677,9 @@
               type="button"
             >
 
-              <span>🏆</span>
+              <span>
+                🏆
+              </span>
 
               <strong>
                 ثبت مقام
@@ -586,9 +698,9 @@
       </section>
 
 
-      <!-- =================================
+      <!-- =====================================
            ATHLETES
-      ================================== -->
+      ====================================== -->
 
       <section
         class="coach-page"
@@ -625,8 +737,6 @@
         </div>
 
 
-        <!-- SEARCH AND FILTER -->
-
         <div class="toolbar">
 
           <input
@@ -648,19 +758,19 @@
         </div>
 
 
-        <!-- ATHLETE CARDS -->
-
         <div
           id="coachAthleteGrid"
           class="coach-athlete-grid"
-        ></div>
+        >
+
+        </div>
 
       </section>
 
 
-      <!-- =================================
+      <!-- =====================================
            EVALUATIONS
-      ================================== -->
+      ====================================== -->
 
       <section
         class="coach-page"
@@ -687,8 +797,6 @@
 
         </div>
 
-
-        <!-- EVALUATION TOOLBAR -->
 
         <div class="evaluation-toolbar">
 
@@ -725,8 +833,6 @@
         </div>
 
 
-        <!-- EVALUATIONS LIST -->
-
         <div id="evaluationsList">
 
           <div class="evaluation-empty">
@@ -750,9 +856,9 @@
       </section>
 
 
-      <!-- =================================
+      <!-- =====================================
            ATTENDANCE
-      ================================== -->
+      ====================================== -->
 
       <section
         class="coach-page"
@@ -799,9 +905,9 @@
       </section>
 
 
-      <!-- =================================
+      <!-- =====================================
            ACHIEVEMENTS
-      ================================== -->
+      ====================================== -->
 
       <section
         class="coach-page"
@@ -848,9 +954,9 @@
       </section>
 
 
-      <!-- =================================
+      <!-- =====================================
            EVENTS
-      ================================== -->
+      ====================================== -->
 
       <section
         class="coach-page"
@@ -897,9 +1003,9 @@
       </section>
 
 
-      <!-- =================================
+      <!-- =====================================
            RECORDS
-      ================================== -->
+      ====================================== -->
 
       <section
         class="coach-page"
@@ -946,9 +1052,9 @@
       </section>
 
 
-      <!-- =================================
+      <!-- =====================================
            SETTINGS
-      ================================== -->
+      ====================================== -->
 
       <section
         class="coach-page"
@@ -1054,9 +1160,9 @@
   </div>
 
 
-  <!-- =================================
+  <!-- =====================================
        ADD ATHLETE MODAL
-  ================================== -->
+  ====================================== -->
 
   <div
     class="modal hidden"
@@ -1197,19 +1303,533 @@
   </div>
 
 
-  <!-- =================================
+  <!-- =====================================
        SUPABASE
-  ================================== -->
+  ====================================== -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
-  <!-- =================================
+  <!-- =====================================
+       APP JS
+  ====================================== -->
+
+  <script src="app.js"></script>
+
+
+  <!-- =====================================
        COACH JS
-  ================================== -->
+  ====================================== -->
 
   <script src="coach.js"></script>
 
+
+  <!-- =====================================
+       BASIC COACH UI CONTROLLER
+       این بخش برای فعال کردن منو و
+       دکمه‌های اصلی صفحه است.
+  ====================================== -->
+
+  <script>
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      function () {
+
+        /* ===============================
+           MENU
+        =============================== */
+
+        const menuBtn =
+          document.getElementById("menuBtn");
+
+        const sidebar =
+          document.getElementById("coachSidebar");
+
+        if (menuBtn && sidebar) {
+
+          menuBtn.addEventListener(
+            "click",
+            function () {
+
+              sidebar.classList.toggle("open");
+
+            }
+          );
+
+        }
+
+
+        /* ===============================
+           PAGE NAVIGATION
+        =============================== */
+
+        const navItems =
+          document.querySelectorAll(".nav-item");
+
+        const pages =
+          document.querySelectorAll(".coach-page");
+
+        function openPage(pageName) {
+
+          pages.forEach(function (page) {
+
+            page.classList.remove("active");
+
+          });
+
+
+          navItems.forEach(function (item) {
+
+            item.classList.remove("active");
+
+          });
+
+
+          const target =
+            document.getElementById(
+              "page-" + pageName
+            );
+
+          if (target) {
+
+            target.classList.add("active");
+
+          }
+
+
+          const activeNav =
+            document.querySelector(
+              '.nav-item[data-page="' +
+              pageName +
+              '"]'
+            );
+
+          if (activeNav) {
+
+            activeNav.classList.add("active");
+
+          }
+
+
+          if (sidebar) {
+
+            sidebar.classList.remove("open");
+
+          }
+
+
+          if (
+            pageName === "evaluations" &&
+            typeof window.renderEvaluations === "function"
+          ) {
+
+            window.renderEvaluations();
+
+          }
+
+        }
+
+
+        navItems.forEach(function (item) {
+
+          item.addEventListener(
+            "click",
+            function () {
+
+              const pageName =
+                item.dataset.page;
+
+              if (pageName) {
+
+                openPage(pageName);
+
+              }
+
+            }
+          );
+
+        });
+
+
+        /* ===============================
+           QUICK ACTIONS
+        =============================== */
+
+        const quickCards =
+          document.querySelectorAll(
+            ".quick-card"
+          );
+
+
+        quickCards.forEach(function (card) {
+
+          card.addEventListener(
+            "click",
+            function () {
+
+              const pageName =
+                card.dataset.go;
+
+              if (!pageName) {
+                return;
+              }
+
+
+              openPage(pageName);
+
+
+              if (
+                pageName === "athletes"
+              ) {
+
+                setTimeout(
+                  function () {
+
+                    const addBtn =
+                      document.getElementById(
+                        "addAthleteBtn"
+                      );
+
+                    if (addBtn) {
+                      addBtn.click();
+                    }
+
+                  },
+                  100
+                );
+
+              }
+
+
+              if (
+                pageName === "evaluations"
+              ) {
+
+                setTimeout(
+                  function () {
+
+                    const newBtn =
+                      document.getElementById(
+                        "newEvaluationBtn"
+                      );
+
+                    if (newBtn) {
+                      newBtn.click();
+                    }
+
+                  },
+                  100
+                );
+
+              }
+
+            }
+          );
+
+        });
+
+
+        /* ===============================
+           EVALUATION BUTTON
+        =============================== */
+
+        const newEvaluationBtn =
+          document.getElementById(
+            "newEvaluationBtn"
+          );
+
+
+        if (
+          newEvaluationBtn &&
+          typeof window.openEvaluationSelector ===
+            "function"
+        ) {
+
+          newEvaluationBtn.addEventListener(
+            "click",
+            function () {
+
+              window.openEvaluationSelector();
+
+            }
+          );
+
+        }
+
+
+        /* ===============================
+           LOGOUT
+        =============================== */
+
+        const logoutBtn =
+          document.getElementById(
+            "logoutBtn"
+          );
+
+
+        if (logoutBtn) {
+
+          logoutBtn.addEventListener(
+            "click",
+            async function () {
+
+              try {
+
+                if (
+                  window.supabase &&
+                  window.supabase.createClient
+                ) {
+
+                  const url =
+                    "https://bkkdgywdptufjsaepehc.supabase.co";
+
+                  const key =
+                    "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
+
+                  const client =
+                    window.supabase.createClient(
+                      url,
+                      key
+                    );
+
+                  await client.auth.signOut();
+
+                }
+
+              } catch (error) {
+
+                console.error(
+                  "Logout error:",
+                  error
+                );
+
+              }
+
+
+              window.location.href =
+                "index.html";
+
+            }
+          );
+
+        }
+
+
+        /* ===============================
+           COACH EMAIL
+        =============================== */
+
+        async function loadCoachEmail() {
+
+          const emailElement =
+            document.getElementById(
+              "coachEmail"
+            );
+
+          if (!emailElement) {
+            return;
+          }
+
+
+          try {
+
+            if (
+              window.supabase &&
+              window.supabase.createClient
+            ) {
+
+              const url =
+                "https://bkkdgywdptufjsaepehc.supabase.co";
+
+              const key =
+                "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
+
+              const client =
+                window.supabase.createClient(
+                  url,
+                  key
+                );
+
+
+              const result =
+                await client.auth.getUser();
+
+
+              if (
+                result &&
+                result.data &&
+                result.data.user &&
+                result.data.user.email
+              ) {
+
+                emailElement.textContent =
+                  result.data.user.email;
+
+              } else {
+
+                emailElement.textContent =
+                  "مربی";
+
+              }
+
+            }
+
+          } catch (error) {
+
+            console.error(
+              "Coach email error:",
+              error
+            );
+
+            emailElement.textContent =
+              "مربی";
+
+          }
+
+        }
+
+
+        loadCoachEmail();
+
+
+        /* ===============================
+           EVALUATION SELECTORS
+        =============================== */
+
+        function fillEvaluationSelectors() {
+
+          const athleteSelect =
+            document.getElementById(
+              "evaluationAthleteSelect"
+            );
+
+          const periodSelect =
+            document.getElementById(
+              "evaluationPeriodSelect"
+            );
+
+
+          if (
+            !athleteSelect ||
+            !periodSelect
+          ) {
+            return;
+          }
+
+
+          let athleteList = [];
+
+          if (
+            typeof window.athletes !==
+              "undefined" &&
+            Array.isArray(window.athletes)
+          ) {
+
+            athleteList =
+              window.athletes;
+
+          }
+
+
+          athleteSelect.innerHTML = `
+            <option value="">
+              انتخاب ورزشکار
+            </option>
+          `;
+
+
+          athleteList.forEach(
+            function (athlete) {
+
+              const name =
+                [
+                  athlete.first_name,
+                  athlete.last_name
+                ]
+                  .filter(Boolean)
+                  .join(" ") ||
+                "بدون نام";
+
+
+              const option =
+                document.createElement(
+                  "option"
+                );
+
+              option.value =
+                athlete.id;
+
+              option.textContent =
+                name;
+
+              athleteSelect.appendChild(
+                option
+              );
+
+            }
+          );
+
+
+          let periodList = [];
+
+          if (
+            typeof window.evaluationPeriods !==
+              "undefined" &&
+            Array.isArray(
+              window.evaluationPeriods
+            )
+          ) {
+
+            periodList =
+              window.evaluationPeriods;
+
+          }
+
+
+          periodSelect.innerHTML = `
+            <option value="">
+              انتخاب دوره ارزیابی
+            </option>
+          `;
+
+
+          periodList.forEach(
+            function (period) {
+
+              const option =
+                document.createElement(
+                  "option"
+                );
+
+              option.value =
+                period.id;
+
+              option.textContent =
+                period.title ||
+                "دوره بدون عنوان";
+
+              periodSelect.appendChild(
+                option
+              );
+
+            }
+          );
+
+        }
+
+
+        setTimeout(
+          fillEvaluationSelectors,
+          300
+        );
+
+
+      }
+    );
+
+  </script>
+
 </body>
 
-</html>
+    </html>
