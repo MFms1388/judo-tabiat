@@ -1,938 +1,160 @@
-// ======================================
-// SLIDER VERSION - CREATE EVALUATION MODAL
-// ======================================
+// ============================================================
+// طبیعت جودو | COACH.JS
+// سیستم ارزیابی ورزشکاران
+// ============================================================
 
-function createEvaluationModal(athleteId, periodId) {
 
-  // حذف پنجره قبلی
-  const oldModal = document.getElementById("newEvaluationModal");
+// ============================================================
+// ابزارهای کمکی
+// ============================================================
 
-  if (oldModal) {
-    oldModal.remove();
-  }
+function coachEscapeHTML(value) {
 
-  // پیدا کردن ورزشکار
-  const athlete = athletes.find(
-    item => item.id === athleteId
+  const div = document.createElement("div");
+
+  div.textContent =
+    value === undefined || value === null
+      ? ""
+      : String(value);
+
+  return div.innerHTML;
+}
+
+
+function coachPersianNumber(value) {
+
+  const english =
+    String(value);
+
+  const persian =
+    "۰۱۲۳۴۵۶۷۸۹";
+
+  return english.replace(
+    /\d/g,
+    digit => persian[digit]
   );
+}
 
-  // پیدا کردن دوره
-  const period = evaluationPeriods.find(
-    item => item.id === periodId
-  );
 
-  const athleteName = athlete
-    ? [
-        athlete.first_name,
-        athlete.last_name
-      ]
-        .filter(Boolean)
-        .join(" ")
-    : "ورزشکار";
+function coachGetAthletes() {
 
-  // ======================================
-  // CSS
-  // ======================================
+  if (
+    typeof athletes !== "undefined" &&
+    Array.isArray(athletes)
+  ) {
 
-  const oldStyle = document.getElementById(
-    "evaluation-modal-style"
-  );
-
-  if (oldStyle) {
-    oldStyle.remove();
-  }
-
-  const style = document.createElement("style");
-
-  style.id = "evaluation-modal-style";
-
-  style.textContent = `
-
-    #newEvaluationModal {
-      position: fixed !important;
-      inset: 0 !important;
-      z-index: 99999 !important;
-
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-
-      background: rgba(0, 0, 0, 0.60) !important;
-
-      padding: 15px !important;
-
-      box-sizing: border-box !important;
-    }
-
-    #newEvaluationModal .evaluation-modal-card {
-      position: relative !important;
-
-      width: min(620px, 100%) !important;
-
-      max-height: 92vh !important;
-
-      overflow-y: auto !important;
-
-      background: #ffffff !important;
-
-      color: #111111 !important;
-
-      border-radius: 20px !important;
-
-      padding: 22px !important;
-
-      box-sizing: border-box !important;
-
-      box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.30) !important;
-    }
-
-    #newEvaluationModal h2,
-    #newEvaluationModal p,
-    #newEvaluationModal strong,
-    #newEvaluationModal label,
-    #newEvaluationModal span,
-    #newEvaluationModal div {
-      color: #111111;
-    }
-
-    .evaluation-new-header {
-      margin-bottom: 20px !important;
-    }
-
-    .evaluation-new-header .eyebrow {
-      display: block !important;
-
-      color: #16834b !important;
-
-      font-size: 12px !important;
-
-      font-weight: 800 !important;
-
-      margin-bottom: 5px !important;
-    }
-
-    .evaluation-new-header h2 {
-      margin: 0 0 12px 0 !important;
-
-      color: #111111 !important;
-
-      font-size: 24px !important;
-
-      font-weight: 800 !important;
-    }
-
-    .evaluation-info {
-      background: #f1f6f3 !important;
-
-      color: #111111 !important;
-
-      border-radius: 12px !important;
-
-      padding: 13px !important;
-
-      line-height: 2 !important;
-    }
-
-    .evaluation-info strong {
-      color: #111111 !important;
-
-      font-weight: 800 !important;
-    }
-
-    /* ======================================
-       کارت هر معیار
-       ====================================== */
-
-    .evaluation-criterion {
-      background: #f8faf9 !important;
-
-      border: 1px solid #dfe6e2 !important;
-
-      border-radius: 15px !important;
-
-      padding: 16px !important;
-
-      margin-bottom: 13px !important;
-    }
-
-    .evaluation-criterion-top {
-      display: flex !important;
-
-      align-items: center !important;
-
-      justify-content: space-between !important;
-
-      gap: 10px !important;
-
-      margin-bottom: 8px !important;
-    }
-
-    .evaluation-criterion-name {
-      color: #111111 !important;
-
-      font-size: 17px !important;
-
-      font-weight: 800 !important;
-    }
-
-    .evaluation-criterion-value {
-      min-width: 58px !important;
-
-      height: 38px !important;
-
-      display: flex !important;
-
-      align-items: center !important;
-
-      justify-content: center !important;
-
-      background: #16834b !important;
-
-      color: #ffffff !important;
-
-      border-radius: 10px !important;
-
-      font-size: 18px !important;
-
-      font-weight: 900 !important;
-
-      line-height: 1 !important;
-    }
-
-    .evaluation-criterion-description {
-      color: #555555 !important;
-
-      font-size: 13px !important;
-
-      line-height: 1.7 !important;
-
-      margin-bottom: 12px !important;
-    }
-
-    /* ======================================
-       نوار امتیاز ۰ تا ۱۰
-       ====================================== */
-
-    .evaluation-range {
-      display: block !important;
-
-      width: 100% !important;
-
-      height: 10px !important;
-
-      margin: 15px 0 8px 0 !important;
-
-      padding: 0 !important;
-
-      appearance: none !important;
-
-      -webkit-appearance: none !important;
-
-      background: #cfd8d3 !important;
-
-      border-radius: 10px !important;
-
-      outline: none !important;
-
-      cursor: pointer !important;
-    }
-
-    .evaluation-range::-webkit-slider-thumb {
-      appearance: none !important;
-
-      -webkit-appearance: none !important;
-
-      width: 30px !important;
-
-      height: 30px !important;
-
-      border-radius: 50% !important;
-
-      background: #16834b !important;
-
-      border: 4px solid #ffffff !important;
-
-      box-shadow:
-        0 2px 7px rgba(0, 0, 0, 0.30) !important;
-
-      cursor: pointer !important;
-    }
-
-    .evaluation-range::-moz-range-thumb {
-      width: 30px !important;
-
-      height: 30px !important;
-
-      border-radius: 50% !important;
-
-      background: #16834b !important;
-
-      border: 4px solid #ffffff !important;
-
-      box-shadow:
-        0 2px 7px rgba(0, 0, 0, 0.30) !important;
-
-      cursor: pointer !important;
-    }
-
-    .evaluation-range-labels {
-      display: flex !important;
-
-      justify-content: space-between !important;
-
-      align-items: center !important;
-
-      width: 100% !important;
-
-      margin-top: 6px !important;
-
-      color: #333333 !important;
-
-      font-size: 12px !important;
-
-      font-weight: 700 !important;
-    }
-
-    .evaluation-range-labels span {
-      color: #333333 !important;
-    }
-
-    /* ======================================
-       توضیحات مربی
-       ====================================== */
-
-    .evaluation-notes-label {
-      display: block !important;
-
-      margin-top: 18px !important;
-
-      color: #111111 !important;
-
-      font-weight: 800 !important;
-    }
-
-    #newEvaluationNotes {
-      display: block !important;
-
-      width: 100% !important;
-
-      box-sizing: border-box !important;
-
-      margin-top: 8px !important;
-
-      padding: 12px !important;
-
-      min-height: 100px !important;
-
-      background: #ffffff !important;
-
-      color: #111111 !important;
-
-      border: 1px solid #cfd5d1 !important;
-
-      border-radius: 12px !important;
-
-      font-family: inherit !important;
-
-      font-size: 15px !important;
-
-      outline: none !important;
-    }
-
-    #newEvaluationNotes::placeholder {
-      color: #777777 !important;
-    }
-
-    /* ======================================
-       امتیاز نهایی
-       ====================================== */
-
-    .evaluation-total-box {
-      margin-top: 17px !important;
-
-      padding: 16px !important;
-
-      background: #edf7f1 !important;
-
-      border: 1px solid #cde7d8 !important;
-
-      border-radius: 13px !important;
-
-      text-align: center !important;
-
-      color: #222222 !important;
-
-      font-size: 16px !important;
-
-      font-weight: 700 !important;
-    }
-
-    #newEvaluationTotal {
-      color: #16834b !important;
-
-      font-size: 27px !important;
-
-      font-weight: 900 !important;
-
-      margin: 0 5px !important;
-    }
-
-    /* ======================================
-       دکمه ثبت
-       ====================================== */
-
-    #saveNewEvaluationBtn {
-      width: 100% !important;
-
-      min-height: 52px !important;
-
-      margin-top: 14px !important;
-
-      border: none !important;
-
-      border-radius: 12px !important;
-
-      background: #16834b !important;
-
-      color: #ffffff !important;
-
-      font-family: inherit !important;
-
-      font-size: 16px !important;
-
-      font-weight: 800 !important;
-
-      cursor: pointer !important;
-    }
-
-    #saveNewEvaluationBtn:disabled {
-      opacity: 0.6 !important;
-
-      cursor: wait !important;
-    }
-
-    /* ======================================
-       دکمه بستن
-       ====================================== */
-
-    #closeNewEvaluationModal {
-      position: absolute !important;
-
-      top: 12px !important;
-
-      left: 12px !important;
-
-      width: 36px !important;
-
-      height: 36px !important;
-
-      border: none !important;
-
-      border-radius: 50% !important;
-
-      background: #eeeeee !important;
-
-      color: #222222 !important;
-
-      font-size: 25px !important;
-
-      line-height: 1 !important;
-
-      cursor: pointer !important;
-    }
-
-  `;
-
-  document.head.appendChild(style);
-
-  // ======================================
-  // ساخت معیارها
-  // ======================================
-
-  const criteriaHTML = evaluationCriteria
-    .map(criterion => {
-
-      return `
-
-        <div class="evaluation-criterion">
-
-          <div class="evaluation-criterion-top">
-
-            <div class="evaluation-criterion-name">
-              ${escapeHTML(criterion.name)}
-            </div>
-
-            <div
-              class="evaluation-criterion-value"
-              id="scoreValue-${criterion.id}"
-            >
-              ۰
-            </div>
-
-          </div>
-
-          ${
-            criterion.description
-              ? `
-                <div class="evaluation-criterion-description">
-                  ${escapeHTML(criterion.description)}
-                </div>
-              `
-              : ""
-          }
-
-          <input
-            type="range"
-            min="0"
-            max="10"
-            step="0.1"
-            value="0"
-            class="evaluation-range"
-            data-criterion-id="${escapeHTML(criterion.id)}"
-            data-value-id="scoreValue-${criterion.id}"
-          >
-
-          <div class="evaluation-range-labels">
-            <span>۰</span>
-            <span>۲</span>
-            <span>۴</span>
-            <span>۶</span>
-            <span>۸</span>
-            <span>۱۰</span>
-          </div>
-
-        </div>
-
-      `;
-    })
-    .join("");
-
-  // ======================================
-  // ساخت Modal
-  // ======================================
-
-  const modal = document.createElement("div");
-
-  modal.id = "newEvaluationModal";
-
-  modal.innerHTML = `
-
-    <div class="evaluation-modal-card">
-
-      <button
-        type="button"
-        id="closeNewEvaluationModal"
-      >
-        ×
-      </button>
-
-      <div class="evaluation-new-header">
-
-        <span class="eyebrow">
-          NEW EVALUATION
-        </span>
-
-        <h2>
-          ارزیابی جدید
-        </h2>
-
-        <div class="evaluation-info">
-
-          ورزشکار:
-          <strong>
-            ${escapeHTML(athleteName)}
-          </strong>
-
-          <br>
-
-          دوره:
-          <strong>
-            ${
-              period
-                ? escapeHTML(period.title)
-                : ""
-            }
-          </strong>
-
-        </div>
-
-      </div>
-
-      <div>
-        ${criteriaHTML}
-      </div>
-
-      <label class="evaluation-notes-label">
-
-        توضیحات مربی
-
-        <textarea
-          id="newEvaluationNotes"
-          rows="4"
-          placeholder="توضیحات مربی درباره عملکرد ورزشکار..."
-        ></textarea>
-
-      </label>
-
-      <div class="evaluation-total-box">
-
-        امتیاز نهایی:
-
-        <strong id="newEvaluationTotal">
-          ۰
-        </strong>
-
-        از ۱۰
-
-      </div>
-
-      <button
-        id="saveNewEvaluationBtn"
-        type="button"
-      >
-        ثبت ارزیابی
-      </button>
-
-    </div>
-
-  `;
-
-  document.body.appendChild(modal);
-
-  // ======================================
-  // مدیریت نوارهای امتیاز
-  // ======================================
-
-  const scoreInputs =
-    modal.querySelectorAll(".evaluation-range");
-
-  function updateTotal() {
-
-    let total = 0;
-
-    scoreInputs.forEach(input => {
-
-      let value = Number(input.value);
-
-      if (Number.isNaN(value)) {
-        value = 0;
-      }
-
-      value = Math.max(
-        0,
-        Math.min(10, value)
-      );
-
-      total += value;
-
-      const valueId =
-        input.dataset.valueId;
-
-      const valueElement =
-        modal.querySelector(`#${valueId}`);
-
-      if (valueElement) {
-
-        valueElement.textContent =
-          toPersianNumber(
-            value.toFixed(1)
-          );
-
-      }
-
-    });
-
-    const average =
-      scoreInputs.length > 0
-        ? total / scoreInputs.length
-        : 0;
-
-    const totalElement =
-      modal.querySelector("#newEvaluationTotal");
-
-    if (totalElement) {
-
-      totalElement.textContent =
-        toPersianNumber(
-          average.toFixed(2)
-        );
-
-    }
+    return athletes;
 
   }
 
-  scoreInputs.forEach(input => {
+  if (
+    Array.isArray(window.athletes)
+  ) {
 
-    input.addEventListener(
-      "input",
-      updateTotal
-    );
-
-    input.addEventListener(
-      "change",
-      updateTotal
-    );
-
-  });
-
-  updateTotal();
-
-  // ======================================
-  // بستن پنجره
-  // ======================================
-
-  const closeBtn =
-    modal.querySelector(
-      "#closeNewEvaluationModal"
-    );
-
-  if (closeBtn) {
-
-    closeBtn.addEventListener(
-      "click",
-      () => {
-        modal.remove();
-      }
-    );
+    return window.athletes;
 
   }
 
-  modal.addEventListener(
-    "click",
-    event => {
-
-      if (event.target === modal) {
-        modal.remove();
-      }
-
-    }
-  );
-
-  // ======================================
-  // ثبت ارزیابی
-  // ======================================
-
-  const saveBtn =
-    modal.querySelector(
-      "#saveNewEvaluationBtn"
-    );
-
-  if (saveBtn) {
-
-    saveBtn.addEventListener(
-      "click",
-      async () => {
-
-        await saveNewEvaluation(
-          athleteId,
-          periodId,
-          scoreInputs,
-          saveBtn
-        );
-
-      }
-    );
-
-  }
+  return [];
 
 }
 
 
-// ======================================
-// SAVE NEW EVALUATION
-// ======================================
+function coachGetPeriods() {
 
-async function saveNewEvaluation(
-  athleteId,
-  periodId,
-  scoreInputs,
-  saveBtn
-) {
+  if (
+    typeof evaluationPeriods !== "undefined" &&
+    Array.isArray(evaluationPeriods)
+  ) {
 
-  try {
-
-    saveBtn.disabled = true;
-
-    saveBtn.textContent =
-      "در حال ثبت...";
-
-    const scores = [];
-
-    scoreInputs.forEach(input => {
-
-      scores.push({
-
-        criterion_id:
-          input.dataset.criterionId,
-
-        score:
-          Number(input.value)
-
-      });
-
-    });
-
-    // ======================================
-    // محاسبه امتیاز نهایی
-    // ======================================
-
-    const total =
-      scores.length > 0
-        ? scores.reduce(
-            (sum, item) =>
-              sum + item.score,
-            0
-          ) / scores.length
-        : 0;
-
-    // ======================================
-    // توضیحات مربی
-    // ======================================
-
-    const notesElement =
-      document.getElementById(
-        "newEvaluationNotes"
-      );
-
-    const notes =
-      notesElement
-        ? notesElement.value.trim()
-        : "";
-
-    // ======================================
-    // ساخت ارزیابی
-    // ======================================
-
-    const evaluation = {
-
-      id:
-        crypto.randomUUID(),
-
-      athlete_id:
-        athleteId,
-
-      period_id:
-        periodId,
-
-      scores:
-        scores,
-
-      total_score:
-        Number(total.toFixed(2)),
-
-      notes:
-        notes,
-
-      created_at:
-        new Date().toISOString()
-
-    };
-
-    // ======================================
-    // ساخت آرایه ارزیابی‌ها
-    // ======================================
-
-    if (
-      typeof evaluations === "undefined"
-    ) {
-
-      window.evaluations = [];
-
-    }
-
-    // جلوگیری از خطا
-    if (!Array.isArray(evaluations)) {
-
-      window.evaluations = [];
-
-    }
-
-    // ======================================
-    // ذخیره
-    // ======================================
-
-    evaluations.push(
-      evaluation
-    );
-
-    localStorage.setItem(
-      "evaluations",
-      JSON.stringify(evaluations)
-    );
-
-    // ======================================
-    // بستن Modal
-    // ======================================
-
-    const modal =
-      document.getElementById(
-        "newEvaluationModal"
-      );
-
-    if (modal) {
-      modal.remove();
-    }
-
-    // ======================================
-    // بروزرسانی صفحه
-    // ======================================
-
-    if (
-      typeof renderEvaluations ===
-      "function"
-    ) {
-
-      renderEvaluations();
-
-    }
-
-    alert(
-      "ارزیابی با موفقیت ثبت شد."
-    );
-
-  } catch (error) {
-
-    console.error(
-      "خطا در ثبت ارزیابی:",
-      error
-    );
-
-    alert(
-      "خطا در ثبت ارزیابی."
-    );
-
-    saveBtn.disabled = false;
-
-    saveBtn.textContent =
-      "ثبت ارزیابی";
+    return evaluationPeriods;
 
   }
 
+  if (
+    Array.isArray(window.evaluationPeriods)
+  ) {
+
+    return window.evaluationPeriods;
+
+  }
+
+  return [];
+
 }
-// ======================================
-// LOAD SAVED EVALUATIONS
-// ======================================
+
+
+function coachGetCriteria() {
+
+  if (
+    typeof evaluationCriteria !== "undefined" &&
+    Array.isArray(evaluationCriteria)
+  ) {
+
+    return evaluationCriteria;
+
+  }
+
+  if (
+    Array.isArray(window.evaluationCriteria)
+  ) {
+
+    return window.evaluationCriteria;
+
+  }
+
+  return [];
+
+}
+
+
+function coachGetEvaluations() {
+
+  if (
+    !Array.isArray(window.evaluations)
+  ) {
+
+    window.evaluations = [];
+
+  }
+
+  return window.evaluations;
+
+}
+
+
+// ============================================================
+// بارگذاری ارزیابی‌ها
+// ============================================================
 
 function loadEvaluations() {
 
   try {
 
     const saved =
-      localStorage.getItem("evaluations");
+      localStorage.getItem(
+        "evaluations"
+      );
 
     if (!saved) {
+
       window.evaluations = [];
-      return;
+
+      return window.evaluations;
+
     }
 
     const parsed =
       JSON.parse(saved);
 
     if (Array.isArray(parsed)) {
+
       window.evaluations = parsed;
+
     } else {
+
       window.evaluations = [];
+
     }
 
   } catch (error) {
@@ -946,811 +168,1137 @@ function loadEvaluations() {
 
   }
 
+  return window.evaluations;
+
 }
 
 
-// ======================================
-// INITIALIZE EVALUATIONS
-// ======================================
+// ============================================================
+// ذخیره ارزیابی‌ها
+// ============================================================
 
-loadEvaluations();
-// ======================================
-// RENDER EVALUATIONS HISTORY
-// ======================================
+function saveEvaluationsToStorage() {
 
-function renderEvaluations() {
+  try {
 
-  const container =
-    document.getElementById("evaluationsContainer");
+    localStorage.setItem(
+      "evaluations",
+      JSON.stringify(
+        coachGetEvaluations()
+      )
+    );
 
-  if (!container) return;
+    return true;
 
-  loadEvaluations();
+  } catch (error) {
 
-  if (!evaluations.length) {
+    console.error(
+      "خطا در ذخیره ارزیابی‌ها:",
+      error
+    );
 
-    container.innerHTML = `
-      <div style="
-        padding:25px;
-        text-align:center;
-        color:#777;
-      ">
-        هنوز هیچ ارزیابی‌ای ثبت نشده است.
-      </div>
-    `;
+    return false;
 
-    return;
-  }
-
-  container.innerHTML = evaluations
-    .slice()
-    .reverse()
-    .map(evaluation => {
-
-      const athlete =
-        athletes.find(
-          athlete =>
-            athlete.id === evaluation.athlete_id
-        );
-
-      const period =
-        evaluationPeriods.find(
-          period =>
-            period.id === evaluation.period_id
-        );
-
-      const athleteName = athlete
-        ? [
-            athlete.first_name,
-            athlete.last_name
-          ]
-            .filter(Boolean)
-            .join(" ")
-        : "ورزشکار";
-
-      const periodName =
-        period
-          ? period.title
-          : "دوره نامشخص";
-
-      const score =
-        Number(evaluation.total_score || 0);
-
-      return `
-        <div class="evaluation-history-card">
-
-          <div>
-            <strong>
-              ${escapeHTML(athleteName)}
-            </strong>
-
-            <div>
-              ${escapeHTML(periodName)}
-            </div>
-          </div>
-
-          <div class="evaluation-history-score">
-            ${toPersianNumber(score.toFixed(2))}
-            <small>/ ۱۰</small>
-          </div>
-
-        </div>
-      `;
-
-    })
-    .join("");
-}
-// ======================================
-// EVALUATION HISTORY STYLE
-// ======================================
-
-(function addEvaluationHistoryStyle() {
-
-  if (document.getElementById("evaluation-history-style")) {
-    return;
-  }
-
-  const style = document.createElement("style");
-
-  style.id = "evaluation-history-style";
-
-  style.textContent = `
-
-    .evaluation-history-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-
-      padding: 16px;
-
-      margin-bottom: 12px;
-
-      background: #ffffff;
-
-      border: 1px solid #e1e7e3;
-
-      border-radius: 14px;
-
-      box-shadow:
-        0 4px 15px rgba(0,0,0,0.06);
-    }
-
-    .evaluation-history-card strong {
-      display: block;
-
-      color: #111111;
-
-      font-size: 16px;
-
-      margin-bottom: 5px;
-    }
-
-    .evaluation-history-card div {
-      color: #666666;
-
-      font-size: 13px;
-    }
-
-    .evaluation-history-score {
-      min-width: 75px;
-
-      padding: 10px;
-
-      text-align: center;
-
-      background: #edf7f1;
-
-      color: #16834b !important;
-
-      border-radius: 10px;
-
-      font-size: 18px;
-
-      font-weight: 900;
-    }
-
-    .evaluation-history-score small {
-      font-size: 11px;
-
-      color: #16834b !important;
-    }
-
-  `;
-
-  document.head.appendChild(style);
-
-})();
-// ======================================
-// CONNECT EVALUATION HISTORY
-// ======================================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  loadEvaluations();
-
-  if (
-    typeof renderEvaluations === "function"
-  ) {
-    renderEvaluations();
-  }
-
-});
-
-
-// ======================================
-// REFRESH AFTER NEW EVALUATION
-// ======================================
-
-function refreshEvaluationHistory() {
-
-  loadEvaluations();
-
-  if (
-    typeof renderEvaluations === "function"
-  ) {
-    renderEvaluations();
   }
 
 }
 
 
-// ======================================
-// AUTO REFRESH
-// ======================================
+// ============================================================
+// CSS فرم ارزیابی
+// ============================================================
 
-window.refreshEvaluationHistory =
-  refreshEvaluationHistory;
-// ======================================
-// CONNECT EVALUATION BUTTON
-// ======================================
+function addEvaluationModalStyle() {
 
-function openNewEvaluationForAthlete(athleteId) {
-
-  // اگر دوره‌ای وجود ندارد
-  if (
-    typeof evaluationPeriods === "undefined" ||
-    !Array.isArray(evaluationPeriods) ||
-    evaluationPeriods.length === 0
-  ) {
-
-    alert("ابتدا حداقل یک دوره ارزیابی ایجاد کنید.");
-
-    return;
-  }
-
-  // آخرین دوره
-  const period =
-    evaluationPeriods[
-      evaluationPeriods.length - 1
-    ];
-
-  // باز کردن Modal ارزیابی
-  createEvaluationModal(
-    athleteId,
-    period.id
-  );
-}
-
-
-// ======================================
-// اضافه کردن دکمه ارزیابی به کارت ورزشکار
-// ======================================
-
-function addEvaluationButtonToAthleteCard(
-  athleteId,
-  card
-) {
-
-  if (!card) {
-    return;
-  }
-
-  // جلوگیری از ایجاد دکمه تکراری
-  if (
-    card.querySelector(
-      ".open-new-evaluation-btn"
-    )
-  ) {
-    return;
-  }
-
-  const button =
-    document.createElement("button");
-
-  button.type = "button";
-
-  button.className =
-    "open-new-evaluation-btn";
-
-  button.textContent =
-    "ارزیابی جدید";
-
-  button.style.cssText = `
-    width: 100%;
-    min-height: 46px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 10px;
-    background: #16834b;
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 800;
-    cursor: pointer;
-  `;
-
-  button.addEventListener(
-    "click",
-    event => {
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      openNewEvaluationForAthlete(
-        athleteId
-      );
-
-    }
-  );
-
-  card.appendChild(button);
-}
-
-
-// ======================================
-// دکمه ارزیابی شناور
-// ======================================
-
-function createFloatingEvaluationButton() {
-
-  const old =
+  const oldStyle =
     document.getElementById(
-      "floatingEvaluationBtn"
+      "evaluation-modal-style"
     );
 
-  if (old) {
-    old.remove();
-  }
+  if (oldStyle) {
 
-  const button =
-    document.createElement("button");
-
-  button.id =
-    "floatingEvaluationBtn";
-
-  button.type = "button";
-
-  button.textContent =
-    "＋ ارزیابی جدید";
-
-  button.style.cssText = `
-    position: fixed;
-    bottom: 22px;
-    right: 20px;
-    z-index: 9990;
-
-    min-height: 52px;
-    padding: 0 20px;
-
-    border: none;
-    border-radius: 15px;
-
-    background: #16834b;
-    color: #ffffff;
-
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 800;
-
-    box-shadow:
-      0 8px 25px rgba(0,0,0,.20);
-
-    cursor: pointer;
-  `;
-
-  button.addEventListener(
-    "click",
-    () => {
-
-      if (
-        typeof athletes === "undefined" ||
-        !Array.isArray(athletes) ||
-        athletes.length === 0
-      ) {
-
-        alert(
-          "ابتدا یک ورزشکار اضافه کنید."
-        );
-
-        return;
-      }
-
-      // انتخاب ورزشکار
-      const athlete =
-        athletes[0];
-
-      openNewEvaluationForAthlete(
-        athlete.id
-      );
-
-    }
-  );
-
-  document.body.appendChild(button);
-}
-
-
-// ======================================
-// اجرای دکمه شناور
-// ======================================
-
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-
-    createFloatingEvaluationButton();
+    oldStyle.remove();
 
   }
-);
-// ======================================
-// SELECT ATHLETE + PERIOD MODAL
-// ======================================
-
-function openEvaluationSelector() {
-
-  // حذف پنجره قبلی
-  const oldModal =
-    document.getElementById(
-      "evaluationSelectorModal"
-    );
-
-  if (oldModal) {
-    oldModal.remove();
-  }
-
-  // بررسی ورزشکارها
-  if (
-    typeof athletes === "undefined" ||
-    !Array.isArray(athletes) ||
-    athletes.length === 0
-  ) {
-
-    alert(
-      "ابتدا حداقل یک ورزشکار اضافه کنید."
-    );
-
-    return;
-  }
-
-  // بررسی دوره‌ها
-  if (
-    typeof evaluationPeriods === "undefined" ||
-    !Array.isArray(evaluationPeriods) ||
-    evaluationPeriods.length === 0
-  ) {
-
-    alert(
-      "ابتدا حداقل یک دوره ارزیابی ایجاد کنید."
-    );
-
-    return;
-  }
-
-  // ======================================
-  // CSS
-  // ======================================
 
   const style =
     document.createElement("style");
 
   style.id =
-    "evaluation-selector-style";
-
-  const oldStyle =
-    document.getElementById(
-      "evaluation-selector-style"
-    );
-
-  if (oldStyle) {
-    oldStyle.remove();
-  }
+    "evaluation-modal-style";
 
   style.textContent = `
 
-    #evaluationSelectorModal {
+    #newEvaluationModal {
 
-      position: fixed;
-      inset: 0;
+      position: fixed !important;
 
-      z-index: 99998;
+      inset: 0 !important;
 
-      display: flex;
+      z-index: 99999 !important;
 
-      align-items: center;
-      justify-content: center;
+      display: flex !important;
 
-      padding: 15px;
+      align-items: center !important;
+
+      justify-content: center !important;
 
       background:
-        rgba(0,0,0,.60);
+        rgba(0,0,0,.60) !important;
 
-      box-sizing: border-box;
+      padding: 15px !important;
+
+      box-sizing: border-box !important;
+
     }
 
-    .evaluation-selector-card {
 
-      width: min(
-        500px,
-        100%
-      );
+    #newEvaluationModal
+    .evaluation-modal-card {
 
-      background: #ffffff;
+      position: relative !important;
 
-      border-radius: 20px;
+      width:
+        min(620px, 100%) !important;
 
-      padding: 24px;
+      max-height:
+        92vh !important;
 
-      box-sizing: border-box;
+      overflow-y:
+        auto !important;
+
+      background:
+        #ffffff !important;
+
+      color:
+        #111111 !important;
+
+      border-radius:
+        20px !important;
+
+      padding:
+        22px !important;
+
+      box-sizing:
+        border-box !important;
 
       box-shadow:
         0 20px 60px
-        rgba(0,0,0,.30);
+        rgba(0,0,0,.30) !important;
 
-      position: relative;
     }
 
-    .evaluation-selector-card h2 {
+
+    #newEvaluationModal h2,
+    #newEvaluationModal p,
+    #newEvaluationModal strong,
+    #newEvaluationModal label,
+    #newEvaluationModal span {
+
+      color:
+        #111111;
+
+    }
+
+
+    .evaluation-new-header {
+
+      margin-bottom:
+        20px !important;
+
+    }
+
+
+    .evaluation-new-header
+    .eyebrow {
+
+      display:
+        block !important;
+
+      color:
+        #16834b !important;
+
+      font-size:
+        12px !important;
+
+      font-weight:
+        800 !important;
+
+      margin-bottom:
+        5px !important;
+
+    }
+
+
+    .evaluation-new-header h2 {
 
       margin:
-        0 0 6px 0;
+        0 0 12px 0 !important;
 
-      color: #111111;
+      color:
+        #111111 !important;
 
-      font-size: 23px;
+      font-size:
+        24px !important;
 
-      font-weight: 900;
+      font-weight:
+        800 !important;
+
     }
 
-    .evaluation-selector-card
-    .selector-subtitle {
 
-      margin:
-        0 0 22px 0;
+    .evaluation-info {
 
-      color: #666666;
+      background:
+        #f1f6f3 !important;
 
-      font-size: 13px;
+      color:
+        #111111 !important;
 
-      line-height: 1.7;
-    }
-
-    .selector-label {
-
-      display: block;
-
-      margin-top: 15px;
-
-      margin-bottom: 7px;
-
-      color: #111111;
-
-      font-size: 14px;
-
-      font-weight: 800;
-    }
-
-    .selector-select {
-
-      width: 100%;
-
-      min-height: 50px;
+      border-radius:
+        12px !important;
 
       padding:
-        0 13px;
+        13px !important;
+
+      line-height:
+        2 !important;
+
+    }
+
+
+    .evaluation-info strong {
+
+      color:
+        #111111 !important;
+
+      font-weight:
+        800 !important;
+
+    }
+
+
+    .evaluation-criterion {
+
+      background:
+        #f8faf9 !important;
 
       border:
-        1px solid #d4ddd8;
+        1px solid #dfe6e2 !important;
 
-      border-radius: 12px;
+      border-radius:
+        15px !important;
 
-      background: #ffffff;
+      padding:
+        16px !important;
 
-      color: #111111;
+      margin-bottom:
+        13px !important;
 
-      font-family: inherit;
-
-      font-size: 15px;
-
-      outline: none;
     }
 
-    .selector-select:focus {
 
-      border-color:
-        #16834b;
+    .evaluation-criterion-top {
+
+      display:
+        flex !important;
+
+      align-items:
+        center !important;
+
+      justify-content:
+        space-between !important;
+
+      gap:
+        10px !important;
+
+      margin-bottom:
+        8px !important;
+
+    }
+
+
+    .evaluation-criterion-name {
+
+      color:
+        #111111 !important;
+
+      font-size:
+        17px !important;
+
+      font-weight:
+        800 !important;
+
+    }
+
+
+    .evaluation-criterion-value {
+
+      min-width:
+        58px !important;
+
+      height:
+        38px !important;
+
+      display:
+        flex !important;
+
+      align-items:
+        center !important;
+
+      justify-content:
+        center !important;
+
+      background:
+        #16834b !important;
+
+      color:
+        #ffffff !important;
+
+      border-radius:
+        10px !important;
+
+      font-size:
+        18px !important;
+
+      font-weight:
+        900 !important;
+
+    }
+
+
+    .evaluation-criterion-description {
+
+      color:
+        #555555 !important;
+
+      font-size:
+        13px !important;
+
+      line-height:
+        1.7 !important;
+
+      margin-bottom:
+        12px !important;
+
+    }
+
+
+    .evaluation-range {
+
+      display:
+        block !important;
+
+      width:
+        100% !important;
+
+      height:
+        10px !important;
+
+      margin:
+        15px 0 8px 0 !important;
+
+      padding:
+        0 !important;
+
+      appearance:
+        none !important;
+
+      -webkit-appearance:
+        none !important;
+
+      background:
+        #cfd8d3 !important;
+
+      border-radius:
+        10px !important;
+
+      outline:
+        none !important;
+
+      cursor:
+        pointer !important;
+
+    }
+
+
+    .evaluation-range::-webkit-slider-thumb {
+
+      appearance:
+        none !important;
+
+      -webkit-appearance:
+        none !important;
+
+      width:
+        30px !important;
+
+      height:
+        30px !important;
+
+      border-radius:
+        50% !important;
+
+      background:
+        #16834b !important;
+
+      border:
+        4px solid #ffffff !important;
 
       box-shadow:
-        0 0 0 3px
-        rgba(22,131,75,.10);
+        0 2px 7px
+        rgba(0,0,0,.30) !important;
+
+      cursor:
+        pointer !important;
+
     }
 
-    #startEvaluationBtn {
 
-      width: 100%;
+    .evaluation-range::-moz-range-thumb {
 
-      min-height: 52px;
+      width:
+        30px !important;
 
-      margin-top: 22px;
+      height:
+        30px !important;
 
-      border: none;
+      border-radius:
+        50% !important;
 
-      border-radius: 12px;
+      background:
+        #16834b !important;
 
-      background: #16834b;
+      border:
+        4px solid #ffffff !important;
 
-      color: #ffffff;
+      box-shadow:
+        0 2px 7px
+        rgba(0,0,0,.30) !important;
 
-      font-family: inherit;
+      cursor:
+        pointer !important;
 
-      font-size: 16px;
-
-      font-weight: 800;
-
-      cursor: pointer;
     }
 
-    #closeEvaluationSelector {
 
-      position: absolute;
+    .evaluation-range-labels {
 
-      top: 12px;
+      display:
+        flex !important;
 
-      left: 12px;
+      justify-content:
+        space-between !important;
 
-      width: 36px;
+      align-items:
+        center !important;
 
-      height: 36px;
+      width:
+        100% !important;
 
-      border: none;
+      margin-top:
+        6px !important;
 
-      border-radius: 50%;
+      color:
+        #333333 !important;
 
-      background: #eeeeee;
+      font-size:
+        12px !important;
 
-      color: #222222;
+      font-weight:
+        700 !important;
 
-      font-size: 24px;
+    }
 
-      line-height: 1;
 
-      cursor: pointer;
+    .evaluation-range-labels span {
+
+      color:
+        #333333 !important;
+
+    }
+
+
+    .evaluation-notes-label {
+
+      display:
+        block !important;
+
+      margin-top:
+        18px !important;
+
+      color:
+        #111111 !important;
+
+      font-weight:
+        800 !important;
+
+    }
+
+
+    #newEvaluationNotes {
+
+      display:
+        block !important;
+
+      width:
+        100% !important;
+
+      box-sizing:
+        border-box !important;
+
+      margin-top:
+        8px !important;
+
+      padding:
+        12px !important;
+
+      min-height:
+        100px !important;
+
+      background:
+        #ffffff !important;
+
+      color:
+        #111111 !important;
+
+      border:
+        1px solid #cfd5d1 !important;
+
+      border-radius:
+        12px !important;
+
+      font-family:
+        inherit !important;
+
+      font-size:
+        15px !important;
+
+      outline:
+        none !important;
+
+      resize:
+        vertical !important;
+
+    }
+
+
+    #newEvaluationNotes::placeholder {
+
+      color:
+        #777777 !important;
+
+    }
+
+
+    .evaluation-total-box {
+
+      margin-top:
+        17px !important;
+
+      padding:
+        16px !important;
+
+      background:
+        #edf7f1 !important;
+
+      border:
+        1px solid #cde7d8 !important;
+
+      border-radius:
+        13px !important;
+
+      text-align:
+        center !important;
+
+      color:
+        #222222 !important;
+
+      font-size:
+        16px !important;
+
+      font-weight:
+        700 !important;
+
+    }
+
+
+    #newEvaluationTotal {
+
+      color:
+        #16834b !important;
+
+      font-size:
+        27px !important;
+
+      font-weight:
+        900 !important;
+
+      margin:
+        0 5px !important;
+
+    }
+
+
+    #saveNewEvaluationBtn {
+
+      width:
+        100% !important;
+
+      min-height:
+        52px !important;
+
+      margin-top:
+        14px !important;
+
+      border:
+        none !important;
+
+      border-radius:
+        12px !important;
+
+      background:
+        #16834b !important;
+
+      color:
+        #ffffff !important;
+
+      font-family:
+        inherit !important;
+
+      font-size:
+        16px !important;
+
+      font-weight:
+        800 !important;
+
+      cursor:
+        pointer !important;
+
+    }
+
+
+    #saveNewEvaluationBtn:disabled {
+
+      opacity:
+        .6 !important;
+
+      cursor:
+        wait !important;
+
+    }
+
+
+    #closeNewEvaluationModal {
+
+      position:
+        absolute !important;
+
+      top:
+        12px !important;
+
+      left:
+        12px !important;
+
+      width:
+        36px !important;
+
+      height:
+        36px !important;
+
+      border:
+        none !important;
+
+      border-radius:
+        50% !important;
+
+      background:
+        #eeeeee !important;
+
+      color:
+        #222222 !important;
+
+      font-size:
+        25px !important;
+
+      line-height:
+        1 !important;
+
+      cursor:
+        pointer !important;
+
     }
 
   `;
 
   document.head.appendChild(style);
 
-  // ======================================
-  // لیست ورزشکارها
-  // ======================================
+}
 
-  const athleteOptions =
-    athletes
-      .map(athlete => {
 
-        const name = [
+// ============================================================
+// ساخت فرم ارزیابی
+// ============================================================
+
+function createEvaluationModal(
+  athleteId,
+  periodId
+) {
+
+  const oldModal =
+    document.getElementById(
+      "newEvaluationModal"
+    );
+
+  if (oldModal) {
+
+    oldModal.remove();
+
+  }
+
+
+  const athleteList =
+    coachGetAthletes();
+
+  const periodList =
+    coachGetPeriods();
+
+  const criteriaList =
+    coachGetCriteria();
+
+
+  const athlete =
+    athleteList.find(
+      item =>
+        String(item.id) ===
+        String(athleteId)
+    );
+
+
+  const period =
+    periodList.find(
+      item =>
+        String(item.id) ===
+        String(periodId)
+    );
+
+
+  const athleteName =
+    athlete
+      ? [
           athlete.first_name,
           athlete.last_name
         ]
           .filter(Boolean)
-          .join(" ");
+          .join(" ")
+      : "ورزشکار";
 
-        return `
-          <option
-            value="${escapeHTML(
-              athlete.id
-            )}"
+
+  addEvaluationModalStyle();
+
+
+  // ==========================================================
+  // معیارها
+  // ==========================================================
+
+  const criteriaHTML =
+    criteriaList.length
+
+      ? criteriaList
+          .map(criterion => {
+
+            const criterionId =
+              String(
+                criterion.id
+              );
+
+            return `
+
+              <div
+                class="evaluation-criterion"
+              >
+
+                <div
+                  class="evaluation-criterion-top"
+                >
+
+                  <div
+                    class="evaluation-criterion-name"
+                  >
+                    ${coachEscapeHTML(
+                      criterion.name ||
+                      "معیار بدون نام"
+                    )}
+                  </div>
+
+                  <div
+                    class="evaluation-criterion-value"
+                    id="scoreValue-${coachEscapeHTML(
+                      criterionId
+                    )}"
+                  >
+                    ۰
+                  </div>
+
+                </div>
+
+
+                ${
+                  criterion.description
+                    ? `
+                      <div
+                        class="
+                          evaluation-criterion-description
+                        "
+                      >
+                        ${coachEscapeHTML(
+                          criterion.description
+                        )}
+                      </div>
+                    `
+                    : ""
+                }
+
+
+                <input
+
+                  type="range"
+
+                  min="0"
+
+                  max="10"
+
+                  step="0.1"
+
+                  value="0"
+
+                  class="evaluation-range"
+
+                  data-criterion-id="${coachEscapeHTML(
+                    criterionId
+                  )}"
+
+                  data-value-id="scoreValue-${coachEscapeHTML(
+                    criterionId
+                  )}"
+
+                >
+
+
+                <div
+                  class="evaluation-range-labels"
+                >
+
+                  <span>۰</span>
+                  <span>۲</span>
+                  <span>۴</span>
+                  <span>۶</span>
+                  <span>۸</span>
+                  <span>۱۰</span>
+
+                </div>
+
+              </div>
+
+            `;
+
+          })
+          .join("")
+
+      : `
+
+          <div
+            style="
+              padding:20px;
+              text-align:center;
+              color:#777;
+              background:#f8faf9;
+              border-radius:12px;
+            "
           >
-            ${escapeHTML(
-              name || "بدون نام"
-            )}
-          </option>
+            هنوز هیچ معیاری ایجاد نشده است.
+          </div>
+
         `;
 
-      })
-      .join("");
 
-  // ======================================
-  // لیست دوره‌ها
-  // ======================================
-
-  const periodOptions =
-    evaluationPeriods
-      .map(period => {
-
-        return `
-          <option
-            value="${escapeHTML(
-              period.id
-            )}"
-          >
-            ${escapeHTML(
-              period.title ||
-              "دوره بدون عنوان"
-            )}
-          </option>
-        `;
-
-      })
-      .join("");
-
-  // ======================================
+  // ==========================================================
   // ساخت Modal
-  // ======================================
+  // ==========================================================
 
   const modal =
     document.createElement("div");
 
   modal.id =
-    "evaluationSelectorModal";
+    "newEvaluationModal";
+
 
   modal.innerHTML = `
 
     <div
-      class="evaluation-selector-card"
+      class="evaluation-modal-card"
     >
 
       <button
         type="button"
-        id="closeEvaluationSelector"
+        id="closeNewEvaluationModal"
+        aria-label="بستن"
       >
         ×
       </button>
 
-      <h2>
-        ارزیابی جدید
-      </h2>
 
-      <p
-        class="selector-subtitle"
+      <div
+        class="evaluation-new-header"
       >
-        ورزشکار و دوره موردنظر را انتخاب کنید
-        تا فرم ارزیابی باز شود.
-      </p>
+
+        <span class="eyebrow">
+          NEW EVALUATION
+        </span>
+
+
+        <h2>
+          ارزیابی جدید
+        </h2>
+
+
+        <div
+          class="evaluation-info"
+        >
+
+          ورزشکار:
+
+          <strong>
+            ${coachEscapeHTML(
+              athleteName
+            )}
+          </strong>
+
+
+          <br>
+
+
+          دوره:
+
+          <strong>
+            ${
+              period
+                ? coachEscapeHTML(
+                    period.title ||
+                    "دوره بدون عنوان"
+                  )
+                : "دوره نامشخص"
+            }
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div>
+
+        ${criteriaHTML}
+
+      </div>
+
 
       <label
-        class="selector-label"
-        for="evaluationAthleteSelect"
+        class="evaluation-notes-label"
       >
-        ورزشکار
+
+        توضیحات مربی
+
+
+        <textarea
+          id="newEvaluationNotes"
+          rows="4"
+          placeholder="
+            توضیحات مربی درباره عملکرد ورزشکار...
+          "
+        ></textarea>
+
       </label>
 
-      <select
-        id="evaluationAthleteSelect"
-        class="selector-select"
+
+      <div
+        class="evaluation-total-box"
       >
 
-        <option value="">
-          انتخاب ورزشکار
-        </option>
+        امتیاز نهایی:
 
-        ${athleteOptions}
+        <strong
+          id="newEvaluationTotal"
+        >
+          ۰
+        </strong>
 
-      </select>
+        از ۱۰
 
-      <label
-        class="selector-label"
-        for="evaluationPeriodSelect"
-      >
-        دوره ارزیابی
-      </label>
+      </div>
 
-      <select
-        id="evaluationPeriodSelect"
-        class="selector-select"
-      >
-
-        <option value="">
-          انتخاب دوره
-        </option>
-
-        ${periodOptions}
-
-      </select>
 
       <button
+        id="saveNewEvaluationBtn"
         type="button"
-        id="startEvaluationBtn"
       >
-        شروع ارزیابی
+        ثبت ارزیابی
       </button>
 
     </div>
 
   `;
 
-  document.body.appendChild(modal);
 
-  // ======================================
-  // بستن
-  // ======================================
+  document.body.appendChild(
+    modal
+  );
 
-  const closeBtn =
-    modal.querySelector(
-      "#closeEvaluationSelector"
+
+  // ==========================================================
+  // نوارهای امتیاز
+  // ==========================================================
+
+  const scoreInputs =
+    modal.querySelectorAll(
+      ".evaluation-range"
     );
 
-  closeBtn.addEventListener(
-    "click",
-    () => {
 
-      modal.remove();
+  function updateTotal() {
+
+    let total = 0;
+
+
+    scoreInputs.forEach(
+      input => {
+
+        let value =
+          Number(
+            input.value
+          );
+
+
+        if (
+          Number.isNaN(value)
+        ) {
+
+          value = 0;
+
+        }
+
+
+        value =
+          Math.max(
+            0,
+            Math.min(
+              10,
+              value
+            )
+          );
+
+
+        total += value;
+
+
+        const valueId =
+          input.dataset.valueId;
+
+
+        const valueElement =
+          modal.querySelector(
+            "#" +
+            CSS.escape(
+              valueId
+            )
+          );
+
+
+        if (valueElement) {
+
+          valueElement.textContent =
+            coachPersianNumber(
+              value.toFixed(1)
+            );
+
+        }
+
+      }
+    );
+
+
+    const average =
+      scoreInputs.length > 0
+
+        ? total /
+          scoreInputs.length
+
+        : 0;
+
+
+    const totalElement =
+      modal.querySelector(
+        "#newEvaluationTotal"
+      );
+
+
+    if (totalElement) {
+
+      totalElement.textContent =
+        coachPersianNumber(
+          average.toFixed(2)
+        );
+
+    }
+
+  }
+
+
+  scoreInputs.forEach(
+    input => {
+
+      input.addEventListener(
+        "input",
+        updateTotal
+      );
+
+
+      input.addEventListener(
+        "change",
+        updateTotal
+      );
 
     }
   );
 
-  // بستن با کلیک بیرون
+
+  updateTotal();
+
+
+  // ==========================================================
+  // بستن
+  // ==========================================================
+
+  const closeBtn =
+    modal.querySelector(
+      "#closeNewEvaluationModal"
+    );
+
+
+  if (closeBtn) {
+
+    closeBtn.addEventListener(
+      "click",
+      () => {
+
+        modal.remove();
+
+      }
+    );
+
+  }
+
+
   modal.addEventListener(
     "click",
     event => {
@@ -1766,28 +1314,1178 @@ function openEvaluationSelector() {
     }
   );
 
-  // ======================================
-  // شروع ارزیابی
-  // ======================================
+
+  // ==========================================================
+  // ثبت
+  // ==========================================================
+
+  const saveBtn =
+    modal.querySelector(
+      "#saveNewEvaluationBtn"
+    );
+
+
+  if (saveBtn) {
+
+    saveBtn.addEventListener(
+      "click",
+      async () => {
+
+        await saveNewEvaluation(
+          athleteId,
+          periodId,
+          scoreInputs,
+          saveBtn,
+          modal
+        );
+
+      }
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// ثبت ارزیابی جدید
+// ============================================================
+
+async function saveNewEvaluation(
+  athleteId,
+  periodId,
+  scoreInputs,
+  saveBtn,
+  modal
+) {
+
+  try {
+
+    if (!saveBtn) {
+
+      throw new Error(
+        "دکمه ثبت ارزیابی پیدا نشد."
+      );
+
+    }
+
+
+    saveBtn.disabled =
+      true;
+
+
+    saveBtn.textContent =
+      "در حال ثبت...";
+
+
+    // ========================================================
+    // ساخت امتیازها
+    // ========================================================
+
+    const scores = [];
+
+
+    scoreInputs.forEach(
+      input => {
+
+        let score =
+          Number(
+            input.value
+          );
+
+
+        if (
+          Number.isNaN(score)
+        ) {
+
+          score = 0;
+
+        }
+
+
+        score =
+          Math.max(
+            0,
+            Math.min(
+              10,
+              score
+            )
+          );
+
+
+        scores.push({
+
+          criterion_id:
+            String(
+              input.dataset.criterionId
+            ),
+
+          score:
+            Number(
+              score.toFixed(1)
+            )
+
+        });
+
+      }
+    );
+
+
+    // ========================================================
+    // میانگین نهایی
+    // ========================================================
+
+    const totalScore =
+      scores.length > 0
+
+        ? scores.reduce(
+            (
+              sum,
+              item
+            ) => {
+
+              return (
+                sum +
+                Number(
+                  item.score
+                )
+              );
+
+            },
+            0
+          ) /
+          scores.length
+
+        : 0;
+
+
+    // ========================================================
+    // توضیحات
+    // ========================================================
+
+    const notesElement =
+      modal
+        ? modal.querySelector(
+            "#newEvaluationNotes"
+          )
+        : document.getElementById(
+            "newEvaluationNotes"
+          );
+
+
+    const notes =
+      notesElement
+        ? notesElement.value.trim()
+        : "";
+
+
+    // ========================================================
+    // ایجاد ID
+    // ========================================================
+
+    let evaluationId;
+
+
+    if (
+      typeof crypto !== "undefined" &&
+      typeof crypto.randomUUID ===
+        "function"
+    ) {
+
+      evaluationId =
+        crypto.randomUUID();
+
+    } else {
+
+      evaluationId =
+        "evaluation-" +
+        Date.now() +
+        "-" +
+        Math.random()
+          .toString(36)
+          .substring(2, 9);
+
+    }
+
+
+    // ========================================================
+    // ساخت ارزیابی
+    // ========================================================
+
+    const evaluation = {
+
+      id:
+        evaluationId,
+
+      athlete_id:
+        athleteId,
+
+      period_id:
+        periodId,
+
+      scores:
+        scores,
+
+      total_score:
+        Number(
+          totalScore.toFixed(2)
+        ),
+
+      notes:
+        notes,
+
+      created_at:
+        new Date().toISOString()
+
+    };
+
+
+    // ========================================================
+    // گرفتن آرایه
+    // ========================================================
+
+    const evaluationList =
+      coachGetEvaluations();
+
+
+    // ========================================================
+    // اضافه کردن
+    // ========================================================
+
+    evaluationList.push(
+      evaluation
+    );
+
+
+    // ========================================================
+    // ذخیره
+    // ========================================================
+
+    const saved =
+      saveEvaluationsToStorage();
+
+
+    if (!saved) {
+
+      throw new Error(
+        "ذخیره ارزیابی در حافظه دستگاه انجام نشد."
+      );
+
+    }
+
+
+    // ========================================================
+    // بستن Modal
+    // ========================================================
+
+    const currentModal =
+      modal ||
+      document.getElementById(
+        "newEvaluationModal"
+      );
+
+
+    if (currentModal) {
+
+      currentModal.remove();
+
+    }
+
+
+    // ========================================================
+    // بروزرسانی تاریخچه
+    // ========================================================
+
+    refreshEvaluationHistory();
+
+
+    // ========================================================
+    // اجرای رندرهای احتمالی برنامه
+    // ========================================================
+
+    if (
+      typeof renderDashboard ===
+      "function"
+    ) {
+
+      try {
+
+        renderDashboard();
+
+      } catch (error) {
+
+        console.warn(
+          "renderDashboard:",
+          error
+        );
+
+      }
+
+    }
+
+
+    alert(
+      "ارزیابی با موفقیت ثبت شد."
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "خطا در ثبت ارزیابی:",
+      error
+    );
+
+
+    alert(
+      "خطا در ثبت ارزیابی."
+    );
+
+
+    if (saveBtn) {
+
+      saveBtn.disabled =
+        false;
+
+      saveBtn.textContent =
+        "ثبت ارزیابی";
+
+    }
+
+  }
+
+}
+
+
+// ============================================================
+// نمایش تاریخچه ارزیابی‌ها
+// ============================================================
+
+function renderEvaluations() {
+
+  const container =
+    document.getElementById(
+      "evaluationsContainer"
+    );
+
+
+  if (!container) {
+
+    return;
+
+  }
+
+
+  const evaluationList =
+    loadEvaluations();
+
+
+  const athleteList =
+    coachGetAthletes();
+
+
+  const periodList =
+    coachGetPeriods();
+
+
+  if (
+    evaluationList.length === 0
+  ) {
+
+    container.innerHTML = `
+
+      <div
+        style="
+          padding:25px;
+          text-align:center;
+          color:#777;
+        "
+      >
+        هنوز هیچ ارزیابی‌ای ثبت نشده است.
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    evaluationList
+
+      .slice()
+
+      .reverse()
+
+      .map(
+        evaluation => {
+
+          const athlete =
+            athleteList.find(
+              item =>
+                String(item.id) ===
+                String(
+                  evaluation.athlete_id
+                )
+            );
+
+
+          const period =
+            periodList.find(
+              item =>
+                String(item.id) ===
+                String(
+                  evaluation.period_id
+                )
+            );
+
+
+          const athleteName =
+            athlete
+              ? [
+                  athlete.first_name,
+                  athlete.last_name
+                ]
+                  .filter(Boolean)
+                  .join(" ")
+              : "ورزشکار";
+
+
+          const periodName =
+            period
+              ? (
+                  period.title ||
+                  "دوره بدون عنوان"
+                )
+              : "دوره نامشخص";
+
+
+          const score =
+            Number(
+              evaluation.total_score || 0
+            );
+
+
+          const createdDate =
+            evaluation.created_at
+              ? new Date(
+                  evaluation.created_at
+                )
+              : null;
+
+
+          let dateText = "";
+
+
+          if (
+            createdDate &&
+            !Number.isNaN(
+              createdDate.getTime()
+            )
+          ) {
+
+            dateText =
+              createdDate.toLocaleDateString(
+                "fa-IR"
+              );
+
+          }
+
+
+          return `
+
+            <div
+              class="evaluation-history-card"
+              data-evaluation-id="${coachEscapeHTML(
+                evaluation.id
+              )}"
+            >
+
+              <div>
+
+                <strong>
+                  ${coachEscapeHTML(
+                    athleteName
+                  )}
+                </strong>
+
+
+                <div>
+                  ${coachEscapeHTML(
+                    periodName
+                  )}
+                </div>
+
+
+                ${
+                  dateText
+                    ? `
+                      <small>
+                        ${coachEscapeHTML(
+                          dateText
+                        )}
+                      </small>
+                    `
+                    : ""
+                }
+
+              </div>
+
+
+              <div
+                class="evaluation-history-score"
+              >
+
+                ${coachPersianNumber(
+                  score.toFixed(2)
+                )}
+
+                <small>
+                  / ۱۰
+                </small>
+
+              </div>
+
+            </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+
+  addEvaluationHistoryStyle();
+
+}
+
+
+// ============================================================
+// استایل تاریخچه
+// ============================================================
+
+function addEvaluationHistoryStyle() {
+
+  if (
+    document.getElementById(
+      "evaluation-history-style"
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  const style =
+    document.createElement("style");
+
+
+  style.id =
+    "evaluation-history-style";
+
+
+  style.textContent = `
+
+    .evaluation-history-card {
+
+      display:
+        flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        space-between;
+
+      gap:
+        15px;
+
+      padding:
+        16px;
+
+      margin-bottom:
+        12px;
+
+      background:
+        #ffffff;
+
+      border:
+        1px solid #e1e7e3;
+
+      border-radius:
+        14px;
+
+      box-shadow:
+        0 4px 15px
+        rgba(0,0,0,.06);
+
+    }
+
+
+    .evaluation-history-card
+    strong {
+
+      display:
+        block;
+
+      color:
+        #111111;
+
+      font-size:
+        16px;
+
+      margin-bottom:
+        5px;
+
+    }
+
+
+    .evaluation-history-card
+    div {
+
+      color:
+        #666666;
+
+      font-size:
+        13px;
+
+    }
+
+
+    .evaluation-history-card
+    small {
+
+      display:
+        block;
+
+      margin-top:
+        4px;
+
+      color:
+        #888888;
+
+      font-size:
+        11px;
+
+    }
+
+
+    .evaluation-history-score {
+
+      min-width:
+        75px;
+
+      padding:
+        10px;
+
+      text-align:
+        center;
+
+      background:
+        #edf7f1;
+
+      color:
+        #16834b !important;
+
+      border-radius:
+        10px;
+
+      font-size:
+        18px;
+
+      font-weight:
+        900;
+
+    }
+
+
+    .evaluation-history-score
+    small {
+
+      display:
+        inline;
+
+      margin:
+        0;
+
+      font-size:
+        11px;
+
+      color:
+        #16834b !important;
+
+    }
+
+  `;
+
+
+  document.head.appendChild(
+    style
+  );
+
+}
+
+
+// ============================================================
+// بروزرسانی تاریخچه
+// ============================================================
+
+function refreshEvaluationHistory() {
+
+  loadEvaluations();
+
+  renderEvaluations();
+
+}
+
+
+window.refreshEvaluationHistory =
+  refreshEvaluationHistory;
+
+
+// ============================================================
+// باز کردن ارزیابی برای ورزشکار
+// ============================================================
+
+function openNewEvaluationForAthlete(
+  athleteId
+) {
+
+  const periodList =
+    coachGetPeriods();
+
+
+  if (
+    periodList.length === 0
+  ) {
+
+    alert(
+      "ابتدا حداقل یک دوره ارزیابی ایجاد کنید."
+    );
+
+    return;
+
+  }
+
+
+  // آخرین دوره
+  const period =
+    periodList[
+      periodList.length - 1
+    ];
+
+
+  createEvaluationModal(
+    athleteId,
+    period.id
+  );
+
+}
+
+
+// ============================================================
+// اضافه کردن دکمه به کارت ورزشکار
+// ============================================================
+
+function addEvaluationButtonToAthleteCard(
+  athleteId,
+  card
+) {
+
+  if (!card) {
+
+    return;
+
+  }
+
+
+  if (
+    card.querySelector(
+      ".open-new-evaluation-btn"
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  const button =
+    document.createElement(
+      "button"
+    );
+
+
+  button.type =
+    "button";
+
+
+  button.className =
+    "open-new-evaluation-btn";
+
+
+  button.textContent =
+    "ارزیابی جدید";
+
+
+  button.style.cssText = `
+
+    width:
+      100%;
+
+    min-height:
+      46px;
+
+    margin-top:
+      10px;
+
+    border:
+      none;
+
+    border-radius:
+      10px;
+
+    background:
+      #16834b;
+
+    color:
+      #ffffff;
+
+    font-family:
+      inherit;
+
+    font-size:
+      15px;
+
+    font-weight:
+      800;
+
+    cursor:
+      pointer;
+
+  `;
+
+
+  button.addEventListener(
+    "click",
+    event => {
+
+      event.preventDefault();
+
+      event.stopPropagation();
+
+
+      openNewEvaluationForAthlete(
+        athleteId
+      );
+
+    }
+  );
+
+
+  card.appendChild(
+    button
+  );
+
+}
+
+
+// ============================================================
+// Modal انتخاب ورزشکار و دوره
+// ============================================================
+
+function openEvaluationSelector() {
+
+  const oldModal =
+    document.getElementById(
+      "evaluationSelectorModal"
+    );
+
+
+  if (oldModal) {
+
+    oldModal.remove();
+
+  }
+
+
+  const athleteList =
+    coachGetAthletes();
+
+
+  const periodList =
+    coachGetPeriods();
+
+
+  if (
+    athleteList.length === 0
+  ) {
+
+    alert(
+      "ابتدا حداقل یک ورزشکار اضافه کنید."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    periodList.length === 0
+  ) {
+
+    alert(
+      "ابتدا حداقل یک دوره ارزیابی ایجاد کنید."
+    );
+
+    return;
+
+  }
+
+
+  addEvaluationSelectorStyle();
+
+
+  // ==========================================================
+  // ورزشکارها
+  // ==========================================================
+
+  const athleteOptions =
+    athleteList
+
+      .map(
+        athlete => {
+
+          const name =
+            [
+              athlete.first_name,
+              athlete.last_name
+            ]
+              .filter(Boolean)
+              .join(" ");
+
+
+          return `
+
+            <option
+              value="${coachEscapeHTML(
+                athlete.id
+              )}"
+            >
+              ${coachEscapeHTML(
+                name ||
+                "بدون نام"
+              )}
+            </option>
+
+          `;
+
+        }
+      )
+
+      .join("");
+
+
+  // ==========================================================
+  // دوره‌ها
+  // ==========================================================
+
+  const periodOptions =
+    periodList
+
+      .map(
+        period => {
+
+          return `
+
+            <option
+              value="${coachEscapeHTML(
+                period.id
+              )}"
+            >
+              ${coachEscapeHTML(
+                period.title ||
+                "دوره بدون عنوان"
+              )}
+            </option>
+
+          `;
+
+        }
+      )
+
+      .join("");
+
+
+  // ==========================================================
+  // Modal
+  // ==========================================================
+
+  const modal =
+    document.createElement(
+      "div"
+    );
+
+
+  modal.id =
+    "evaluationSelectorModal";
+
+
+  modal.innerHTML = `
+
+    <div
+      class="evaluation-selector-card"
+    >
+
+      <button
+        type="button"
+        id="closeEvaluationSelector"
+      >
+        ×
+      </button>
+
+
+      <h2>
+        ارزیابی جدید
+      </h2>
+
+
+      <p
+        class="selector-subtitle"
+      >
+        ورزشکار و دوره موردنظر را انتخاب کنید
+        تا فرم ارزیابی باز شود.
+      </p>
+
+
+      <label
+        class="selector-label"
+        for="evaluationAthleteSelect"
+      >
+        ورزشکار
+      </label>
+
+
+      <select
+        id="evaluationAthleteSelect"
+        class="selector-select"
+      >
+
+        <option value="">
+          انتخاب ورزشکار
+        </option>
+
+        ${athleteOptions}
+
+      </select>
+
+
+      <label
+        class="selector-label"
+        for="evaluationPeriodSelect"
+      >
+        دوره ارزیابی
+      </label>
+
+
+      <select
+        id="evaluationPeriodSelect"
+        class="selector-select"
+      >
+
+        <option value="">
+          انتخاب دوره
+        </option>
+
+        ${periodOptions}
+
+      </select>
+
+
+      <button
+        type="button"
+        id="startEvaluationBtn"
+      >
+        شروع ارزیابی
+      </button>
+
+    </div>
+
+  `;
+
+
+  document.body.appendChild(
+    modal
+  );
+
+
+  // ==========================================================
+  // بستن
+  // ==========================================================
+
+  const closeBtn =
+    modal.querySelector(
+      "#closeEvaluationSelector"
+    );
+
+
+  closeBtn.addEventListener(
+    "click",
+    () => {
+
+      modal.remove();
+
+    }
+  );
+
+
+  modal.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target === modal
+      ) {
+
+        modal.remove();
+
+      }
+
+    }
+  );
+
+
+  // ==========================================================
+  // شروع
+  // ==========================================================
 
   const startBtn =
     modal.querySelector(
       "#startEvaluationBtn"
     );
 
+
   startBtn.addEventListener(
     "click",
     () => {
 
       const athleteId =
-        modal.querySelector(
-          "#evaluationAthleteSelect"
-        ).value;
+        modal
+          .querySelector(
+            "#evaluationAthleteSelect"
+          )
+          .value;
+
 
       const periodId =
-        modal.querySelector(
-          "#evaluationPeriodSelect"
-        ).value;
+        modal
+          .querySelector(
+            "#evaluationPeriodSelect"
+          )
+          .value;
+
 
       if (!athleteId) {
 
@@ -1796,7 +2494,9 @@ function openEvaluationSelector() {
         );
 
         return;
+
       }
+
 
       if (!periodId) {
 
@@ -1805,12 +2505,13 @@ function openEvaluationSelector() {
         );
 
         return;
+
       }
 
-      // بستن انتخاب‌گر
+
       modal.remove();
 
-      // باز کردن فرم اصلی ارزیابی
+
       createEvaluationModal(
         athleteId,
         periodId
@@ -1818,72 +2519,388 @@ function openEvaluationSelector() {
 
     }
   );
+
 }
 
 
-// ======================================
-// تغییر دکمه شناور قبلی
-// ======================================
+// ============================================================
+// CSS انتخاب ورزشکار و دوره
+// ============================================================
 
-function replaceFloatingEvaluationButton() {
+function addEvaluationSelectorStyle() {
+
+  const oldStyle =
+    document.getElementById(
+      "evaluation-selector-style"
+    );
+
+
+  if (oldStyle) {
+
+    oldStyle.remove();
+
+  }
+
+
+  const style =
+    document.createElement(
+      "style"
+    );
+
+
+  style.id =
+    "evaluation-selector-style";
+
+
+  style.textContent = `
+
+    #evaluationSelectorModal {
+
+      position:
+        fixed;
+
+      inset:
+        0;
+
+      z-index:
+        99998;
+
+      display:
+        flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        center;
+
+      padding:
+        15px;
+
+      background:
+        rgba(0,0,0,.60);
+
+      box-sizing:
+        border-box;
+
+    }
+
+
+    .evaluation-selector-card {
+
+      width:
+        min(500px,100%);
+
+      max-height:
+        92vh;
+
+      overflow-y:
+        auto;
+
+      background:
+        #ffffff;
+
+      border-radius:
+        20px;
+
+      padding:
+        24px;
+
+      box-sizing:
+        border-box;
+
+      box-shadow:
+        0 20px 60px
+        rgba(0,0,0,.30);
+
+      position:
+        relative;
+
+    }
+
+
+    .evaluation-selector-card h2 {
+
+      margin:
+        0 0 6px 0;
+
+      color:
+        #111111;
+
+      font-size:
+        23px;
+
+      font-weight:
+        900;
+
+    }
+
+
+    .selector-subtitle {
+
+      margin:
+        0 0 22px 0;
+
+      color:
+        #666666;
+
+      font-size:
+        13px;
+
+      line-height:
+        1.7;
+
+    }
+
+
+    .selector-label {
+
+      display:
+        block;
+
+      margin-top:
+        15px;
+
+      margin-bottom:
+        7px;
+
+      color:
+        #111111;
+
+      font-size:
+        14px;
+
+      font-weight:
+        800;
+
+    }
+
+
+    .selector-select {
+
+      width:
+        100%;
+
+      min-height:
+        50px;
+
+      padding:
+        0 13px;
+
+      border:
+        1px solid #d4ddd8;
+
+      border-radius:
+        12px;
+
+      background:
+        #ffffff;
+
+      color:
+        #111111;
+
+      font-family:
+        inherit;
+
+      font-size:
+        15px;
+
+      outline:
+        none;
+
+      box-sizing:
+        border-box;
+
+    }
+
+
+    .selector-select:focus {
+
+      border-color:
+        #16834b;
+
+      box-shadow:
+        0 0 0 3px
+        rgba(22,131,75,.10);
+
+    }
+
+
+    #startEvaluationBtn {
+
+      width:
+        100%;
+
+      min-height:
+        52px;
+
+      margin-top:
+        22px;
+
+      border:
+        none;
+
+      border-radius:
+        12px;
+
+      background:
+        #16834b;
+
+      color:
+        #ffffff;
+
+      font-family:
+        inherit;
+
+      font-size:
+        16px;
+
+      font-weight:
+        800;
+
+      cursor:
+        pointer;
+
+    }
+
+
+    #closeEvaluationSelector {
+
+      position:
+        absolute;
+
+      top:
+        12px;
+
+      left:
+        12px;
+
+      width:
+        36px;
+
+      height:
+        36px;
+
+      border:
+        none;
+
+      border-radius:
+        50%;
+
+      background:
+        #eeeeee;
+
+      color:
+        #222222;
+
+      font-size:
+        24px;
+
+      line-height:
+        1;
+
+      cursor:
+        pointer;
+
+    }
+
+  `;
+
+
+  document.head.appendChild(
+    style
+  );
+
+}
+
+
+// ============================================================
+// دکمه شناور «ارزیابی جدید»
+// ============================================================
+
+function createFloatingEvaluationButton() {
 
   const old =
     document.getElementById(
       "floatingEvaluationBtn"
     );
 
+
   if (old) {
+
     old.remove();
+
   }
 
+
   const button =
-    document.createElement("button");
+    document.createElement(
+      "button"
+    );
+
 
   button.id =
     "floatingEvaluationBtn";
 
+
   button.type =
     "button";
+
 
   button.textContent =
     "＋ ارزیابی جدید";
 
+
   button.style.cssText = `
 
-    position: fixed;
+    position:
+      fixed;
 
-    bottom: 22px;
+    bottom:
+      22px;
 
-    right: 20px;
+    right:
+      20px;
 
-    z-index: 9990;
+    z-index:
+      9990;
 
-    min-height: 52px;
+    min-height:
+      52px;
 
     padding:
       0 20px;
 
-    border: none;
+    border:
+      none;
 
-    border-radius: 15px;
+    border-radius:
+      15px;
 
-    background: #16834b;
+    background:
+      #16834b;
 
-    color: #ffffff;
+    color:
+      #ffffff;
 
-    font-family: inherit;
+    font-family:
+      inherit;
 
-    font-size: 15px;
+    font-size:
+      15px;
 
-    font-weight: 800;
+    font-weight:
+      800;
 
     box-shadow:
       0 8px 25px
       rgba(0,0,0,.20);
 
-    cursor: pointer;
+    cursor:
+      pointer;
 
   `;
+
 
   button.addEventListener(
     "click",
@@ -1894,21 +2911,79 @@ function replaceFloatingEvaluationButton() {
     }
   );
 
+
   document.body.appendChild(
     button
   );
+
 }
 
 
-// ======================================
-// اجرا
-// ======================================
+// ============================================================
+// مقداردهی اولیه
+// ============================================================
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
+function initializeCoachEvaluation() {
 
-    replaceFloatingEvaluationButton();
+  loadEvaluations();
 
-  }
-);
+  addEvaluationHistoryStyle();
+
+  createFloatingEvaluationButton();
+
+  renderEvaluations();
+
+}
+
+
+// ============================================================
+// اجرای اولیه
+// ============================================================
+
+if (
+  document.readyState ===
+  "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initializeCoachEvaluation
+  );
+
+} else {
+
+  initializeCoachEvaluation();
+
+}
+
+
+// ============================================================
+// دسترسی از فایل‌های دیگر
+// ============================================================
+
+window.createEvaluationModal =
+  createEvaluationModal;
+
+window.saveNewEvaluation =
+  saveNewEvaluation;
+
+window.loadEvaluations =
+  loadEvaluations;
+
+window.renderEvaluations =
+  renderEvaluations;
+
+window.refreshEvaluationHistory =
+  refreshEvaluationHistory;
+
+window.openNewEvaluationForAthlete =
+  openNewEvaluationForAthlete;
+
+window.openEvaluationSelector =
+  openEvaluationSelector;
+
+window.addEvaluationButtonToAthleteCard =
+  addEvaluationButtonToAthleteCard;
+
+window.createFloatingEvaluationButton =
+  createFloatingEvaluationButton;
