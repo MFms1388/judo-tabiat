@@ -2,6 +2,7 @@
 <html lang="fa" dir="rtl">
 
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -11,12 +12,16 @@
 
   <title>پنل مربی | جودو طبیعت</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 
   <style>
-    /* =====================================
-       FIXES / COACH PAGE
-    ====================================== */
+
+    /* =====================================================
+       BASIC COACH PAGE
+    ====================================================== */
 
     .coach-page {
       display: none;
@@ -26,24 +31,21 @@
       display: block;
     }
 
-    .quick-card {
-      cursor: pointer;
-      border: none;
-      font-family: inherit;
-      text-align: right;
-    }
-
-    .nav-item {
-      cursor: pointer;
-      border: none;
+    button,
+    select,
+    input,
+    textarea {
       font-family: inherit;
     }
 
-    .primary {
+    button {
       cursor: pointer;
-      border: none;
-      font-family: inherit;
     }
+
+
+    /* =====================================================
+       TOOLBAR
+    ====================================================== */
 
     .toolbar {
       display: grid;
@@ -72,9 +74,9 @@
     }
 
 
-    /* =====================================
-       EVALUATION
-    ====================================== */
+    /* =====================================================
+       EVALUATION TOOLBAR
+    ====================================================== */
 
     .evaluation-toolbar {
       display: grid;
@@ -86,6 +88,7 @@
     .evaluation-toolbar select {
       width: 100%;
       min-height: 48px;
+      box-sizing: border-box;
       padding: 10px 14px;
       border: 1px solid #ddd;
       border-radius: 12px;
@@ -93,12 +96,16 @@
       font-family: inherit;
       font-size: 14px;
       outline: none;
-      box-sizing: border-box;
     }
 
     .evaluation-toolbar select:focus {
       border-color: #16834b;
     }
+
+
+    /* =====================================================
+       EVALUATION CARD
+    ====================================================== */
 
     .evaluation-card {
       background: #fff;
@@ -171,41 +178,10 @@
       font-size: 24px;
     }
 
-    .criteria-preview {
-      display: grid;
-      gap: 10px;
-    }
 
-    .criteria-preview-row {
-      display: grid;
-      grid-template-columns: 150px 1fr 45px;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .criteria-preview-name {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .criteria-preview-bar {
-      height: 8px;
-      background: #eee;
-      border-radius: 20px;
-      overflow: hidden;
-    }
-
-    .criteria-preview-fill {
-      height: 100%;
-      background: #16834b;
-      border-radius: 20px;
-    }
-
-    .criteria-preview-score {
-      text-align: left;
-      font-weight: bold;
-      font-size: 13px;
-    }
+    /* =====================================================
+       EMPTY
+    ====================================================== */
 
     .evaluation-empty {
       text-align: center;
@@ -228,11 +204,6 @@
     .evaluation-empty p {
       margin: 0;
     }
-
-
-    /* =====================================
-       EMPTY PANELS
-    ====================================== */
 
     .empty-panel {
       background: #fff;
@@ -257,18 +228,24 @@
     }
 
 
-    /* =====================================
-       SETTINGS
-    ====================================== */
+    /* =====================================================
+       MODAL FIX
+    ====================================================== */
 
-    .setting-card {
-      cursor: default;
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+    }
+
+    .modal.hidden {
+      display: none !important;
     }
 
 
-    /* =====================================
+    /* =====================================================
        MOBILE
-    ====================================== */
+    ====================================================== */
 
     @media (max-width: 750px) {
 
@@ -299,6 +276,7 @@
       }
 
     }
+
   </style>
 
 </head>
@@ -306,16 +284,17 @@
 
 <body>
 
-  <!-- =====================================
+
+  <!-- =====================================================
        COACH APP
-  ====================================== -->
+  ====================================================== -->
 
   <div class="coach-app">
 
 
-    <!-- =====================================
+    <!-- ===================================================
          TOPBAR
-    ====================================== -->
+    ==================================================== -->
 
     <header class="coach-topbar">
 
@@ -335,8 +314,15 @@
         </div>
 
         <div>
-          <strong>جودو طبیعت</strong>
-          <span>پنل مدیریت مربی</span>
+
+          <strong>
+            جودو طبیعت
+          </strong>
+
+          <span>
+            پنل مدیریت مربی
+          </span>
+
         </div>
 
       </div>
@@ -353,9 +339,9 @@
     </header>
 
 
-    <!-- =====================================
+    <!-- ===================================================
          SIDEBAR
-    ====================================== -->
+    ==================================================== -->
 
     <aside
       class="coach-sidebar"
@@ -369,13 +355,17 @@
 
       <nav>
 
+
         <button
           class="nav-item active"
           data-page="dashboard"
           type="button"
         >
+
           <span>🏠</span>
+
           داشبورد
+
         </button>
 
 
@@ -384,8 +374,11 @@
           data-page="athletes"
           type="button"
         >
+
           <span>👥</span>
+
           ورزشکاران
+
         </button>
 
 
@@ -394,8 +387,11 @@
           data-page="evaluations"
           type="button"
         >
+
           <span>📊</span>
+
           ارزیابی
+
         </button>
 
 
@@ -404,8 +400,11 @@
           data-page="attendance"
           type="button"
         >
+
           <span>🟢</span>
+
           حضور و غیاب
+
         </button>
 
 
@@ -414,8 +413,11 @@
           data-page="achievements"
           type="button"
         >
+
           <span>🏆</span>
+
           مقام‌ها و افتخارات
+
         </button>
 
 
@@ -424,8 +426,11 @@
           data-page="events"
           type="button"
         >
+
           <span>📅</span>
+
           مسابقات و اطلاعیه‌ها
+
         </button>
 
 
@@ -434,8 +439,11 @@
           data-page="records"
           type="button"
         >
+
           <span>📈</span>
+
           آمار و رکوردها
+
         </button>
 
 
@@ -444,9 +452,13 @@
           data-page="settings"
           type="button"
         >
+
           <span>⚙️</span>
+
           تنظیمات سایت
+
         </button>
+
 
       </nav>
 
@@ -466,16 +478,16 @@
     </aside>
 
 
-    <!-- =====================================
+    <!-- ===================================================
          MAIN
-    ====================================== -->
+    ==================================================== -->
 
     <main class="coach-main">
 
 
-      <!-- =====================================
+      <!-- =================================================
            DASHBOARD
-      ====================================== -->
+      ================================================== -->
 
       <section
         class="coach-page active"
@@ -503,9 +515,8 @@
         </div>
 
 
-        <!-- STATS -->
-
         <div class="stats-grid">
+
 
           <div class="stat-card">
 
@@ -590,10 +601,9 @@
 
           </div>
 
+
         </div>
 
-
-        <!-- QUICK ACTIONS -->
 
         <div class="dashboard-section">
 
@@ -607,6 +617,7 @@
 
 
           <div class="quick-grid">
+
 
             <button
               class="quick-card"
@@ -691,6 +702,7 @@
 
             </button>
 
+
           </div>
 
         </div>
@@ -698,9 +710,9 @@
       </section>
 
 
-      <!-- =====================================
+      <!-- =================================================
            ATHLETES
-      ====================================== -->
+      ================================================== -->
 
       <section
         class="coach-page"
@@ -731,7 +743,9 @@
             id="addAthleteBtn"
             type="button"
           >
+
             ➕ افزودن ورزشکار
+
           </button>
 
         </div>
@@ -761,16 +775,14 @@
         <div
           id="coachAthleteGrid"
           class="coach-athlete-grid"
-        >
-
-        </div>
+        ></div>
 
       </section>
 
 
-      <!-- =====================================
+      <!-- =================================================
            EVALUATIONS
-      ====================================== -->
+      ================================================== -->
 
       <section
         class="coach-page"
@@ -800,6 +812,7 @@
 
         <div class="evaluation-toolbar">
 
+
           <select
             id="evaluationAthleteSelect"
           >
@@ -827,8 +840,11 @@
             id="newEvaluationBtn"
             type="button"
           >
+
             ➕ ارزیابی جدید
+
           </button>
+
 
         </div>
 
@@ -856,9 +872,9 @@
       </section>
 
 
-      <!-- =====================================
+      <!-- =================================================
            ATTENDANCE
-      ====================================== -->
+      ================================================== -->
 
       <section
         class="coach-page"
@@ -905,9 +921,9 @@
       </section>
 
 
-      <!-- =====================================
+      <!-- =================================================
            ACHIEVEMENTS
-      ====================================== -->
+      ================================================== -->
 
       <section
         class="coach-page"
@@ -954,9 +970,9 @@
       </section>
 
 
-      <!-- =====================================
+      <!-- =================================================
            EVENTS
-      ====================================== -->
+      ================================================== -->
 
       <section
         class="coach-page"
@@ -1003,9 +1019,9 @@
       </section>
 
 
-      <!-- =====================================
+      <!-- =================================================
            RECORDS
-      ====================================== -->
+      ================================================== -->
 
       <section
         class="coach-page"
@@ -1052,9 +1068,9 @@
       </section>
 
 
-      <!-- =====================================
+      <!-- =================================================
            SETTINGS
-      ====================================== -->
+      ================================================== -->
 
       <section
         class="coach-page"
@@ -1083,6 +1099,7 @@
 
 
         <div class="settings-grid">
+
 
           <div class="setting-card">
 
@@ -1151,18 +1168,20 @@
 
           </div>
 
+
         </div>
 
       </section>
+
 
     </main>
 
   </div>
 
 
-  <!-- =====================================
+  <!-- =====================================================
        ADD ATHLETE MODAL
-  ====================================== -->
+  ====================================================== -->
 
   <div
     class="modal hidden"
@@ -1170,6 +1189,7 @@
   >
 
     <div class="modal-card">
+
 
       <button
         class="close"
@@ -1298,538 +1318,31 @@
         ثبت ورزشکار
       </button>
 
+
     </div>
 
   </div>
 
 
-  <!-- =====================================
+  <!-- =====================================================
        SUPABASE
-  ====================================== -->
+  ====================================================== -->
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
 
 
-  <!-- =====================================
-       APP JS
-  ====================================== -->
+  <!-- =====================================================
+       ONLY COACH.JS
+       
+       app.js عمداً اینجا حذف شده است.
+       coach.js تنها کنترل‌کننده پنل مربی است.
+  ====================================================== -->
 
-  <script src="app.js"></script>
+  <script src="coach.js?v=2"></script>
 
-
-  <!-- =====================================
-       COACH JS
-  ====================================== -->
-
-  <script src="coach.js"></script>
-
-
-  <!-- =====================================
-       BASIC COACH UI CONTROLLER
-       این بخش برای فعال کردن منو و
-       دکمه‌های اصلی صفحه است.
-  ====================================== -->
-
-  <script>
-
-    document.addEventListener(
-      "DOMContentLoaded",
-      function () {
-
-        /* ===============================
-           MENU
-        =============================== */
-
-        const menuBtn =
-          document.getElementById("menuBtn");
-
-        const sidebar =
-          document.getElementById("coachSidebar");
-
-        if (menuBtn && sidebar) {
-
-          menuBtn.addEventListener(
-            "click",
-            function () {
-
-              sidebar.classList.toggle("open");
-
-            }
-          );
-
-        }
-
-
-        /* ===============================
-           PAGE NAVIGATION
-        =============================== */
-
-        const navItems =
-          document.querySelectorAll(".nav-item");
-
-        const pages =
-          document.querySelectorAll(".coach-page");
-
-        function openPage(pageName) {
-
-          pages.forEach(function (page) {
-
-            page.classList.remove("active");
-
-          });
-
-
-          navItems.forEach(function (item) {
-
-            item.classList.remove("active");
-
-          });
-
-
-          const target =
-            document.getElementById(
-              "page-" + pageName
-            );
-
-          if (target) {
-
-            target.classList.add("active");
-
-          }
-
-
-          const activeNav =
-            document.querySelector(
-              '.nav-item[data-page="' +
-              pageName +
-              '"]'
-            );
-
-          if (activeNav) {
-
-            activeNav.classList.add("active");
-
-          }
-
-
-          if (sidebar) {
-
-            sidebar.classList.remove("open");
-
-          }
-
-
-          if (
-            pageName === "evaluations" &&
-            typeof window.renderEvaluations === "function"
-          ) {
-
-            window.renderEvaluations();
-
-          }
-
-        }
-
-
-        navItems.forEach(function (item) {
-
-          item.addEventListener(
-            "click",
-            function () {
-
-              const pageName =
-                item.dataset.page;
-
-              if (pageName) {
-
-                openPage(pageName);
-
-              }
-
-            }
-          );
-
-        });
-
-
-        /* ===============================
-           QUICK ACTIONS
-        =============================== */
-
-        const quickCards =
-          document.querySelectorAll(
-            ".quick-card"
-          );
-
-
-        quickCards.forEach(function (card) {
-
-          card.addEventListener(
-            "click",
-            function () {
-
-              const pageName =
-                card.dataset.go;
-
-              if (!pageName) {
-                return;
-              }
-
-
-              openPage(pageName);
-
-
-              if (
-                pageName === "athletes"
-              ) {
-
-                setTimeout(
-                  function () {
-
-                    const addBtn =
-                      document.getElementById(
-                        "addAthleteBtn"
-                      );
-
-                    if (addBtn) {
-                      addBtn.click();
-                    }
-
-                  },
-                  100
-                );
-
-              }
-
-
-              if (
-                pageName === "evaluations"
-              ) {
-
-                setTimeout(
-                  function () {
-
-                    const newBtn =
-                      document.getElementById(
-                        "newEvaluationBtn"
-                      );
-
-                    if (newBtn) {
-                      newBtn.click();
-                    }
-
-                  },
-                  100
-                );
-
-              }
-
-            }
-          );
-
-        });
-
-
-        /* ===============================
-           EVALUATION BUTTON
-        =============================== */
-
-        const newEvaluationBtn =
-          document.getElementById(
-            "newEvaluationBtn"
-          );
-
-
-        if (
-          newEvaluationBtn &&
-          typeof window.openEvaluationSelector ===
-            "function"
-        ) {
-
-          newEvaluationBtn.addEventListener(
-            "click",
-            function () {
-
-              window.openEvaluationSelector();
-
-            }
-          );
-
-        }
-
-
-        /* ===============================
-           LOGOUT
-        =============================== */
-
-        const logoutBtn =
-          document.getElementById(
-            "logoutBtn"
-          );
-
-
-        if (logoutBtn) {
-
-          logoutBtn.addEventListener(
-            "click",
-            async function () {
-
-              try {
-
-                if (
-                  window.supabase &&
-                  window.supabase.createClient
-                ) {
-
-                  const url =
-                    "https://bkkdgywdptufjsaepehc.supabase.co";
-
-                  const key =
-                    "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
-
-                  const client =
-                    window.supabase.createClient(
-                      url,
-                      key
-                    );
-
-                  await client.auth.signOut();
-
-                }
-
-              } catch (error) {
-
-                console.error(
-                  "Logout error:",
-                  error
-                );
-
-              }
-
-
-              window.location.href =
-                "index.html";
-
-            }
-          );
-
-        }
-
-
-        /* ===============================
-           COACH EMAIL
-        =============================== */
-
-        async function loadCoachEmail() {
-
-          const emailElement =
-            document.getElementById(
-              "coachEmail"
-            );
-
-          if (!emailElement) {
-            return;
-          }
-
-
-          try {
-
-            if (
-              window.supabase &&
-              window.supabase.createClient
-            ) {
-
-              const url =
-                "https://bkkdgywdptufjsaepehc.supabase.co";
-
-              const key =
-                "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
-
-              const client =
-                window.supabase.createClient(
-                  url,
-                  key
-                );
-
-
-              const result =
-                await client.auth.getUser();
-
-
-              if (
-                result &&
-                result.data &&
-                result.data.user &&
-                result.data.user.email
-              ) {
-
-                emailElement.textContent =
-                  result.data.user.email;
-
-              } else {
-
-                emailElement.textContent =
-                  "مربی";
-
-              }
-
-            }
-
-          } catch (error) {
-
-            console.error(
-              "Coach email error:",
-              error
-            );
-
-            emailElement.textContent =
-              "مربی";
-
-          }
-
-        }
-
-
-        loadCoachEmail();
-
-
-        /* ===============================
-           EVALUATION SELECTORS
-        =============================== */
-
-        function fillEvaluationSelectors() {
-
-          const athleteSelect =
-            document.getElementById(
-              "evaluationAthleteSelect"
-            );
-
-          const periodSelect =
-            document.getElementById(
-              "evaluationPeriodSelect"
-            );
-
-
-          if (
-            !athleteSelect ||
-            !periodSelect
-          ) {
-            return;
-          }
-
-
-          let athleteList = [];
-
-          if (
-            typeof window.athletes !==
-              "undefined" &&
-            Array.isArray(window.athletes)
-          ) {
-
-            athleteList =
-              window.athletes;
-
-          }
-
-
-          athleteSelect.innerHTML = `
-            <option value="">
-              انتخاب ورزشکار
-            </option>
-          `;
-
-
-          athleteList.forEach(
-            function (athlete) {
-
-              const name =
-                [
-                  athlete.first_name,
-                  athlete.last_name
-                ]
-                  .filter(Boolean)
-                  .join(" ") ||
-                "بدون نام";
-
-
-              const option =
-                document.createElement(
-                  "option"
-                );
-
-              option.value =
-                athlete.id;
-
-              option.textContent =
-                name;
-
-              athleteSelect.appendChild(
-                option
-              );
-
-            }
-          );
-
-
-          let periodList = [];
-
-          if (
-            typeof window.evaluationPeriods !==
-              "undefined" &&
-            Array.isArray(
-              window.evaluationPeriods
-            )
-          ) {
-
-            periodList =
-              window.evaluationPeriods;
-
-          }
-
-
-          periodSelect.innerHTML = `
-            <option value="">
-              انتخاب دوره ارزیابی
-            </option>
-          `;
-
-
-          periodList.forEach(
-            function (period) {
-
-              const option =
-                document.createElement(
-                  "option"
-                );
-
-              option.value =
-                period.id;
-
-              option.textContent =
-                period.title ||
-                "دوره بدون عنوان";
-
-              periodSelect.appendChild(
-                option
-              );
-
-            }
-          );
-
-        }
-
-
-        setTimeout(
-          fillEvaluationSelectors,
-          300
-        );
-
-
-      }
-    );
-
-  </script>
 
 </body>
 
-    </html>
+</html>
