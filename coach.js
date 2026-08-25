@@ -954,3 +954,89 @@ function loadEvaluations() {
 // ======================================
 
 loadEvaluations();
+// ======================================
+// RENDER EVALUATIONS HISTORY
+// ======================================
+
+function renderEvaluations() {
+
+  const container =
+    document.getElementById("evaluationsContainer");
+
+  if (!container) return;
+
+  loadEvaluations();
+
+  if (!evaluations.length) {
+
+    container.innerHTML = `
+      <div style="
+        padding:25px;
+        text-align:center;
+        color:#777;
+      ">
+        هنوز هیچ ارزیابی‌ای ثبت نشده است.
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML = evaluations
+    .slice()
+    .reverse()
+    .map(evaluation => {
+
+      const athlete =
+        athletes.find(
+          athlete =>
+            athlete.id === evaluation.athlete_id
+        );
+
+      const period =
+        evaluationPeriods.find(
+          period =>
+            period.id === evaluation.period_id
+        );
+
+      const athleteName = athlete
+        ? [
+            athlete.first_name,
+            athlete.last_name
+          ]
+            .filter(Boolean)
+            .join(" ")
+        : "ورزشکار";
+
+      const periodName =
+        period
+          ? period.title
+          : "دوره نامشخص";
+
+      const score =
+        Number(evaluation.total_score || 0);
+
+      return `
+        <div class="evaluation-history-card">
+
+          <div>
+            <strong>
+              ${escapeHTML(athleteName)}
+            </strong>
+
+            <div>
+              ${escapeHTML(periodName)}
+            </div>
+          </div>
+
+          <div class="evaluation-history-score">
+            ${toPersianNumber(score.toFixed(2))}
+            <small>/ ۱۰</small>
+          </div>
+
+        </div>
+      `;
+
+    })
+    .join("");
+}
