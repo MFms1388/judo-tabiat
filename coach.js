@@ -1,7 +1,8 @@
 // ============================================================
 // طبیعت جودو | COACH.JS
 // پنل مدیریت مربی
-// تمرکز اصلی: حضور و غیاب
+// نسخه اصلاح شده
+// تمرکز ویژه: حضور و غیاب
 // ============================================================
 
 
@@ -16,7 +17,11 @@ const SUPABASE_KEY =
   "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
 
 
-if (!window.supabaseClient) {
+if (
+  !window.supabaseClient &&
+  window.supabase &&
+  typeof window.supabase.createClient === "function"
+) {
 
   window.supabaseClient =
     window.supabase.createClient(
@@ -249,7 +254,7 @@ async function loadCoachAthletes() {
       data || [];
 
     console.log(
-      "Coach athletes:",
+      "🥋 Coach athletes:",
       coachAthletes
     );
 
@@ -264,7 +269,7 @@ async function loadCoachAthletes() {
   } catch (error) {
 
     console.error(
-      "Load athletes error:",
+      "❌ Load athletes error:",
       error
     );
 
@@ -336,13 +341,19 @@ function populateAgeGroupFilter() {
   groups.forEach(
     group => {
 
-      select.insertAdjacentHTML(
-        "beforeend",
-        `
-          <option value="${coachEscapeHTML(group)}">
-            ${coachEscapeHTML(group)}
-          </option>
-        `
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        group;
+
+      option.textContent =
+        group;
+
+      select.appendChild(
+        option
       );
 
     }
@@ -505,12 +516,9 @@ function renderAthletes() {
               <button
                 type="button"
                 class="primary"
-                onclick="
-                  window.location.href =
-                  'athlete.html?id=${encodeURIComponent(
-                    athlete.id
-                  )}'
-                "
+                data-athlete-profile="${coachEscapeHTML(
+                  athlete.id
+                )}"
               >
                 مشاهده پروفایل
               </button>
@@ -522,6 +530,41 @@ function renderAthletes() {
         }
       )
       .join("");
+
+
+  /*
+   * دکمه‌های مشاهده پروفایل
+   */
+
+  grid
+    .querySelectorAll(
+      "[data-athlete-profile]"
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          "click",
+          function () {
+
+            const athleteId =
+              this.dataset.athleteProfile;
+
+            if (!athleteId) {
+              return;
+            }
+
+            window.location.href =
+              "athlete.html?id=" +
+              encodeURIComponent(
+                athleteId
+              );
+
+          }
+        );
+
+      }
+    );
 
 }
 
@@ -553,17 +596,21 @@ function populateAthleteSelect() {
   coachAthletes.forEach(
     athlete => {
 
-      select.insertAdjacentHTML(
-        "beforeend",
-        `
-          <option value="${coachEscapeHTML(
-            athlete.id
-          )}">
-            ${coachEscapeHTML(
-              athleteName(athlete)
-            )}
-          </option>
-        `
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        athlete.id;
+
+      option.textContent =
+        athleteName(
+          athlete
+        );
+
+      select.appendChild(
+        option
       );
 
     }
@@ -578,9 +625,15 @@ function populateAthleteSelect() {
 
 async function initializeAttendancePage() {
 
+  console.log(
+    "🟢 Initializing attendance page..."
+  );
+
+
   if (!attendanceInitialized) {
 
-    attendanceInitialized = true;
+    attendanceInitialized =
+      true;
 
     await loadCoachAthletes();
 
@@ -594,7 +647,13 @@ async function initializeAttendancePage() {
 
 
   if (!dateInput) {
+
+    console.error(
+      "❌ attendanceDate پیدا نشد."
+    );
+
     return;
+
   }
 
 
@@ -617,6 +676,11 @@ async function initializeAttendancePage() {
 
   await loadAttendanceForDate(
     attendanceDateValue
+  );
+
+
+  console.log(
+    "✅ Attendance page ready."
   );
 
 }
@@ -694,7 +758,7 @@ async function loadAttendanceForDate(date) {
     list.innerHTML = `
 
       <div class="attendance-loading">
-        در حال دریافت اطلاعات حضور و غیاب...
+        ⏳ در حال دریافت اطلاعات حضور و غیاب...
       </div>
 
     `;
@@ -704,20 +768,12 @@ async function loadAttendanceForDate(date) {
 
   try {
 
-    /*
-     * اول مطمئن می‌شویم لیست ورزشکاران داریم.
-     */
-
     if (!coachAthletes.length) {
 
       await loadCoachAthletes();
 
     }
 
-
-    /*
-     * دریافت رکوردهای همان تاریخ
-     */
 
     const {
       data,
@@ -736,13 +792,6 @@ async function loadAttendanceForDate(date) {
       throw error;
     }
 
-
-    /*
-     * تبدیل رکوردها به map
-     *
-     * کلید:
-     * athlete_id
-     */
 
     attendanceData = {};
 
@@ -780,7 +829,7 @@ async function loadAttendanceForDate(date) {
 
 
     console.log(
-      "Attendance records:",
+      "📋 Attendance records:",
       attendanceData
     );
 
@@ -789,10 +838,11 @@ async function loadAttendanceForDate(date) {
 
     updateAttendanceSummary();
 
+
   } catch (error) {
 
     console.error(
-      "Load attendance error:",
+      "❌ Load attendance error:",
       error
     );
 
@@ -827,12 +877,10 @@ async function loadAttendanceForDate(date) {
           </h3>
 
           <p>
-            ${
-              coachEscapeHTML(
-                error.message ||
-                "خطای نامشخص"
-              )
-            }
+            ${coachEscapeHTML(
+              error.message ||
+              "خطای نامشخص"
+            )}
           </p>
 
         </div>
@@ -868,11 +916,6 @@ function getAthleteAttendance(
     return record;
   }
 
-
-  /*
-   * اگر هنوز رکوردی ثبت نشده،
-   * وضعیت خالی است.
-   */
 
   return {
 
@@ -1069,8 +1112,6 @@ function renderAttendanceList() {
               )}"
             >
 
-              <!-- ورزشکار -->
-
               <div class="attendance-athlete">
 
                 <div class="attendance-avatar">
@@ -1125,8 +1166,6 @@ function renderAttendanceList() {
               </div>
 
 
-              <!-- وضعیت -->
-
               <div
                 class="attendance-status-group"
               >
@@ -1135,8 +1174,6 @@ function renderAttendanceList() {
 
               </div>
 
-
-              <!-- توضیحات -->
 
               <textarea
                 class="attendance-note"
@@ -1180,6 +1217,17 @@ function renderAttendanceList() {
               this.dataset.status;
 
 
+            if (!athleteId || !status) {
+              return;
+            }
+
+
+            let record =
+              getAthleteAttendance(
+                athleteId
+              );
+
+
             if (
               !attendanceData[
                 String(athleteId)
@@ -1188,23 +1236,22 @@ function renderAttendanceList() {
 
               attendanceData[
                 String(athleteId)
-              ] =
-                getAthleteAttendance(
-                  athleteId
-                );
+              ] = record;
 
             }
 
 
-            attendanceData[
-              String(athleteId)
-            ].status =
-              status;
+            record =
+              attendanceData[
+                String(athleteId)
+              ];
 
 
-            /*
-             * فعال‌سازی ظاهری
-             */
+            record.status =
+              normalizeCoachAttendanceStatus(
+                status
+              );
+
 
             const row =
               this.closest(
@@ -1261,6 +1308,11 @@ function renderAttendanceList() {
 
             const athleteId =
               this.dataset.athleteNote;
+
+
+            if (!athleteId) {
+              return;
+            }
 
 
             if (
@@ -1409,6 +1461,10 @@ function updateAttendanceSummary() {
 }
 
 
+// ============================================================
+// SELECTED COUNT
+// ============================================================
+
 function updateSelectedCount() {
 
   const element =
@@ -1530,182 +1586,116 @@ async function saveAttendance() {
   try {
 
     /*
-     * برای هر ورزشکار:
+     * نکته مهم:
      *
-     * اگر رکورد قبلی وجود داشته باشد:
-     * UPDATE
-     *
-     * اگر وجود نداشته باشد:
-     * INSERT
-     *
-     * بنابراین به Unique Constraint
-     * وابسته نیستیم.
+     * فقط رکوردهای همان تاریخ حذف می‌شوند.
+     * بنابراین حضور و غیاب روزهای قبلی
+     * دست‌نخورده باقی می‌ماند.
      */
 
-
-    for (
-      const athlete
-      of selected
-    ) {
-
-      const record =
-        getAthleteAttendance(
-          athlete.id
+    const {
+      error: deleteError
+    } =
+      await supabaseClient
+        .from("attendance")
+        .delete()
+        .eq(
+          "attendance_date",
+          attendanceDateValue
         );
 
 
-      const payload = {
-
-        athlete_id:
-          athlete.id,
-
-        attendance_date:
-          attendanceDateValue,
-
-        status:
-          record.status,
-
-        notes:
-          record.notes || null
-
-      };
+    if (deleteError) {
+      throw deleteError;
+    }
 
 
-      /*
-       * رکورد موجود
-       */
+    const rows =
+      selected.map(
+        athlete => {
 
-      if (record.id) {
-
-        const {
-          error
-        } =
-          await supabaseClient
-            .from("attendance")
-            .update(payload)
-            .eq(
-              "id",
-              record.id
+          const record =
+            getAthleteAttendance(
+              athlete.id
             );
 
 
-        if (error) {
-          throw error;
-        }
+          return {
 
-      }
+            athlete_id:
+              athlete.id,
 
+            attendance_date:
+              attendanceDateValue,
 
-      /*
-       * رکورد جدید
-       */
+            status:
+              normalizeCoachAttendanceStatus(
+                record.status
+              ),
 
-      else {
+            notes:
+              record.notes || null
 
-        /*
-         * برای جلوگیری از رکورد تکراری،
-         * یک بار دیگر بررسی می‌کنیم.
-         */
-
-        const {
-          data: existing,
-          error: findError
-        } =
-          await supabaseClient
-            .from("attendance")
-            .select("id")
-            .eq(
-              "athlete_id",
-              athlete.id
-            )
-            .eq(
-              "attendance_date",
-              attendanceDateValue
-            )
-            .maybeSingle();
-
-
-        if (findError) {
-          throw findError;
-        }
-
-
-        if (existing?.id) {
-
-          const {
-            error
-          } =
-            await supabaseClient
-              .from("attendance")
-              .update(payload)
-              .eq(
-                "id",
-                existing.id
-              );
-
-
-          if (error) {
-            throw error;
-          }
-
-
-          record.id =
-            existing.id;
+          };
 
         }
-
-        else {
-
-          const {
-            data: inserted,
-            error
-          } =
-            await supabaseClient
-              .from("attendance")
-              .insert(payload)
-              .select("*")
-              .single();
+      );
 
 
-          if (error) {
-            throw error;
-          }
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("attendance")
+        .insert(
+          rows
+        )
+        .select("*");
 
 
-          record.id =
-            inserted.id;
-
-        }
-
-      }
-
-
-      /*
-       * نگهداری اطلاعات جدید در حافظه
-       */
-
-      attendanceData[
-        String(athlete.id)
-      ] = {
-
-        id:
-          record.id,
-
-        athlete_id:
-          athlete.id,
-
-        attendance_date:
-          attendanceDateValue,
-
-        status:
-          record.status,
-
-        notes:
-          record.notes || ""
-
-      };
-
+    if (error) {
+      throw error;
     }
+
+
+    /*
+     * تبدیل اطلاعات ذخیره‌شده به attendanceData
+     */
+
+    attendanceData = {};
+
+
+    (data || []).forEach(
+      record => {
+
+        attendanceData[
+          String(
+            record.athlete_id
+          )
+        ] = {
+
+          id:
+            record.id,
+
+          athlete_id:
+            record.athlete_id,
+
+          attendance_date:
+            record.attendance_date,
+
+          status:
+            normalizeCoachAttendanceStatus(
+              record.status
+            ),
+
+          notes:
+            record.notes || ""
+
+        };
+
+      }
+    );
 
 
     alert(
@@ -1713,9 +1703,14 @@ async function saveAttendance() {
     );
 
 
+    console.log(
+      "✅ Attendance saved:",
+      data
+    );
+
+
     /*
-     * دوباره از Supabase می‌خوانیم
-     * تا مطمئن شویم اطلاعات واقعاً ثبت شده.
+     * دوباره از دیتابیس می‌خوانیم.
      */
 
     await loadAttendanceForDate(
@@ -1726,7 +1721,7 @@ async function saveAttendance() {
   } catch (error) {
 
     console.error(
-      "Save attendance error:",
+      "❌ Save attendance error:",
       error
     );
 
@@ -1762,50 +1757,107 @@ window.saveAttendance =
 
 
 // ============================================================
-// SEARCH / FILTER ATHLETES
+// ATTENDANCE SEARCH / FILTER
 // ============================================================
 
-document.addEventListener(
-  "DOMContentLoaded",
-  function () {
+function initializeAttendanceSearch() {
 
-    const search =
-      document.getElementById(
-        "coachSearch"
-      );
+  const search =
+    document.getElementById(
+      "attendanceSearch"
+    );
 
-    const filter =
-      document.getElementById(
-        "coachFilter"
-      );
+  const filter =
+    document.getElementById(
+      "attendanceFilter"
+    );
 
 
-    if (search) {
+  if (
+    search &&
+    !search.dataset.bound
+  ) {
 
-      search.addEventListener(
-        "input",
-        renderAthletes
-      );
+    search.dataset.bound =
+      "true";
 
-    }
-
-
-    if (filter) {
-
-      filter.addEventListener(
-        "change",
-        renderAthletes
-      );
-
-    }
+    search.addEventListener(
+      "input",
+      renderAttendanceList
+    );
 
   }
-);
+
+
+  if (
+    filter &&
+    !filter.dataset.bound
+  ) {
+
+    filter.dataset.bound =
+      "true";
+
+    filter.addEventListener(
+      "change",
+      renderAttendanceList
+    );
+
+  }
+
+}
 
 
 // ============================================================
-// EVALUATION PAGE
-// فعلاً ساختار اولیه
+// ATTENDANCE DATE CHANGE
+// ============================================================
+
+function initializeAttendanceDateInput() {
+
+  const dateInput =
+    document.getElementById(
+      "attendanceDate"
+    );
+
+
+  if (
+    !dateInput ||
+    dateInput.dataset.bound
+  ) {
+    return;
+  }
+
+
+  dateInput.dataset.bound =
+    "true";
+
+
+  dateInput.addEventListener(
+    "change",
+    async function () {
+
+      if (!this.value) {
+        return;
+      }
+
+      attendanceDateValue =
+        this.value;
+
+      updateAttendanceDateText(
+        this.value
+      );
+
+      await loadAttendanceForDate(
+        this.value
+      );
+
+    }
+  );
+
+}
+
+
+// ============================================================
+// EVALUATION
 // ============================================================
 
 async function prepareEvaluationPage() {
@@ -1813,7 +1865,7 @@ async function prepareEvaluationPage() {
   await loadCoachAthletes();
 
   console.log(
-    "Evaluation page prepared."
+    "📝 Evaluation page prepared."
   );
 
 }
@@ -1824,10 +1876,92 @@ window.prepareEvaluationPage =
 
 
 // ============================================================
+// OPEN NEW EVALUATION
+// ============================================================
+
+function openEvaluationPage() {
+
+  console.log(
+    "📝 New evaluation button clicked."
+  );
+
+
+  /*
+   * اگر ارزیابی در همان صفحه به صورت section باشد
+   */
+
+  const evaluationPage =
+    document.getElementById(
+      "page-evaluation"
+    );
+
+
+  if (evaluationPage) {
+
+    document
+      .querySelectorAll(
+        ".coach-page"
+      )
+      .forEach(
+        page => {
+
+          page.classList.remove(
+            "active"
+          );
+
+        }
+      );
+
+
+    evaluationPage.classList.add(
+      "active"
+    );
+
+
+    prepareEvaluationPage();
+
+    return;
+
+  }
+
+
+  /*
+   * اگر صفحه جداگانه باشد
+   */
+
+  if (
+    window.location.pathname
+      .includes(
+        "evaluation.html"
+      )
+  ) {
+
+    prepareEvaluationPage();
+
+    return;
+
+  }
+
+
+  window.location.href =
+    "evaluation.html";
+
+}
+
+
+window.openEvaluationPage =
+  openEvaluationPage;
+
+
+// ============================================================
 // DASHBOARD
 // ============================================================
 
 async function loadDashboardStats() {
+
+  /*
+   * تعداد ارزیابی‌ها
+   */
 
   try {
 
@@ -1864,7 +1998,6 @@ async function loadDashboardStats() {
 
     }
 
-
   } catch (error) {
 
     console.error(
@@ -1874,6 +2007,10 @@ async function loadDashboardStats() {
 
   }
 
+
+  /*
+   * حضور امروز
+   */
 
   try {
 
@@ -1935,8 +2072,7 @@ async function loadDashboardStats() {
 
 
   /*
-   * فعلاً تعداد مقام‌ها صفر است
-   * چون بخش achievements هنوز ساخته نشده.
+   * مقام‌ها
    */
 
   const achievementElement =
@@ -1956,7 +2092,7 @@ async function loadDashboardStats() {
 
 
 // ============================================================
-// ADD ATHLETE
+// ADD ATHLETE MODAL
 // ============================================================
 
 function openAthleteModal() {
@@ -1967,7 +2103,13 @@ function openAthleteModal() {
     );
 
   if (!modal) {
+
+    console.error(
+      "❌ athleteModal پیدا نشد."
+    );
+
     return;
+
   }
 
   modal.classList.remove(
@@ -1975,6 +2117,10 @@ function openAthleteModal() {
   );
 
 }
+
+
+window.openAthleteModal =
+  openAthleteModal;
 
 
 function closeAthleteModal() {
@@ -1994,6 +2140,14 @@ function closeAthleteModal() {
 
 }
 
+
+window.closeAthleteModal =
+  closeAthleteModal;
+
+
+// ============================================================
+// SAVE ATHLETE
+// ============================================================
 
 async function saveAthlete() {
 
@@ -2050,9 +2204,31 @@ async function saveAthlete() {
   }
 
 
+  const button =
+    document.getElementById(
+      "saveAthleteBtn"
+    );
+
+
+  const originalText =
+    button?.textContent || "";
+
+
+  if (button) {
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "⏳ در حال ثبت...";
+
+  }
+
+
   try {
 
     const {
+      data,
       error
     } =
       await supabaseClient
@@ -2069,7 +2245,7 @@ async function saveAthlete() {
             ageGroup || null,
 
           weight:
-            weight
+            weight !== ""
               ? Number(weight)
               : null,
 
@@ -2082,12 +2258,20 @@ async function saveAthlete() {
           photo_url:
             photoUrl || null
 
-        });
+        })
+        .select("*")
+        .single();
 
 
     if (error) {
       throw error;
     }
+
+
+    console.log(
+      "✅ Athlete created:",
+      data
+    );
 
 
     alert(
@@ -2125,15 +2309,45 @@ async function saveAthlete() {
       );
 
 
+    /*
+     * دریافت مجدد ورزشکاران
+     */
+
     await loadCoachAthletes();
 
     renderAthletes();
 
 
+    /*
+     * اگر صفحه حضور و غیاب باز است،
+     * لیست آن هم به‌روز شود.
+     */
+
+    const attendancePage =
+      document.getElementById(
+        "page-attendance"
+      );
+
+
+    if (
+      attendancePage &&
+      attendancePage.classList.contains(
+        "active"
+      )
+    ) {
+
+      await loadAttendanceForDate(
+        attendanceDateValue ||
+        getTodayDate()
+      );
+
+    }
+
+
   } catch (error) {
 
     console.error(
-      "Save athlete error:",
+      "❌ Save athlete error:",
       error
     );
 
@@ -2146,45 +2360,36 @@ async function saveAthlete() {
       )
     );
 
+  } finally {
+
+    if (button) {
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        originalText ||
+        "ثبت ورزشکار";
+
+    }
+
   }
 
 }
 
 
+window.saveAthlete =
+  saveAthlete;
+
+
 // ============================================================
-// INITIALIZE COACH
+// BIND MAIN BUTTONS
 // ============================================================
 
-async function initializeCoach() {
-
-  console.log(
-    "🥋 طبیعت جودو | Coach Panel"
-  );
-
+function initializeCoachButtons() {
 
   /*
-   * بارگذاری ورزشکاران
-   */
-
-  await loadCoachAthletes();
-
-
-  /*
-   * داشبورد
-   */
-
-  await loadDashboardStats();
-
-
-  /*
-   * رندر ورزشکاران
-   */
-
-  renderAthletes();
-
-
-  /*
-   * دکمه افزودن ورزشکار
+   * ورزشکار جدید
    */
 
   const addButton =
@@ -2204,7 +2409,46 @@ async function initializeCoach() {
 
     addButton.addEventListener(
       "click",
-      openAthleteModal
+      function (event) {
+
+        event.preventDefault();
+
+        openAthleteModal();
+
+      }
+    );
+
+  }
+
+
+  /*
+   * ارزیابی جدید
+   */
+
+  const evaluationButton =
+    document.getElementById(
+      "newEvaluationBtn"
+    );
+
+
+  if (
+    evaluationButton &&
+    !evaluationButton.dataset.bound
+  ) {
+
+    evaluationButton.dataset.bound =
+      "true";
+
+
+    evaluationButton.addEventListener(
+      "click",
+      function (event) {
+
+        event.preventDefault();
+
+        openEvaluationPage();
+
+      }
     );
 
   }
@@ -2231,7 +2475,13 @@ async function initializeCoach() {
 
     closeButton.addEventListener(
       "click",
-      closeAthleteModal
+      function (event) {
+
+        event.preventDefault();
+
+        closeAthleteModal();
+
+      }
     );
 
   }
@@ -2258,78 +2508,236 @@ async function initializeCoach() {
 
     saveButton.addEventListener(
       "click",
-      saveAthlete
+      function (event) {
+
+        event.preventDefault();
+
+        saveAthlete();
+
+      }
     );
 
   }
 
 
   /*
-   * نمایش ایمیل مربی
+   * ذخیره حضور و غیاب
    */
 
-  try {
-
-    const {
-      data
-    } =
-      await supabaseClient
-        .auth
-        .getUser();
-
-
-    const emailElement =
-      document.getElementById(
-        "coachEmail"
-      );
-
-
-    if (
-      emailElement &&
-      data?.user?.email
-    ) {
-
-      emailElement.textContent =
-        data.user.email;
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Get coach user error:",
-      error
-    );
-
-  }
-
-
-  /*
-   * اگر صفحه حضور و غیاب
-   * از ابتدا فعال باشد
-   */
-
-  const attendancePage =
+  const attendanceSaveButton =
     document.getElementById(
-      "page-attendance"
+      "saveAttendanceBtn"
     );
 
 
   if (
-    attendancePage &&
-    attendancePage.classList.contains(
-      "active"
-    )
+    attendanceSaveButton &&
+    !attendanceSaveButton.dataset.bound
   ) {
 
-    await initializeAttendancePage();
+    attendanceSaveButton.dataset.bound =
+      "true";
+
+
+    attendanceSaveButton.addEventListener(
+      "click",
+      function (event) {
+
+        event.preventDefault();
+
+        saveAttendance();
+
+      }
+    );
 
   }
 
 
+  /*
+   * جستجوی ورزشکاران
+   */
+
+  const coachSearch =
+    document.getElementById(
+      "coachSearch"
+    );
+
+
+  if (
+    coachSearch &&
+    !coachSearch.dataset.bound
+  ) {
+
+    coachSearch.dataset.bound =
+      "true";
+
+
+    coachSearch.addEventListener(
+      "input",
+      renderAthletes
+    );
+
+  }
+
+
+  /*
+   * فیلتر ورزشکاران
+   */
+
+  const coachFilter =
+    document.getElementById(
+      "coachFilter"
+    );
+
+
+  if (
+    coachFilter &&
+    !coachFilter.dataset.bound
+  ) {
+
+    coachFilter.dataset.bound =
+      "true";
+
+
+    coachFilter.addEventListener(
+      "change",
+      renderAthletes
+    );
+
+  }
+
+
+  /*
+   * جستجوی حضور و غیاب
+   */
+
+  initializeAttendanceSearch();
+
+
+  /*
+   * تاریخ حضور و غیاب
+   */
+
+  initializeAttendanceDateInput();
+
+}
+
+
+// ============================================================
+// INITIALIZE COACH
+// ============================================================
+
+async function initializeCoach() {
+
   console.log(
-    "✅ Coach panel ready."
+    "🥋 طبیعت جودو | Coach Panel"
   );
+
+
+  try {
+
+    /*
+     * ورزشکاران
+     */
+
+    await loadCoachAthletes();
+
+
+    /*
+     * داشبورد
+     */
+
+    await loadDashboardStats();
+
+
+    /*
+     * رندر ورزشکاران
+     */
+
+    renderAthletes();
+
+
+    /*
+     * اتصال دکمه‌ها
+     */
+
+    initializeCoachButtons();
+
+
+    /*
+     * نمایش ایمیل مربی
+     */
+
+    try {
+
+      const {
+        data
+      } =
+        await supabaseClient
+          .auth
+          .getUser();
+
+
+      const emailElement =
+        document.getElementById(
+          "coachEmail"
+        );
+
+
+      if (
+        emailElement &&
+        data?.user?.email
+      ) {
+
+        emailElement.textContent =
+          data.user.email;
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Get coach user error:",
+        error
+      );
+
+    }
+
+
+    /*
+     * اگر صفحه حضور و غیاب از ابتدا فعال است
+     */
+
+    const attendancePage =
+      document.getElementById(
+        "page-attendance"
+      );
+
+
+    if (
+      attendancePage &&
+      attendancePage.classList.contains(
+        "active"
+      )
+    ) {
+
+      await initializeAttendancePage();
+
+    }
+
+
+    console.log(
+      "✅ Coach panel ready."
+    );
+
+  } catch (error) {
+
+    console.error(
+      "❌ Coach initialization error:",
+      error
+    );
+
+  }
 
 }
 
@@ -2352,1415 +2760,4 @@ if (
 
   initializeCoach();
 
-          }
-// ============================================================
-// طبیعت جودو | ATTENDANCE SYSTEM
-// سیستم کامل حضور و غیاب مربی
-// ============================================================
-
-let attendanceAthletes = [];
-let attendanceRecords = [];
-
-
-// ============================================================
-// SUPABASE CLIENT
-// ============================================================
-
-function getCoachSupabase() {
-
-  if (window.supabaseClient) {
-    return window.supabaseClient;
-  }
-
-  if (
-    typeof SUPABASE_URL !== "undefined" &&
-    typeof SUPABASE_KEY !== "undefined"
-  ) {
-
-    window.supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
-
-    return window.supabaseClient;
-  }
-
-  if (
-    window.supabase &&
-    typeof window.supabase.createClient === "function"
-  ) {
-
-    const url =
-      "https://bkkdgywdptufjsaepehc.supabase.co";
-
-    const key =
-      "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
-
-    window.supabaseClient =
-      window.supabase.createClient(
-        url,
-        key
-      );
-
-    return window.supabaseClient;
-  }
-
-  console.error(
-    "Supabase client پیدا نشد."
-  );
-
-  return null;
-}
-
-
-// ============================================================
-// HELPERS
-// ============================================================
-
-function attendanceEscapeHTML(value) {
-
-  const div =
-    document.createElement("div");
-
-  div.textContent =
-    value === null ||
-    value === undefined
-      ? ""
-      : String(value);
-
-  return div.innerHTML;
-}
-
-
-function attendancePersianNumber(value) {
-
-  return String(value).replace(
-    /\d/g,
-    d => "۰۱۲۳۴۵۶۷۸۹"[d]
-  );
-
-}
-
-
-function attendanceAthleteName(athlete) {
-
-  if (!athlete) {
-    return "بدون نام";
-  }
-
-  return [
-    athlete.first_name,
-    athlete.last_name
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .trim() || "بدون نام";
-
-}
-
-
-// ============================================================
-// NORMALIZE STATUS
-// ============================================================
-
-function normalizeCoachAttendanceStatus(status) {
-
-  const value =
-    String(status || "")
-      .trim()
-      .toLowerCase();
-
-  if (
-    value === "present" ||
-    value === "حاضر" ||
-    value === "حضور" ||
-    value === "p"
-  ) {
-
-    return "present";
-
-  }
-
-  if (
-    value === "late" ||
-    value === "تاخیر" ||
-    value === "تأخیر" ||
-    value === "l"
-  ) {
-
-    return "late";
-
-  }
-
-  if (
-    value === "absent" ||
-    value === "غایب" ||
-    value === "غیبت" ||
-    value === "a"
-  ) {
-
-    return "absent";
-
-  }
-
-  if (
-    value === "excused" ||
-    value === "موجه" ||
-    value === "غیبت موجه" ||
-    value === "e"
-  ) {
-
-    return "excused";
-
-  }
-
-  return "";
-
-}
-
-
-// ============================================================
-// STATUS INFORMATION
-// ============================================================
-
-function getAttendanceStatusInfo(status) {
-
-  const normalized =
-    normalizeCoachAttendanceStatus(status);
-
-  const statuses = {
-
-    present: {
-      text: "حاضر",
-      icon: "🟢"
-    },
-
-    late: {
-      text: "تأخیر",
-      icon: "🟡"
-    },
-
-    absent: {
-      text: "غایب",
-      icon: "🔴"
-    },
-
-    excused: {
-      text: "موجه",
-      icon: "🔵"
-    }
-
-  };
-
-  return (
-    statuses[normalized] || {
-      text: "ثبت نشده",
-      icon: "⚪"
-    }
-  );
-
-}
-
-
-// ============================================================
-// GET SELECTED DATE
-// ============================================================
-
-function getSelectedAttendanceDate() {
-
-  const input =
-    document.getElementById(
-      "attendanceDate"
-    );
-
-  return input?.value || "";
-
-}
-
-
-// ============================================================
-// LOAD ATHLETES
-// ============================================================
-
-async function loadAttendanceAthletes() {
-
-  const supabaseClient =
-    getCoachSupabase();
-
-  if (!supabaseClient) {
-    return;
-  }
-
-  const list =
-    document.getElementById(
-      "attendanceList"
-    );
-
-  if (list) {
-
-    list.innerHTML = `
-
-      <div class="attendance-loading">
-        ⏳ در حال دریافت لیست ورزشکاران...
-      </div>
-
-    `;
-
-  }
-
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("athletes")
-        .select("*")
-        .order(
-          "first_name",
-          {
-            ascending: true
-          }
-        );
-
-    if (error) {
-
-      throw error;
-
-    }
-
-    attendanceAthletes =
-      data || [];
-
-    console.log(
-      "Attendance athletes:",
-      attendanceAthletes
-    );
-
-  } catch (error) {
-
-    console.error(
-      "Load attendance athletes error:",
-      error
-    );
-
-    showAttendanceError(
-      "دریافت لیست ورزشکاران با خطا مواجه شد: " +
-      (error.message || "خطای نامشخص")
-    );
-
-    attendanceAthletes = [];
-
-  }
-
-}
-
-
-// ============================================================
-// LOAD ATTENDANCE FOR DATE
-// ============================================================
-
-async function loadAttendanceForDate(date) {
-
-  const selectedDate =
-    date ||
-    getSelectedAttendanceDate();
-
-  if (!selectedDate) {
-    return;
-  }
-
-  const supabaseClient =
-    getCoachSupabase();
-
-  if (!supabaseClient) {
-    return;
-  }
-
-  clearAttendanceError();
-
-  const list =
-    document.getElementById(
-      "attendanceList"
-    );
-
-  if (list) {
-
-    list.innerHTML = `
-
-      <div class="attendance-loading">
-        ⏳ در حال بارگذاری حضور و غیاب...
-      </div>
-
-    `;
-
-  }
-
-  try {
-
-    // اگر لیست ورزشکاران هنوز دریافت نشده
-    if (!attendanceAthletes.length) {
-
-      await loadAttendanceAthletes();
-
-    }
-
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("attendance")
-        .select("*")
-        .eq(
-          "attendance_date",
-          selectedDate
-        );
-
-    if (error) {
-
-      throw error;
-
-    }
-
-    attendanceRecords =
-      data || [];
-
-    console.log(
-      "Attendance records for",
-      selectedDate,
-      attendanceRecords
-    );
-
-
-    renderAttendanceList();
-
-    updateAttendanceSummary();
-
-    updateAttendanceBottomBar();
-
-  } catch (error) {
-
-    console.error(
-      "Load attendance date error:",
-      error
-    );
-
-    showAttendanceError(
-      "دریافت حضور و غیاب با خطا مواجه شد: " +
-      (error.message || "خطای نامشخص")
-    );
-
-    attendanceRecords = [];
-
-    renderAttendanceList();
-
-    updateAttendanceSummary();
-
-    updateAttendanceBottomBar();
-
-  }
-
-}
-
-
-// ============================================================
-// GET ATHLETE RECORD
-// ============================================================
-
-function getAttendanceRecord(athleteId) {
-
-  return attendanceRecords.find(
-    record =>
-      String(record.athlete_id) ===
-      String(athleteId)
-  );
-
-}
-
-
-// ============================================================
-// RENDER ATTENDANCE LIST
-// ============================================================
-
-function renderAttendanceList() {
-
-  const list =
-    document.getElementById(
-      "attendanceList"
-    );
-
-  if (!list) {
-    return;
-  }
-
-
-  const searchInput =
-    document.getElementById(
-      "attendanceSearch"
-    );
-
-  const filterSelect =
-    document.getElementById(
-      "attendanceFilter"
-    );
-
-
-  const search =
-    String(
-      searchInput?.value || ""
-    )
-      .trim()
-      .toLowerCase();
-
-
-  const filter =
-    filterSelect?.value || "all";
-
-
-  let athletes =
-    [...attendanceAthletes];
-
-
-  // جستجو
-  if (search) {
-
-    athletes =
-      athletes.filter(
-        athlete => {
-
-          const name =
-            attendanceAthleteName(
-              athlete
-            ).toLowerCase();
-
-          const nationalId =
-            String(
-              athlete.national_id || ""
-            ).toLowerCase();
-
-          return (
-            name.includes(search) ||
-            nationalId.includes(search)
-          );
-
-        }
-      );
-
-  }
-
-
-  // فیلتر وضعیت
-  if (filter !== "all") {
-
-    athletes =
-      athletes.filter(
-        athlete => {
-
-          const record =
-            getAttendanceRecord(
-              athlete.id
-            );
-
-          const status =
-            normalizeCoachAttendanceStatus(
-              record?.status
-            );
-
-          return status === filter;
-
-        }
-      );
-
-  }
-
-
-  if (!attendanceAthletes.length) {
-
-    list.innerHTML = `
-
-      <div class="attendance-empty">
-
-        <div class="attendance-empty-icon">
-          👥
-        </div>
-
-        <h3>
-          هنوز ورزشکاری ثبت نشده است
-        </h3>
-
-        <p>
-          ابتدا از بخش ورزشکاران، ورزشکار اضافه کنید.
-        </p>
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  if (!athletes.length) {
-
-    list.innerHTML = `
-
-      <div class="attendance-empty">
-
-        <div class="attendance-empty-icon">
-          🔎
-        </div>
-
-        <h3>
-          ورزشکاری پیدا نشد
-        </h3>
-
-        <p>
-          جستجو یا فیلتر را تغییر دهید.
-        </p>
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  list.innerHTML =
-    athletes
-      .map(
-        athlete => {
-
-          const record =
-            getAttendanceRecord(
-              athlete.id
-            );
-
-
-          const currentStatus =
-            normalizeCoachAttendanceStatus(
-              record?.status
-            );
-
-
-          const photo =
-            athlete.photo_url || "";
-
-
-          const name =
-            attendanceAthleteName(
-              athlete
-            );
-
-
-          return `
-
-            <div
-              class="attendance-row"
-              data-athlete-id="${attendanceEscapeHTML(
-                athlete.id
-              )}"
-            >
-
-              <div class="attendance-athlete">
-
-                <div class="attendance-avatar">
-
-                  ${
-                    photo
-                      ? `
-                        <img
-                          src="${attendanceEscapeHTML(
-                            photo
-                          )}"
-                          alt="${attendanceEscapeHTML(
-                            name
-                          )}"
-                          onerror="
-                            this.style.display='none';
-                            this.parentElement.innerHTML='🥋';
-                          "
-                        >
-                      `
-                      : `
-                        🥋
-                      `
-                  }
-
-                </div>
-
-
-                <div class="attendance-athlete-info">
-
-                  <strong>
-                    ${attendanceEscapeHTML(
-                      name
-                    )}
-                  </strong>
-
-                  <span>
-                    ${
-                      athlete.age_group
-                        ? attendanceEscapeHTML(
-                            athlete.age_group
-                          )
-                        : "رده ثبت نشده"
-                    }
-
-                    ${
-                      athlete.weight !== null &&
-                      athlete.weight !== undefined
-                        ? `
-                          • ${attendanceEscapeHTML(
-                              athlete.weight
-                            )} کیلو
-                        `
-                        : ""
-                    }
-                  </span>
-
-                </div>
-
-              </div>
-
-
-              <div class="attendance-status-group">
-
-                <button
-                  type="button"
-                  class="attendance-status-btn ${
-                    currentStatus === "present"
-                      ? "active"
-                      : ""
-                  }"
-                  data-status="present"
-                  onclick="selectAttendanceStatus(
-                    '${attendanceEscapeHTML(
-                      athlete.id
-                    )}',
-                    'present'
-                  )"
-                >
-                  🟢 حاضر
-                </button>
-
-
-                <button
-                  type="button"
-                  class="attendance-status-btn ${
-                    currentStatus === "late"
-                      ? "active"
-                      : ""
-                  }"
-                  data-status="late"
-                  onclick="selectAttendanceStatus(
-                    '${attendanceEscapeHTML(
-                      athlete.id
-                    )}',
-                    'late'
-                  )"
-                >
-                  🟡 تأخیر
-                </button>
-
-
-                <button
-                  type="button"
-                  class="attendance-status-btn ${
-                    currentStatus === "absent"
-                      ? "active"
-                      : ""
-                  }"
-                  data-status="absent"
-                  onclick="selectAttendanceStatus(
-                    '${attendanceEscapeHTML(
-                      athlete.id
-                    )}',
-                    'absent'
-                  )"
-                >
-                  🔴 غایب
-                </button>
-
-
-                <button
-                  type="button"
-                  class="attendance-status-btn ${
-                    currentStatus === "excused"
-                      ? "active"
-                      : ""
-                  }"
-                  data-status="excused"
-                  onclick="selectAttendanceStatus(
-                    '${attendanceEscapeHTML(
-                      athlete.id
-                    )}',
-                    'excused'
-                  )"
-                >
-                  🔵 موجه
-                </button>
-
-              </div>
-
-
-              <textarea
-                class="attendance-note"
-                data-athlete-note="${attendanceEscapeHTML(
-                  athlete.id
-                )}"
-                placeholder="توضیحات..."
-                oninput="updateAttendanceNote(
-                  '${attendanceEscapeHTML(
-                    athlete.id
-                  )}',
-                  this.value
-                )"
-              >${attendanceEscapeHTML(
-                record?.notes || ""
-              )}</textarea>
-
-            </div>
-
-          `;
-
-        }
-      )
-      .join("");
-
-}
-
-
-// ============================================================
-// SELECT STATUS
-// ============================================================
-
-function selectAttendanceStatus(
-  athleteId,
-  status
-) {
-
-  const normalizedStatus =
-    normalizeCoachAttendanceStatus(
-      status
-    );
-
-  if (!normalizedStatus) {
-    return;
-  }
-
-
-  let record =
-    getAttendanceRecord(
-      athleteId
-    );
-
-
-  if (!record) {
-
-    record = {
-
-      athlete_id:
-        athleteId,
-
-      attendance_date:
-        getSelectedAttendanceDate(),
-
-      status:
-        normalizedStatus,
-
-      notes:
-        ""
-
-    };
-
-    attendanceRecords.push(
-      record
-    );
-
-  } else {
-
-    record.status =
-      normalizedStatus;
-
-  }
-
-
-  renderAttendanceList();
-
-  updateAttendanceSummary();
-
-  updateAttendanceBottomBar();
-
-}
-
-
-// ============================================================
-// UPDATE NOTE
-// ============================================================
-
-function updateAttendanceNote(
-  athleteId,
-  note
-) {
-
-  let record =
-    getAttendanceRecord(
-      athleteId
-    );
-
-
-  if (!record) {
-
-    record = {
-
-      athlete_id:
-        athleteId,
-
-      attendance_date:
-        getSelectedAttendanceDate(),
-
-      status:
-        "",
-
-      notes:
-        note || ""
-
-    };
-
-    attendanceRecords.push(
-      record
-    );
-
-  } else {
-
-    record.notes =
-      note || "";
-
-  }
-
-
-  updateAttendanceBottomBar();
-
-}
-
-
-// ============================================================
-// UPDATE SUMMARY
-// ============================================================
-
-function updateAttendanceSummary() {
-
-  const totalElement =
-    document.getElementById(
-      "attendanceTotalAthletes"
-    );
-
-  const presentElement =
-    document.getElementById(
-      "attendancePresentCount"
-    );
-
-  const lateElement =
-    document.getElementById(
-      "attendanceLateCount"
-    );
-
-  const absentElement =
-    document.getElementById(
-      "attendanceAbsentCount"
-    );
-
-
-  const total =
-    attendanceAthletes.length;
-
-
-  const present =
-    attendanceRecords.filter(
-      record =>
-        normalizeCoachAttendanceStatus(
-          record.status
-        ) === "present"
-    ).length;
-
-
-  const late =
-    attendanceRecords.filter(
-      record =>
-        normalizeCoachAttendanceStatus(
-          record.status
-        ) === "late"
-    ).length;
-
-
-  const absent =
-    attendanceRecords.filter(
-      record =>
-        normalizeCoachAttendanceStatus(
-          record.status
-        ) === "absent"
-    ).length;
-
-
-  if (totalElement) {
-
-    totalElement.textContent =
-      attendancePersianNumber(
-        total
-      );
-
-  }
-
-
-  if (presentElement) {
-
-    presentElement.textContent =
-      attendancePersianNumber(
-        present
-      );
-
-  }
-
-
-  if (lateElement) {
-
-    lateElement.textContent =
-      attendancePersianNumber(
-        late
-      );
-
-  }
-
-
-  if (absentElement) {
-
-    absentElement.textContent =
-      attendancePersianNumber(
-        absent
-      );
-
-  }
-
-}
-
-
-// ============================================================
-// UPDATE BOTTOM BAR
-// ============================================================
-
-function updateAttendanceBottomBar() {
-
-  const dateText =
-    document.getElementById(
-      "attendanceSelectedDateText"
-    );
-
-
-  const selectedCount =
-    document.getElementById(
-      "attendanceSelectedCount"
-    );
-
-
-  const date =
-    getSelectedAttendanceDate();
-
-
-  const count =
-    attendanceRecords.filter(
-      record =>
-        normalizeCoachAttendanceStatus(
-          record.status
-        )
-    ).length;
-
-
-  if (dateText) {
-
-    dateText.textContent =
-      date || "—";
-
-  }
-
-
-  if (selectedCount) {
-
-    selectedCount.textContent =
-      attendancePersianNumber(
-        count
-      );
-
-  }
-
-}
-
-
-// ============================================================
-// SAVE ATTENDANCE
-// ============================================================
-
-async function saveAttendance() {
-
-  const selectedDate =
-    getSelectedAttendanceDate();
-
-
-  if (!selectedDate) {
-
-    alert(
-      "لطفاً ابتدا تاریخ جلسه را انتخاب کنید."
-    );
-
-    return;
-
-  }
-
-
-  const supabaseClient =
-    getCoachSupabase();
-
-
-  if (!supabaseClient) {
-
-    alert(
-      "اتصال به Supabase برقرار نیست."
-    );
-
-    return;
-
-  }
-
-
-  const recordsToSave =
-    attendanceRecords.filter(
-      record =>
-        normalizeCoachAttendanceStatus(
-          record.status
-        )
-    );
-
-
-  if (!recordsToSave.length) {
-
-    alert(
-      "حداقل وضعیت یک ورزشکار را انتخاب کنید."
-    );
-
-    return;
-
-  }
-
-
-  const button =
-    document.getElementById(
-      "saveAttendanceBtn"
-    );
-
-
-  const originalText =
-    button?.textContent;
-
-
-  if (button) {
-
-    button.disabled = true;
-
-    button.textContent =
-      "⏳ در حال ذخیره...";
-
-  }
-
-
-  try {
-
-    const rows =
-      recordsToSave.map(
-        record => ({
-
-          athlete_id:
-            record.athlete_id,
-
-          attendance_date:
-            selectedDate,
-
-          status:
-            normalizeCoachAttendanceStatus(
-              record.status
-            ),
-
-          notes:
-            record.notes || null
-
-        })
-      );
-
-
-    /*
-     * چون ممکن است رکورد همان ورزشکار
-     * برای همان تاریخ از قبل وجود داشته باشد،
-     * ابتدا رکوردهای همان تاریخ را حذف می‌کنیم
-     * و سپس وضعیت‌های انتخاب‌شده را ثبت می‌کنیم.
-     *
-     * این روش با ساختار فعلی جدول attendance
-     * که شامل id / athlete_id / attendance_date /
-     * status / notes است سازگار است.
-     */
-
-    const {
-      error: deleteError
-    } =
-      await supabaseClient
-        .from("attendance")
-        .delete()
-        .eq(
-          "attendance_date",
-          selectedDate
-        );
-
-
-    if (deleteError) {
-
-      throw deleteError;
-
-    }
-
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("attendance")
-        .insert(
-          rows
-        )
-        .select();
-
-
-    if (error) {
-
-      throw error;
-
-    }
-
-
-    attendanceRecords =
-      data || rows;
-
-
-    updateAttendanceSummary();
-
-    updateAttendanceBottomBar();
-
-    renderAttendanceList();
-
-
-    alert(
-      `حضور و غیاب ${selectedDate} با موفقیت ذخیره شد.`
-    );
-
-
-    console.log(
-      "Attendance saved:",
-      attendanceRecords
-    );
-
-  } catch (error) {
-
-    console.error(
-      "Save attendance error:",
-      error
-    );
-
-    showAttendanceError(
-      "ذخیره حضور و غیاب انجام نشد: " +
-      (error.message || "خطای نامشخص")
-    );
-
-    alert(
-      "ذخیره حضور و غیاب انجام نشد.\n\n" +
-      (
-        error.message ||
-        "خطای نامشخص"
-      )
-    );
-
-  } finally {
-
-    if (button) {
-
-      button.disabled = false;
-
-      button.textContent =
-        originalText ||
-        "💾 ذخیره حضور و غیاب";
-
-    }
-
-  }
-
-}
-
-
-// ============================================================
-// ERROR
-// ============================================================
-
-function showAttendanceError(
-  message
-) {
-
-  const box =
-    document.getElementById(
-      "attendanceError"
-    );
-
-  if (!box) {
-    return;
-  }
-
-  box.textContent =
-    message;
-
-  box.style.display =
-    "block";
-
-}
-
-
-function clearAttendanceError() {
-
-  const box =
-    document.getElementById(
-      "attendanceError"
-    );
-
-  if (!box) {
-    return;
-  }
-
-  box.textContent =
-    "";
-
-  box.style.display =
-    "none";
-
-}
-
-
-// ============================================================
-// INITIALIZE ATTENDANCE PAGE
-// ============================================================
-
-let attendancePageInitialized =
-  false;
-
-
-async function initializeAttendancePage() {
-
-  console.log(
-    "🟢 Initializing attendance page..."
-  );
-
-
-  const dateInput =
-    document.getElementById(
-      "attendanceDate"
-    );
-
-
-  if (!dateInput) {
-
-    console.error(
-      "attendanceDate پیدا نشد."
-    );
-
-    return;
-
-  }
-
-
-  // تاریخ امروز
-  if (!dateInput.value) {
-
-    const now =
-      new Date();
-
-    const year =
-      now.getFullYear();
-
-    const month =
-      String(
-        now.getMonth() + 1
-      ).padStart(2, "0");
-
-    const day =
-      String(
-        now.getDate()
-      ).padStart(2, "0");
-
-    dateInput.value =
-      `${year}-${month}-${day}`;
-
-  }
-
-
-  clearAttendanceError();
-
-
-  /*
-   * هر بار ورود به صفحه:
-   * 1. ورزشکاران را می‌گیریم
-   * 2. رکورد تاریخ انتخاب‌شده را می‌گیریم
-   * 3. لیست را نمایش می‌دهیم
-   */
-
-  await loadAttendanceAthletes();
-
-  await loadAttendanceForDate(
-    dateInput.value
-  );
-
-
-  attendancePageInitialized =
-    true;
-
-
-  console.log(
-    "✅ Attendance page ready."
-  );
-
-}
-
-
-// ============================================================
-// GLOBAL FUNCTIONS
-// ============================================================
-
-window.initializeAttendancePage =
-  initializeAttendancePage;
-
-window.loadAttendanceForDate =
-  loadAttendanceForDate;
-
-window.renderAttendanceList =
-  renderAttendanceList;
-
-window.selectAttendanceStatus =
-  selectAttendanceStatus;
-
-window.updateAttendanceNote =
-  updateAttendanceNote;
-
-window.saveAttendance =
-  saveAttendance;
-
-window.loadAttendanceAthletes =
-  loadAttendanceAthletes;
+      }
