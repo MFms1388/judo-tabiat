@@ -1121,3 +1121,43 @@ function renderEvaluations() {
   document.head.appendChild(style);
 
 })();
+// ======================================
+// CONNECT EVALUATION HISTORY
+// ======================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  loadEvaluations();
+
+  if (
+    typeof renderEvaluations === "function"
+  ) {
+    renderEvaluations();
+  }
+
+});
+
+
+// ======================================
+// REFRESH AFTER NEW EVALUATION
+// ======================================
+
+function refreshEvaluationHistory() {
+
+  loadEvaluations();
+
+  if (
+    typeof renderEvaluations === "function"
+  ) {
+    renderEvaluations();
+  }
+
+}
+
+
+// ======================================
+// AUTO REFRESH
+// ======================================
+
+window.refreshEvaluationHistory =
+  refreshEvaluationHistory;
