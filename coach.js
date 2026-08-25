@@ -1353,3 +1353,562 @@ document.addEventListener(
 
   }
 );
+// ======================================
+// SELECT ATHLETE + PERIOD MODAL
+// ======================================
+
+function openEvaluationSelector() {
+
+  // حذف پنجره قبلی
+  const oldModal =
+    document.getElementById(
+      "evaluationSelectorModal"
+    );
+
+  if (oldModal) {
+    oldModal.remove();
+  }
+
+  // بررسی ورزشکارها
+  if (
+    typeof athletes === "undefined" ||
+    !Array.isArray(athletes) ||
+    athletes.length === 0
+  ) {
+
+    alert(
+      "ابتدا حداقل یک ورزشکار اضافه کنید."
+    );
+
+    return;
+  }
+
+  // بررسی دوره‌ها
+  if (
+    typeof evaluationPeriods === "undefined" ||
+    !Array.isArray(evaluationPeriods) ||
+    evaluationPeriods.length === 0
+  ) {
+
+    alert(
+      "ابتدا حداقل یک دوره ارزیابی ایجاد کنید."
+    );
+
+    return;
+  }
+
+  // ======================================
+  // CSS
+  // ======================================
+
+  const style =
+    document.createElement("style");
+
+  style.id =
+    "evaluation-selector-style";
+
+  const oldStyle =
+    document.getElementById(
+      "evaluation-selector-style"
+    );
+
+  if (oldStyle) {
+    oldStyle.remove();
+  }
+
+  style.textContent = `
+
+    #evaluationSelectorModal {
+
+      position: fixed;
+      inset: 0;
+
+      z-index: 99998;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      padding: 15px;
+
+      background:
+        rgba(0,0,0,.60);
+
+      box-sizing: border-box;
+    }
+
+    .evaluation-selector-card {
+
+      width: min(
+        500px,
+        100%
+      );
+
+      background: #ffffff;
+
+      border-radius: 20px;
+
+      padding: 24px;
+
+      box-sizing: border-box;
+
+      box-shadow:
+        0 20px 60px
+        rgba(0,0,0,.30);
+
+      position: relative;
+    }
+
+    .evaluation-selector-card h2 {
+
+      margin:
+        0 0 6px 0;
+
+      color: #111111;
+
+      font-size: 23px;
+
+      font-weight: 900;
+    }
+
+    .evaluation-selector-card
+    .selector-subtitle {
+
+      margin:
+        0 0 22px 0;
+
+      color: #666666;
+
+      font-size: 13px;
+
+      line-height: 1.7;
+    }
+
+    .selector-label {
+
+      display: block;
+
+      margin-top: 15px;
+
+      margin-bottom: 7px;
+
+      color: #111111;
+
+      font-size: 14px;
+
+      font-weight: 800;
+    }
+
+    .selector-select {
+
+      width: 100%;
+
+      min-height: 50px;
+
+      padding:
+        0 13px;
+
+      border:
+        1px solid #d4ddd8;
+
+      border-radius: 12px;
+
+      background: #ffffff;
+
+      color: #111111;
+
+      font-family: inherit;
+
+      font-size: 15px;
+
+      outline: none;
+    }
+
+    .selector-select:focus {
+
+      border-color:
+        #16834b;
+
+      box-shadow:
+        0 0 0 3px
+        rgba(22,131,75,.10);
+    }
+
+    #startEvaluationBtn {
+
+      width: 100%;
+
+      min-height: 52px;
+
+      margin-top: 22px;
+
+      border: none;
+
+      border-radius: 12px;
+
+      background: #16834b;
+
+      color: #ffffff;
+
+      font-family: inherit;
+
+      font-size: 16px;
+
+      font-weight: 800;
+
+      cursor: pointer;
+    }
+
+    #closeEvaluationSelector {
+
+      position: absolute;
+
+      top: 12px;
+
+      left: 12px;
+
+      width: 36px;
+
+      height: 36px;
+
+      border: none;
+
+      border-radius: 50%;
+
+      background: #eeeeee;
+
+      color: #222222;
+
+      font-size: 24px;
+
+      line-height: 1;
+
+      cursor: pointer;
+    }
+
+  `;
+
+  document.head.appendChild(style);
+
+  // ======================================
+  // لیست ورزشکارها
+  // ======================================
+
+  const athleteOptions =
+    athletes
+      .map(athlete => {
+
+        const name = [
+          athlete.first_name,
+          athlete.last_name
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        return `
+          <option
+            value="${escapeHTML(
+              athlete.id
+            )}"
+          >
+            ${escapeHTML(
+              name || "بدون نام"
+            )}
+          </option>
+        `;
+
+      })
+      .join("");
+
+  // ======================================
+  // لیست دوره‌ها
+  // ======================================
+
+  const periodOptions =
+    evaluationPeriods
+      .map(period => {
+
+        return `
+          <option
+            value="${escapeHTML(
+              period.id
+            )}"
+          >
+            ${escapeHTML(
+              period.title ||
+              "دوره بدون عنوان"
+            )}
+          </option>
+        `;
+
+      })
+      .join("");
+
+  // ======================================
+  // ساخت Modal
+  // ======================================
+
+  const modal =
+    document.createElement("div");
+
+  modal.id =
+    "evaluationSelectorModal";
+
+  modal.innerHTML = `
+
+    <div
+      class="evaluation-selector-card"
+    >
+
+      <button
+        type="button"
+        id="closeEvaluationSelector"
+      >
+        ×
+      </button>
+
+      <h2>
+        ارزیابی جدید
+      </h2>
+
+      <p
+        class="selector-subtitle"
+      >
+        ورزشکار و دوره موردنظر را انتخاب کنید
+        تا فرم ارزیابی باز شود.
+      </p>
+
+      <label
+        class="selector-label"
+        for="evaluationAthleteSelect"
+      >
+        ورزشکار
+      </label>
+
+      <select
+        id="evaluationAthleteSelect"
+        class="selector-select"
+      >
+
+        <option value="">
+          انتخاب ورزشکار
+        </option>
+
+        ${athleteOptions}
+
+      </select>
+
+      <label
+        class="selector-label"
+        for="evaluationPeriodSelect"
+      >
+        دوره ارزیابی
+      </label>
+
+      <select
+        id="evaluationPeriodSelect"
+        class="selector-select"
+      >
+
+        <option value="">
+          انتخاب دوره
+        </option>
+
+        ${periodOptions}
+
+      </select>
+
+      <button
+        type="button"
+        id="startEvaluationBtn"
+      >
+        شروع ارزیابی
+      </button>
+
+    </div>
+
+  `;
+
+  document.body.appendChild(modal);
+
+  // ======================================
+  // بستن
+  // ======================================
+
+  const closeBtn =
+    modal.querySelector(
+      "#closeEvaluationSelector"
+    );
+
+  closeBtn.addEventListener(
+    "click",
+    () => {
+
+      modal.remove();
+
+    }
+  );
+
+  // بستن با کلیک بیرون
+  modal.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target === modal
+      ) {
+
+        modal.remove();
+
+      }
+
+    }
+  );
+
+  // ======================================
+  // شروع ارزیابی
+  // ======================================
+
+  const startBtn =
+    modal.querySelector(
+      "#startEvaluationBtn"
+    );
+
+  startBtn.addEventListener(
+    "click",
+    () => {
+
+      const athleteId =
+        modal.querySelector(
+          "#evaluationAthleteSelect"
+        ).value;
+
+      const periodId =
+        modal.querySelector(
+          "#evaluationPeriodSelect"
+        ).value;
+
+      if (!athleteId) {
+
+        alert(
+          "لطفاً ورزشکار را انتخاب کنید."
+        );
+
+        return;
+      }
+
+      if (!periodId) {
+
+        alert(
+          "لطفاً دوره ارزیابی را انتخاب کنید."
+        );
+
+        return;
+      }
+
+      // بستن انتخاب‌گر
+      modal.remove();
+
+      // باز کردن فرم اصلی ارزیابی
+      createEvaluationModal(
+        athleteId,
+        periodId
+      );
+
+    }
+  );
+}
+
+
+// ======================================
+// تغییر دکمه شناور قبلی
+// ======================================
+
+function replaceFloatingEvaluationButton() {
+
+  const old =
+    document.getElementById(
+      "floatingEvaluationBtn"
+    );
+
+  if (old) {
+    old.remove();
+  }
+
+  const button =
+    document.createElement("button");
+
+  button.id =
+    "floatingEvaluationBtn";
+
+  button.type =
+    "button";
+
+  button.textContent =
+    "＋ ارزیابی جدید";
+
+  button.style.cssText = `
+
+    position: fixed;
+
+    bottom: 22px;
+
+    right: 20px;
+
+    z-index: 9990;
+
+    min-height: 52px;
+
+    padding:
+      0 20px;
+
+    border: none;
+
+    border-radius: 15px;
+
+    background: #16834b;
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    box-shadow:
+      0 8px 25px
+      rgba(0,0,0,.20);
+
+    cursor: pointer;
+
+  `;
+
+  button.addEventListener(
+    "click",
+    () => {
+
+      openEvaluationSelector();
+
+    }
+  );
+
+  document.body.appendChild(
+    button
+  );
+}
+
+
+// ======================================
+// اجرا
+// ======================================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    replaceFloatingEvaluationButton();
+
+  }
+);
