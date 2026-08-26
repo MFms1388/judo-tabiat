@@ -1,7 +1,7 @@
 // ============================================================
 // طبیعت جودو | COACH.JS
 // پنل مدیریت مربی
-// نسخه هماهنگ با ساختار فعلی Supabase
+// نسخه اصلاح‌شده و هماهنگ با Supabase
 // ============================================================
 
 
@@ -87,6 +87,23 @@ function athleteName(athlete) {
     .filter(Boolean)
     .join(" ")
     .trim() || "بدون نام";
+}
+
+
+// ============================================================
+// NORMALIZE TEXT
+// ============================================================
+
+function normalizeCoachText(value) {
+
+  return String(value || "")
+    .trim()
+    .replace(/ي/g, "ی")
+    .replace(/ى/g, "ی")
+    .replace(/ك/g, "ک")
+    .replace(/\u200c/g, "")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
 }
 
 
@@ -235,6 +252,20 @@ async function loadCoachAthletes() {
 
   try {
 
+    if (!supabaseClient) {
+
+      throw new Error(
+        "Supabase Client ساخته نشده است."
+      );
+
+    }
+
+
+    console.log(
+      "🔄 در حال دریافت ورزشکاران از جدول athletes..."
+    );
+
+
     const {
       data,
       error
@@ -256,13 +287,62 @@ async function loadCoachAthletes() {
 
 
     coachAthletes =
-      data || [];
+      Array.isArray(data)
+        ? data
+        : [];
 
 
     console.log(
-      "🥋 Coach athletes:",
-      coachAthletes
+      "🥋 تعداد ورزشکاران دریافت‌شده:",
+      coachAthletes.length
     );
+
+
+    /*
+     * بررسی مستقیم محمد احمدی
+     */
+
+    const mohammadAhmadi =
+      coachAthletes.find(
+        athlete => {
+
+          const firstName =
+            normalizeCoachText(
+              athlete.first_name
+            );
+
+          const lastName =
+            normalizeCoachText(
+              athlete.last_name
+            );
+
+          return (
+            firstName === "محمد" &&
+            lastName === "احمدی"
+          );
+
+        }
+      );
+
+
+    if (mohammadAhmadi) {
+
+      console.log(
+        "✅ محمد احمدی در لیست دریافت شد:",
+        mohammadAhmadi
+      );
+
+    } else {
+
+      console.warn(
+        "⚠️ محمد احمدی از Supabase دریافت نشد."
+      );
+
+      console.warn(
+        "اگر در Table Editor وجود دارد، RLS جدول athletes را بررسی کنید."
+      );
+
+    }
 
 
     updateDashboardAthleteCount();
@@ -284,6 +364,13 @@ async function loadCoachAthletes() {
 
 
     coachAthletes = [];
+
+    updateDashboardAthleteCount();
+
+    populateAthleteSelect();
+
+    populateAgeGroupFilter();
+
 
     return [];
 
@@ -332,6 +419,10 @@ function populateAgeGroupFilter() {
   }
 
 
+  const currentValue =
+    select.value || "all";
+
+
   const groups =
     [
       ...new Set(
@@ -342,7 +433,14 @@ function populateAgeGroupFilter() {
           )
           .filter(Boolean)
       )
-    ];
+    ]
+      .sort(
+        (a, b) =>
+          String(a).localeCompare(
+            String(b),
+            "fa"
+          )
+      );
 
 
   select.innerHTML = `
@@ -372,6 +470,22 @@ function populateAgeGroupFilter() {
 
     }
   );
+
+
+  if (
+    currentValue !== "all" &&
+    groups.includes(currentValue)
+  ) {
+
+    select.value =
+      currentValue;
+
+  } else {
+
+    select.value =
+      "all";
+
+  }
 }
 
 
@@ -393,13 +507,11 @@ function renderAthletes() {
 
 
   const search =
-    (
+    normalizeCoachText(
       document.getElementById(
         "coachSearch"
       )?.value || ""
-    )
-      .trim()
-      .toLowerCase();
+    );
 
 
   const filter =
@@ -413,15 +525,17 @@ function renderAthletes() {
       athlete => {
 
         const name =
-          athleteName(
-            athlete
-          ).toLowerCase();
+          normalizeCoachText(
+            athleteName(
+              athlete
+            )
+          );
 
 
         const nationalId =
-          String(
+          normalizeCoachText(
             athlete.national_id || ""
-          ).toLowerCase();
+          );
 
 
         const matchesSearch =
@@ -489,7 +603,12 @@ function renderAthletes() {
 
           return `
 
-            <div class="athlete-card">
+            <div
+              class="athlete-card"
+              data-athlete-id="${coachEscapeHTML(
+                athlete.id
+              )}"
+            >
 
               <div class="athlete-card-photo">
 
@@ -685,11 +804,6 @@ async function initializeAttendancePage() {
   }
 
 
-  /*
-   * اگر تاریخ قبلاً انتخاب نشده،
-   * امروز را قرار می‌دهیم.
-   */
-
   if (!dateInput.value) {
 
     dateInput.value =
@@ -810,18 +924,6 @@ async function loadAttendanceForDate(date) {
 
     }
 
-
-    /*
-     * ساختار فعلی جدول attendance:
-     *
-     * id
-     * athlete_id
-     * attendance_date
-     * status
-     * notes
-     *
-     * پس اینجا period_id نداریم.
-     */
 
     const {
       data,
@@ -997,13 +1099,11 @@ function renderAttendanceList() {
 
 
   const search =
-    (
+    normalizeCoachText(
       document.getElementById(
         "attendanceSearch"
       )?.value || ""
-    )
-      .trim()
-      .toLowerCase();
+    );
 
 
   const filter =
@@ -1017,15 +1117,17 @@ function renderAttendanceList() {
       athlete => {
 
         const name =
-          athleteName(
-            athlete
-          ).toLowerCase();
+          normalizeCoachText(
+            athleteName(
+              athlete
+            )
+          );
 
 
         const nationalId =
-          String(
+          normalizeCoachText(
             athlete.national_id || ""
-          ).toLowerCase();
+          );
 
 
         const record =
@@ -1245,10 +1347,6 @@ function renderAttendanceList() {
       .join("");
 
 
-  /*
-   * وضعیت حضور و غیاب
-   */
-
   list
     .querySelectorAll(
       ".attendance-status-btn"
@@ -1341,10 +1439,6 @@ function renderAttendanceList() {
       }
     );
 
-
-  /*
-   * توضیحات
-   */
 
   list
     .querySelectorAll(
@@ -1638,58 +1732,35 @@ async function saveAttendance() {
 
   try {
 
-    /*
-     * ساختار rows دقیقاً مطابق جدول فعلی attendance است.
-     *
-     * id
-     * athlete_id
-     * attendance_date
-     * status
-     * notes
-     */
-
-    const rows =
-      selected.map(
-        athlete => {
-
-          const record =
-            getAthleteAttendance(
-              athlete.id
-            );
-
-
-          return {
-
-            athlete_id:
-              athlete.id,
-
-            attendance_date:
-              attendanceDateValue,
-
-            status:
-              normalizeCoachAttendanceStatus(
-                record.status
-              ),
-
-            notes:
-              record.notes || null
-
-          };
-
-        }
-      );
-
-
-    /*
-     * ابتدا بررسی می‌کنیم رکورد برای این
-     * ورزشکار و تاریخ وجود دارد یا نه.
-     *
-     * این روش به UNIQUE constraint نیاز ندارد.
-     */
-
     for (
-      const row of rows
+      const athlete
+      of selected
     ) {
+
+      const record =
+        getAthleteAttendance(
+          athlete.id
+        );
+
+
+      const row = {
+
+        athlete_id:
+          athlete.id,
+
+        attendance_date:
+          attendanceDateValue,
+
+        status:
+          normalizeCoachAttendanceStatus(
+            record.status
+          ),
+
+        notes:
+          record.notes || null
+
+      };
+
 
       const {
         data: existing,
@@ -1706,7 +1777,7 @@ async function saveAttendance() {
             "attendance_date",
             row.attendance_date
           )
-          .maybeSingle();
+          .limit(1);
 
 
       if (findError) {
@@ -1714,11 +1785,11 @@ async function saveAttendance() {
       }
 
 
-      /*
-       * اگر رکورد وجود داشت UPDATE
-       */
+      const existingRecord =
+        existing?.[0];
 
-      if (existing?.id) {
+
+      if (existingRecord?.id) {
 
         const {
           data,
@@ -1737,7 +1808,7 @@ async function saveAttendance() {
             })
             .eq(
               "id",
-              existing.id
+              existingRecord.id
             )
             .select("*")
             .single();
@@ -1773,14 +1844,7 @@ async function saveAttendance() {
 
         };
 
-      }
-
-
-      /*
-       * اگر وجود نداشت INSERT
-       */
-
-      else {
+      } else {
 
         const {
           data,
@@ -1788,21 +1852,9 @@ async function saveAttendance() {
         } =
           await supabaseClient
             .from("attendance")
-            .insert({
-
-              athlete_id:
-                row.athlete_id,
-
-              attendance_date:
-                row.attendance_date,
-
-              status:
-                row.status,
-
-              notes:
-                row.notes
-
-            })
+            .insert(
+              row
+            )
             .select("*")
             .single();
 
@@ -1844,12 +1896,6 @@ async function saveAttendance() {
 
     alert(
       "✅ حضور و غیاب با موفقیت ذخیره شد."
-    );
-
-
-    console.log(
-      "✅ Attendance saved:",
-      rows
     );
 
 
@@ -2365,6 +2411,52 @@ async function saveAthlete() {
 
   try {
 
+    /*
+     * جلوگیری از ثبت دوباره ورزشکار
+     * بر اساس کد ملی
+     */
+
+    if (nationalId) {
+
+      const {
+        data: existingAthletes,
+        error: checkError
+      } =
+        await supabaseClient
+          .from("athletes")
+          .select("id, first_name, last_name, national_id")
+          .eq(
+            "national_id",
+            nationalId
+          )
+          .limit(1);
+
+
+      if (checkError) {
+        throw checkError;
+      }
+
+
+      if (
+        existingAthletes &&
+        existingAthletes.length
+      ) {
+
+        const existing =
+          existingAthletes[0];
+
+
+        alert(
+          "⚠️ این ورزشکار قبلاً ثبت شده است.\n\n" +
+          athleteName(existing)
+        );
+
+        return;
+      }
+
+    }
+
+
     const {
       data,
       error
@@ -2731,10 +2823,15 @@ async function initializeCoach() {
     await loadCoachAthletes();
 
 
-    await loadDashboardStats();
-
+    /*
+     * بعد از دریافت اطلاعات،
+     * حتماً لیست را رندر می‌کنیم.
+     */
 
     renderAthletes();
+
+
+    await loadDashboardStats();
 
 
     initializeCoachButtons();
