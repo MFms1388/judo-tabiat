@@ -1,6 +1,7 @@
 /* =========================================================
    JUDO TABIAT - COACH PANEL
    coach.js
+   نسخه اصلاح شده
 ========================================================= */
 
 (() => {
@@ -14,29 +15,8 @@
   const SUPABASE_URL =
     "https://bkkdgywdptufjsaepehc.supabase.co";
 
-  /*
-   * کلید anon پروژه‌ات را اگر در app.js ساخته‌ای،
-   * از همان استفاده می‌کنیم.
-   */
-
   let supabaseClient =
     window.supabaseClient || null;
-
-
-  if (!supabaseClient && window.supabase) {
-
-    /*
-     * اگر در app.js کلاینت ساخته نشده باشد،
-     * اینجا باید anon key پروژه قرار بگیرد.
-     *
-     * اگر app.js کلاینت را می‌سازد، این قسمت اجرا نمی‌شود.
-     */
-
-    console.warn(
-      "supabaseClient در app.js پیدا نشد."
-    );
-
-  }
 
 
   /* =======================================================
@@ -79,6 +59,7 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+
   }
 
 
@@ -105,15 +86,16 @@
       "";
 
     return `${first} ${last}`.trim() || "بدون نام";
+
   }
 
 
   function getAthleteId(athlete) {
 
     return (
-      athlete.id ||
-      athlete.athlete_id ||
-      athlete.uuid ||
+      athlete?.id ||
+      athlete?.athlete_id ||
+      athlete?.uuid ||
       null
     );
 
@@ -140,6 +122,18 @@
   }
 
 
+  function toPersianNumber(value) {
+
+    return String(value)
+      .replace(
+        /\d/g,
+        digit =>
+          "۰۱۲۳۴۵۶۷۸۹"[digit]
+      );
+
+  }
+
+
   /* =======================================================
      SUPABASE CHECK
   ======================================================= */
@@ -150,6 +144,10 @@
 
       console.error(
         "supabaseClient وجود ندارد."
+      );
+
+      showMessage(
+        "اتصال به Supabase برقرار نیست."
       );
 
       return false;
@@ -166,6 +164,7 @@
 
   /* =======================================================
      LOAD ATHLETES
+     جدول واقعی پروژه: athletes
   ======================================================= */
 
   async function loadAthletes() {
@@ -181,7 +180,7 @@
         error
       } =
         await supabaseClient
-          .from("Athletes")
+          .from("athletes")
           .select("*")
           .order(
             "created_at",
@@ -192,40 +191,22 @@
 
 
       if (error) {
-
-        /*
-         * بعضی پروژه‌ها نام جدول را lowercase دارند.
-         */
-
-        const fallback =
-          await supabaseClient
-            .from("athletes")
-            .select("*")
-            .order(
-              "created_at",
-              {
-                ascending: false
-              }
-            );
-
-        if (!fallback.error) {
-
-          athletes =
-            fallback.data || [];
-
-          return athletes;
-
-        }
-
         throw error;
-
       }
 
 
       athletes =
         data || [];
 
+
+      console.log(
+        "Athletes loaded:",
+        athletes
+      );
+
+
       return athletes;
+
 
     } catch (error) {
 
@@ -234,10 +215,14 @@
         error
       );
 
+      athletes = [];
+
+
       showMessage(
         "خطا در دریافت ورزشکاران:\n" +
         (error.message || error)
       );
+
 
       return [];
 
@@ -262,9 +247,19 @@
 
     grid.innerHTML = `
       <div class="evaluation-empty">
-        <div class="evaluation-empty-icon">⏳</div>
-        <h2>در حال بارگذاری...</h2>
-        <p>لطفاً کمی صبر کنید.</p>
+
+        <div class="evaluation-empty-icon">
+          ⏳
+        </div>
+
+        <h2>
+          در حال بارگذاری...
+        </h2>
+
+        <p>
+          لطفاً کمی صبر کنید.
+        </p>
+
       </div>
     `;
 
@@ -285,11 +280,19 @@
 
       grid.innerHTML = `
         <div class="evaluation-empty">
-          <div class="evaluation-empty-icon">👥</div>
-          <h2>هنوز ورزشکاری ثبت نشده است</h2>
+
+          <div class="evaluation-empty-icon">
+            👥
+          </div>
+
+          <h2>
+            هنوز ورزشکاری ثبت نشده است
+          </h2>
+
           <p>
             برای شروع روی «افزودن ورزشکار» بزنید.
           </p>
+
         </div>
       `;
 
@@ -302,6 +305,10 @@
 
   }
 
+
+  /* =======================================================
+     RENDER ATHLETE GRID
+  ======================================================= */
 
   function renderAthleteGrid() {
 
@@ -341,6 +348,7 @@
               getAthleteName(athlete)
                 .toLowerCase();
 
+
             const nationalId =
               String(
                 athlete.national_id ||
@@ -348,6 +356,7 @@
                 ""
               )
                 .toLowerCase();
+
 
             return (
               name.includes(search) ||
@@ -385,9 +394,19 @@
 
       grid.innerHTML = `
         <div class="evaluation-empty">
-          <div class="evaluation-empty-icon">🔎</div>
-          <h2>ورزشکاری پیدا نشد</h2>
-          <p>عبارت جستجو یا فیلتر را تغییر دهید.</p>
+
+          <div class="evaluation-empty-icon">
+            🔎
+          </div>
+
+          <h2>
+            ورزشکاری پیدا نشد
+          </h2>
+
+          <p>
+            عبارت جستجو یا فیلتر را تغییر دهید.
+          </p>
+
         </div>
       `;
 
@@ -404,15 +423,18 @@
             const name =
               getAthleteName(athlete);
 
+
             const ageGroup =
               athlete.age_group ||
               athlete.ageGroup ||
               athlete.category ||
               "—";
 
+
             const weight =
               athlete.weight ??
               "—";
+
 
             const photo =
               athlete.photo_url ||
@@ -422,7 +444,12 @@
 
 
             return `
-              <div class="athlete-card">
+              <div
+                class="athlete-card"
+                data-athlete-id="${escapeHtml(
+                  getAthleteId(athlete)
+                )}"
+              >
 
                 <div class="athlete-avatar">
 
@@ -440,6 +467,7 @@
                   }
 
                 </div>
+
 
                 <div class="athlete-info">
 
@@ -516,11 +544,14 @@
         const option =
           document.createElement("option");
 
+
         option.value =
           group;
 
+
         option.textContent =
           group;
+
 
         select.appendChild(option);
 
@@ -609,6 +640,7 @@
 
   /* =======================================================
      SAVE ATHLETE
+     جدول واقعی پروژه: athletes
   ======================================================= */
 
   async function saveAthlete() {
@@ -740,33 +772,26 @@
       };
 
 
-      let result =
+      const {
+        data,
+        error
+      } =
         await supabaseClient
-          .from("Athletes")
+          .from("athletes")
           .insert(payload)
           .select()
           .single();
 
 
-      /*
-       * fallback برای جدول lowercase
-       */
-
-      if (result.error) {
-
-        result =
-          await supabaseClient
-            .from("athletes")
-            .insert(payload)
-            .select()
-            .single();
-
+      if (error) {
+        throw error;
       }
 
 
-      if (result.error) {
-        throw result.error;
-      }
+      console.log(
+        "Athlete created:",
+        data
+      );
 
 
       showMessage(
@@ -777,6 +802,7 @@
       clearAthleteForm();
 
       closeAthleteModal();
+
 
       await renderAthletes();
 
@@ -980,7 +1006,10 @@
         error
       );
 
-      evaluationPeriods = [];
+
+      evaluationPeriods =
+        [];
+
 
       return [];
 
@@ -1024,8 +1053,10 @@
           error
         );
 
+
         evaluationCriteria =
           [];
+
 
         return [];
 
@@ -1041,7 +1072,15 @@
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "loadEvaluationCriteria error:",
+        error
+      );
+
+
+      evaluationCriteria =
+        [];
+
 
       return [];
 
@@ -1232,11 +1271,6 @@
 
     try {
 
-      /*
-       * بررسی اینکه قبلاً برای این ورزشکار
-       * در این دوره ارزیابی ثبت شده یا نه.
-       */
-
       const existing =
         await supabaseClient
           .from("evaluations")
@@ -1290,6 +1324,12 @@
       if (error) {
         throw error;
       }
+
+
+      console.log(
+        "Evaluation created:",
+        data
+      );
 
 
       showMessage(
@@ -1503,6 +1543,7 @@
 
     updateAttendanceDateText();
 
+
     await loadAttendanceForDate(
       el("attendanceDate")?.value ||
       getTodayISO()
@@ -1519,6 +1560,7 @@
 
     const total =
       el("attendanceTotalAthletes");
+
 
     if (total) {
 
@@ -1633,6 +1675,7 @@
         errorBox.style.display =
           "block";
 
+
         errorBox.textContent =
           "خطا در دریافت حضور و غیاب: " +
           (
@@ -1658,6 +1701,7 @@
 
     const list =
       el("attendanceList");
+
 
     if (!list) {
       return;
@@ -1954,10 +1998,6 @@
               };
 
 
-              /*
-               * همه دکمه‌های همان ورزشکار
-               */
-
               document
                 .querySelectorAll(
                   `.attendance-status-btn[data-athlete-id="${CSS.escape(athleteId)}"]`
@@ -2099,11 +2139,6 @@
 
     try {
 
-      /*
-       * اول اطلاعات noteهای فعلی را
-       * از textarea می‌گیریم.
-       */
-
       document
         .querySelectorAll(
           ".attendance-note"
@@ -2113,6 +2148,7 @@
 
             const id =
               textarea.dataset.athleteNote;
+
 
             if (!id) {
               return;
@@ -2184,12 +2220,6 @@
           }
         );
 
-
-      /*
-       * upsert باعث می‌شود اگر برای همان
-       * ورزشکار و همان روز رکورد وجود داشته باشد،
-       * به‌جای ساخت رکورد تکراری، همان را آپدیت کند.
-       */
 
       const {
         error
@@ -2289,18 +2319,18 @@
 
 
         if (status === "present") {
+
           present++;
+
         }
 
         else if (status === "late") {
+
           late++;
+
         }
 
         else {
-          /*
-           * هم absent و هم وضعیت‌های دیگر
-           * فعلاً در غایب حساب می‌شوند.
-           */
 
           absent++;
 
@@ -2428,17 +2458,16 @@
     }
 
 
-    /*
-     * ورزشکاران
-     */
+    /* ورزشکاران */
 
     try {
 
       const {
-        count
+        count,
+        error
       } =
         await supabaseClient
-          .from("Athletes")
+          .from("athletes")
           .select(
             "*",
             {
@@ -2446,6 +2475,11 @@
               head: true
             }
           );
+
+
+      if (error) {
+        throw error;
+      }
 
 
       if (
@@ -2470,14 +2504,13 @@
     }
 
 
-    /*
-     * ارزیابی‌ها
-     */
+    /* ارزیابی‌ها */
 
     try {
 
       const {
-        count
+        count,
+        error
       } =
         await supabaseClient
           .from("evaluations")
@@ -2488,6 +2521,11 @@
               head: true
             }
           );
+
+
+      if (error) {
+        throw error;
+      }
 
 
       if (
@@ -2512,14 +2550,13 @@
     }
 
 
-    /*
-     * حضور امروز
-     */
+    /* حضور امروز */
 
     try {
 
       const {
-        count
+        count,
+        error
       } =
         await supabaseClient
           .from("attendance")
@@ -2538,6 +2575,11 @@
             "status",
             "present"
           );
+
+
+      if (error) {
+        throw error;
+      }
 
 
       if (
@@ -2562,14 +2604,13 @@
     }
 
 
-    /*
-     * فعلاً مقام‌ها
-     */
+    /* مقام‌ها */
 
     try {
 
       const {
-        count
+        count,
+        error
       } =
         await supabaseClient
           .from("achievements")
@@ -2580,6 +2621,11 @@
               head: true
             }
           );
+
+
+      if (error) {
+        throw error;
+      }
 
 
       if (
@@ -2595,11 +2641,6 @@
       }
 
     } catch (error) {
-
-      /*
-       * اگر achievements هنوز ساخته نشده،
-       * عدد را صفر نگه می‌داریم.
-       */
 
       if (
         el("totalAchievements")
@@ -2646,22 +2687,6 @@
         );
 
     }
-
-  }
-
-
-  /* =======================================================
-     PERSIAN NUMBER
-  ======================================================= */
-
-  function toPersianNumber(value) {
-
-    return String(value)
-      .replace(
-        /\d/g,
-        digit =>
-          "۰۱۲۳۴۵۶۷۸۹"[digit]
-      );
 
   }
 
@@ -2774,20 +2799,16 @@
     async function () {
 
       console.log(
-        "Judo Tabiat coach.js loaded."
+        "Judo Tabiat coach.js loaded - FIXED VERSION"
       );
 
 
-      /*
-       * دکمه ورزشکار
-       */
+      /* دکمه ورزشکار */
 
       bindAthleteButtons();
 
 
-      /*
-       * دکمه ارزیابی جدید
-       */
+      /* دکمه ارزیابی جدید */
 
       const newEvaluationBtn =
         el("newEvaluationBtn");
@@ -2810,9 +2831,7 @@
       }
 
 
-      /*
-       * بستن Modal با کلیک بیرون
-       */
+      /* بستن Modal با کلیک بیرون */
 
       const modal =
         el("athleteModal");
@@ -2838,9 +2857,7 @@
       }
 
 
-      /*
-       * بارگذاری اولیه
-       */
+      /* بارگذاری اولیه */
 
       await loadCoachUser();
 
@@ -2863,10 +2880,7 @@
       await loadDashboardStats();
 
 
-      /*
-       * اگر صفحه حضور و غیاب
-       * از ابتدا active بود
-       */
+      /* اگر صفحه حضور و غیاب از ابتدا active بود */
 
       const attendancePage =
         el("page-attendance");
