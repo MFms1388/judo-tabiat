@@ -8,11 +8,37 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
 
+
+// بررسی وجود کتابخانه Supabase
+if (!window.supabase) {
+
+  alert(
+    "کتابخانه Supabase بارگذاری نشده است."
+  );
+
+  throw new Error(
+    "Supabase library is not loaded."
+  );
+
+}
+
+
+// ساخت Supabase Client
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
+
+
+// ======================================
+// IMPORTANT
+// ======================================
+// coach.js از این متغیر استفاده می‌کند.
+// پس باید روی window قرار بگیرد.
+
+window.supabaseClient =
+  supabaseClient;
 
 
 // ======================================
@@ -51,6 +77,7 @@ function openLogin() {
   if (username) {
     username.focus();
   }
+
 }
 
 
@@ -59,6 +86,7 @@ function closeLogin() {
   if (!modal) return;
 
   modal.classList.add("hidden");
+
 }
 
 
@@ -140,7 +168,11 @@ if (password) {
 
 async function loginCoachOrAthlete() {
 
-  if (!username || !password || !loginSubmit) {
+  if (
+    !username ||
+    !password ||
+    !loginSubmit
+  ) {
     return;
   }
 
@@ -159,6 +191,7 @@ async function loginCoachOrAthlete() {
     );
 
     return;
+
   }
 
 
@@ -173,10 +206,6 @@ async function loginCoachOrAthlete() {
     // ==================================
     // COACH LOGIN
     // ==================================
-
-    /*
-      مربی با ایمیل Supabase وارد می‌شود.
-    */
 
     if (
       loginValue.toLowerCase() ===
@@ -211,39 +240,32 @@ async function loginCoachOrAthlete() {
         );
 
         return;
+
       }
 
 
-      if (!data.session) {
+      if (!data?.session) {
 
         alert(
           "ورود انجام نشد. دوباره تلاش کنید."
         );
 
         return;
+
       }
 
-
-      /*
-        ورود موفق مربی
-      */
 
       window.location.href =
         "coach.html";
 
       return;
+
     }
 
 
     // ==================================
     // ATHLETE LOGIN
     // ==================================
-
-    /*
-      ورود ورزشکار در مرحله بعد
-      به سیستم احراز هویت امن
-      Supabase متصل می‌شود.
-    */
 
     alert(
       "ورود ورزشکار هنوز در حال اتصال به سیستم حساب‌های ورزشکاران است."
@@ -312,13 +334,12 @@ async function checkExistingSession() {
       );
 
       return;
+
     }
 
 
     if (
-      data &&
-      data.session &&
-      data.session.user
+      data?.session?.user
     ) {
 
       const email =
@@ -331,16 +352,14 @@ async function checkExistingSession() {
         "coach.judotabiat@gmail.com"
       ) {
 
-        /*
-          اگر مربی قبلاً وارد شده،
-          دوباره فرم ورود لازم نیست.
-        */
+        console.log(
+          "Coach session exists."
+        );
 
-        // فعلاً ریدایرکت نمی‌کنیم
-        // تا صفحه اصلی قابل مشاهده باشد.
       }
 
     }
+
 
   } catch (error) {
 
