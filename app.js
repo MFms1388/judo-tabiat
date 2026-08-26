@@ -1,5 +1,5 @@
 // ======================================
-// SUPABASE CONNECTION
+// SUPABASE
 // ======================================
 
 const SUPABASE_URL =
@@ -8,143 +8,147 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
 
+
+// ======================================
+// CREATE CLIENT
+// ======================================
+
 let supabaseClient = null;
 
+try {
 
-// ======================================
-// CONNECT
-// ======================================
+  if (!window.supabase) {
 
-function connectSupabase() {
-
-  try {
-
-    // بررسی وجود کتابخانه
-    if (!window.supabase) {
-
-      console.error(
-        "Supabase library not loaded."
-      );
-
-      return false;
-    }
-
-
-    // ساخت کلاینت
-    supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
-
-
-    // در دسترس coach.js و بقیه فایل‌ها
-    window.supabaseClient =
-      supabaseClient;
-
-
-    console.log(
-      "✅ Supabase client created successfully."
+    throw new Error(
+      "کتابخانه Supabase بارگذاری نشده است."
     );
 
-    return true;
-
-  } catch (error) {
-
-    console.error(
-      "❌ Supabase connection error:",
-      error
-    );
-
-    return false;
   }
-}
 
-
-// ======================================
-// TEST CONNECTION
-// ======================================
-
-async function testSupabaseConnection() {
-
-  try {
-
-    if (!supabaseClient) {
-
-      console.error(
-        "❌ Supabase client does not exist."
-      );
-
-      return false;
-    }
-
-
-    /*
-     * فقط Session را بررسی می‌کنیم.
-     * این تست به جدول خاصی وابسته نیست.
-     */
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth.getSession();
-
-
-    if (error) {
-
-      console.error(
-        "❌ Supabase Auth error:",
-        error
-      );
-
-      return false;
-    }
-
-
-    console.log(
-      "✅ اتصال به Supabase برقرار است.",
-      data
+  supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
     );
 
-    return true;
+  // مهم
+  window.supabaseClient =
+    supabaseClient;
 
-  } catch (error) {
+  console.log(
+    "✅ Supabase Client ساخته شد."
+  );
 
-    console.error(
-      "❌ Supabase test failed:",
-      error
-    );
-
-    return false;
-  }
-}
-
-
-// ======================================
-// START SUPABASE
-// ======================================
-
-const supabaseReady =
-  connectSupabase();
-
-
-if (supabaseReady) {
-
-  testSupabaseConnection();
-
-} else {
+} catch (error) {
 
   console.error(
-    "❌ Supabase آماده نشد."
+    "❌ خطا در ساخت Supabase Client:",
+    error
   );
 
 }
 
 
 // ======================================
-// MAKE AVAILABLE GLOBALLY
+// CONNECTION TEST
 // ======================================
 
-window.supabaseClient =
-  supabaseClient;
+async function testSupabaseConnection() {
+
+  if (!window.supabaseClient) {
+
+    console.error(
+      "❌ Supabase Client وجود ندارد."
+    );
+
+    return false;
+  }
+
+
+  try {
+
+    /*
+     * یک درخواست واقعی به API می‌فرستیم.
+     * جدول خاصی را استفاده نمی‌کنیم.
+     */
+
+    const response =
+      await fetch(
+        SUPABASE_URL +
+        "/rest/v1/",
+        {
+          method: "GET",
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization":
+              "Bearer " + SUPABASE_KEY
+          }
+        }
+      );
+
+
+    console.log(
+      "Supabase HTTP Status:",
+      response.status
+    );
+
+
+    if (
+      response.ok ||
+      response.status === 404
+    ) {
+
+      console.log(
+        "✅ اتصال به Supabase برقرار است."
+      );
+
+      return true;
+
+    }
+
+
+    const text =
+      await response.text();
+
+    console.error(
+      "❌ Supabase پاسخ خطا داد:",
+      text
+    );
+
+    return false;
+
+
+  } catch (error) {
+
+    console.error(
+      "❌ اتصال به Supabase برقرار نشد:",
+      error
+    );
+
+    return false;
+
+  }
+
+}
+
+
+// ======================================
+// START
+// ======================================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    testSupabaseConnection();
+
+  }
+);
+
+
+// ======================================
+// GLOBAL
+// ======================================
+
+window.testSupabaseConnection =
+  testSupabaseConnection;
