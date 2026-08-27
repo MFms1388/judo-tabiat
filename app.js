@@ -18,26 +18,17 @@ let supabaseClient = null;
 try {
 
   if (!window.supabase) {
-
-    throw new Error(
-      "کتابخانه Supabase بارگذاری نشده است."
-    );
-
+    throw new Error("کتابخانه Supabase بارگذاری نشده است.");
   }
 
-  supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-  // مهم
-  window.supabaseClient =
-    supabaseClient;
-
-  console.log(
-    "✅ Supabase Client ساخته شد."
+  supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
   );
+
+  window.supabaseClient = supabaseClient;
+
+  console.log("✅ Supabase Client ساخته شد.");
 
 } catch (error) {
 
@@ -50,85 +41,64 @@ try {
 
 
 // ======================================
-// CONNECTION TEST
+// REAL CONNECTION TEST
 // ======================================
 
 async function testSupabaseConnection() {
 
   if (!window.supabaseClient) {
 
-    console.error(
-      "❌ Supabase Client وجود ندارد."
-    );
+    console.error("❌ Supabase Client وجود ندارد.");
 
     return false;
   }
 
-
   try {
 
-    /*
-     * یک درخواست واقعی به API می‌فرستیم.
-     * جدول خاصی را استفاده نمی‌کنیم.
-     */
+    // تست با جدول واقعی ورزشکاران
+    const { data, error } =
+      await window.supabaseClient
+        .from("Athletes")
+        .select("*")
+        .limit(1);
 
-    const response =
-      await fetch(
-        SUPABASE_URL +
-        "/rest/v1/",
-        {
-          method: "GET",
-          headers: {
-            "apikey": SUPABASE_KEY,
-            "Authorization":
-              "Bearer " + SUPABASE_KEY
-          }
-        }
+    if (error) {
+
+      console.error(
+        "❌ خطای Supabase:",
+        error
       );
 
-
-    console.log(
-      "Supabase HTTP Status:",
-      response.status
-    );
-
-
-    if (
-      response.ok ||
-      response.status === 404
-    ) {
-
-      console.log(
-        "✅ اتصال به Supabase برقرار است."
+      alert(
+        "اتصال به Supabase برقرار نشد.\n\n" +
+        "خطا: " +
+        error.message
       );
 
-      return true;
-
+      return false;
     }
 
-
-    const text =
-      await response.text();
-
-    console.error(
-      "❌ Supabase پاسخ خطا داد:",
-      text
+    console.log(
+      "✅ اتصال به Supabase برقرار است.",
+      data
     );
 
-    return false;
-
+    return true;
 
   } catch (error) {
 
     console.error(
-      "❌ اتصال به Supabase برقرار نشد:",
+      "❌ خطای اتصال:",
       error
     );
 
+    alert(
+      "خطا در اتصال به Supabase:\n" +
+      error.message
+    );
+
     return false;
-
   }
-
 }
 
 
