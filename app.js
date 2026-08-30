@@ -1,4 +1,13 @@
 // ======================================
+// JUDO TABIAT
+// app.js
+// نسخه کامل و اصلاح‌شده
+// ======================================
+
+"use strict";
+
+
+// ======================================
 // SUPABASE
 // ======================================
 
@@ -17,11 +26,17 @@ let supabaseClient = null;
 
 try {
 
-  if (!window.supabase) {
+  if (
+    !window.supabase ||
+    typeof window.supabase.createClient !== "function"
+  ) {
+
     throw new Error(
       "کتابخانه Supabase بارگذاری نشده است."
     );
+
   }
+
 
   supabaseClient =
     window.supabase.createClient(
@@ -29,12 +44,17 @@ try {
       SUPABASE_KEY
     );
 
+
+  // بسیار مهم:
+  // coach.js از این متغیر استفاده می‌کند
   window.supabaseClient =
     supabaseClient;
+
 
   console.log(
     "✅ Supabase Client ساخته شد."
   );
+
 
 } catch (error) {
 
@@ -59,7 +79,9 @@ async function testSupabaseConnection() {
     );
 
     return false;
+
   }
+
 
   try {
 
@@ -68,9 +90,10 @@ async function testSupabaseConnection() {
       error
     } =
       await window.supabaseClient
-        .from("Athletes")
+        .from("athletes")
         .select("id")
         .limit(1);
+
 
     if (error) {
 
@@ -80,13 +103,17 @@ async function testSupabaseConnection() {
       );
 
       return false;
+
     }
+
 
     console.log(
       "✅ اتصال به Supabase برقرار است."
     );
 
+
     return true;
+
 
   } catch (error) {
 
@@ -95,8 +122,11 @@ async function testSupabaseConnection() {
       error
     );
 
+
     return false;
+
   }
+
 }
 
 
@@ -113,30 +143,39 @@ document.addEventListener(
     );
 
 
+    // ==================================
+    // ELEMENTS
+    // ==================================
+
     const loginBtn =
       document.getElementById(
         "loginBtn"
       );
+
 
     const loginModal =
       document.getElementById(
         "loginModal"
       );
 
+
     const closeModal =
       document.getElementById(
         "closeModal"
       );
+
 
     const loginSubmit =
       document.getElementById(
         "loginSubmit"
       );
 
+
     const usernameInput =
       document.getElementById(
         "username"
       );
+
 
     const passwordInput =
       document.getElementById(
@@ -148,7 +187,10 @@ document.addEventListener(
     // OPEN LOGIN
     // ==================================
 
-    if (loginBtn && loginModal) {
+    if (
+      loginBtn &&
+      loginModal
+    ) {
 
       loginBtn.addEventListener(
         "click",
@@ -158,8 +200,15 @@ document.addEventListener(
             "hidden"
           );
 
+
+          loginModal.style.display =
+            "flex";
+
+
           if (usernameInput) {
+
             usernameInput.focus();
+
           }
 
         }
@@ -172,7 +221,10 @@ document.addEventListener(
     // CLOSE LOGIN
     // ==================================
 
-    if (closeModal && loginModal) {
+    if (
+      closeModal &&
+      loginModal
+    ) {
 
       closeModal.addEventListener(
         "click",
@@ -181,6 +233,10 @@ document.addEventListener(
           loginModal.classList.add(
             "hidden"
           );
+
+
+          loginModal.style.display =
+            "none";
 
         }
       );
@@ -206,6 +262,10 @@ document.addEventListener(
               "hidden"
             );
 
+
+            loginModal.style.display =
+              "none";
+
           }
 
         }
@@ -227,12 +287,13 @@ document.addEventListener(
           const username =
             usernameInput?.value.trim();
 
+
           const password =
             passwordInput?.value;
 
 
           // ------------------------------
-          // CHECK INPUT
+          // CHECK USERNAME
           // ------------------------------
 
           if (!username) {
@@ -241,11 +302,18 @@ document.addEventListener(
               "لطفاً نام کاربری را وارد کنید."
             );
 
+
             usernameInput?.focus();
 
+
             return;
+
           }
 
+
+          // ------------------------------
+          // CHECK PASSWORD
+          // ------------------------------
 
           if (!password) {
 
@@ -253,9 +321,12 @@ document.addEventListener(
               "لطفاً رمز عبور را وارد کنید."
             );
 
+
             passwordInput?.focus();
 
+
             return;
+
           }
 
 
@@ -269,7 +340,14 @@ document.addEventListener(
               "اتصال به Supabase برقرار نیست."
             );
 
+
+            console.error(
+              "❌ window.supabaseClient وجود ندارد."
+            );
+
+
             return;
+
           }
 
 
@@ -280,7 +358,10 @@ document.addEventListener(
           const oldText =
             loginSubmit.innerHTML;
 
-          loginSubmit.disabled = true;
+
+          loginSubmit.disabled =
+            true;
+
 
           loginSubmit.innerHTML =
             "⏳ در حال ورود...";
@@ -306,9 +387,11 @@ document.addEventListener(
                 .auth
                 .signInWithPassword({
 
-                  email: username,
+                  email:
+                    username,
 
-                  password: password
+                  password:
+                    password
 
                 });
 
@@ -324,12 +407,18 @@ document.addEventListener(
                 error
               );
 
+
               alert(
                 "ورود ناموفق بود.\n\n" +
-                error.message
+                (
+                  error.message ||
+                  "خطای نامشخص"
+                )
               );
 
+
               return;
+
             }
 
 
@@ -348,16 +437,24 @@ document.addEventListener(
               );
 
 
-              // ذخیره اطلاعات جلسه
+              // ذخیره وضعیت ورود
               localStorage.setItem(
                 "judoLoggedIn",
                 "true"
               );
 
 
+              // ذخیره زمان ورود
+              localStorage.setItem(
+                "judoLoginTime",
+                String(Date.now())
+              );
+
+
               // انتقال به پنل مربی
               window.location.href =
                 "coach.html";
+
 
             } else {
 
@@ -367,6 +464,7 @@ document.addEventListener(
 
             }
 
+
           } catch (error) {
 
             console.error(
@@ -374,15 +472,21 @@ document.addEventListener(
               error
             );
 
+
             alert(
               "خطایی هنگام ورود رخ داد.\n\n" +
-              error.message
+              (
+                error.message ||
+                error
+              )
             );
+
 
           } finally {
 
             loginSubmit.disabled =
               false;
+
 
             loginSubmit.innerHTML =
               oldText;
@@ -420,7 +524,7 @@ document.addEventListener(
 
 
     // ==================================
-    // SUPABASE CONNECTION TEST
+    // TEST CONNECTION
     // ==================================
 
     testSupabaseConnection();
@@ -435,3 +539,8 @@ document.addEventListener(
 
 window.testSupabaseConnection =
   testSupabaseConnection;
+
+
+console.log(
+  "✅ app.js آماده است."
+);
