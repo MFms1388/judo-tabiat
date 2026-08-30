@@ -1,7 +1,8 @@
 /* =========================================================
    JUDO TABIAT - COACH PANEL
    coach.js
-   نسخه کامل + مقام‌ها و افتخارات
+   نسخه مستقل و اصلاح‌شده
+   بدون وابستگی به app.js
 ========================================================= */
 
 (() => {
@@ -9,1703 +10,360 @@
   "use strict";
 
 
-  /* =======================================================
-     SUPABASE
-  ======================================================= */
+  /* =========================================================
+     SUPABASE CONFIG
+  ========================================================= */
 
   const SUPABASE_URL =
     "https://bkkdgywdptufjsaepehc.supabase.co";
 
-  let supabaseClient =
-    window.supabaseClient || null;
+  const SUPABASE_KEY =
+    "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
 
 
-  /* =======================================================
-     GLOBAL STATE
-  ======================================================= */
+  /* =========================================================
+     SUPABASE CLIENT
+  ========================================================= */
 
-  let athletes = [];
-
-  let evaluationPeriods = [];
-
-  let evaluationCriteria = [];
-
-  let evaluations = [];
-
-  let attendanceData = {};
-
-  let achievements = [];
-
-  let attendanceInitialized = false;
-
-  let evaluationInitialized = false;
-
-  let achievementsInitialized = false;
+  let supabaseClient = null;
 
 
-  /* =======================================================
-     HELPERS
-  ======================================================= */
-
-  function el(id) {
-    return document.getElementById(id);
-  }
-
-
-  function escapeHtml(value) {
-
-    if (value === null || value === undefined) {
-      return "";
-    }
-
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-
-  }
-
-
-  function showMessage(message) {
-    alert(message);
-  }
-
-
-  function getAthleteName(athlete) {
-
-    if (!athlete) {
-      return "بدون نام";
-    }
-
-    const first =
-      athlete.first_name ||
-      athlete.firstname ||
-      athlete.name ||
-      "";
-
-    const last =
-      athlete.last_name ||
-      athlete.lastname ||
-      "";
-
-    return `${first} ${last}`.trim() || "بدون نام";
-
-  }
-
-
-  function getAthleteId(athlete) {
-
-    return (
-      athlete?.id ||
-      athlete?.athlete_id ||
-      athlete?.uuid ||
-      null
-    );
-
-  }
-
-
-  function getTodayISO() {
-
-    const d = new Date();
-
-    const year =
-      d.getFullYear();
-
-    const month =
-      String(d.getMonth() + 1)
-        .padStart(2, "0");
-
-    const day =
-      String(d.getDate())
-        .padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-
-  }
-
-
-  function toPersianNumber(value) {
-
-    return String(value)
-      .replace(
-        /\d/g,
-        digit =>
-          "۰۱۲۳۴۵۶۷۸۹"[digit]
-      );
-
-  }
-
-
-  /* =======================================================
-     SUPABASE CHECK
-  ======================================================= */
-
-  function checkSupabase() {
-
-    if (!window.supabaseClient) {
-
-      console.error(
-        "supabaseClient وجود ندارد."
-      );
-
-      showMessage(
-        "اتصال به Supabase برقرار نیست."
-      );
-
-      return false;
-
-    }
-
-    supabaseClient =
-      window.supabaseClient;
-
-    return true;
-
-  }
-
-
-  /* =======================================================
-     ATHLETES
-  ======================================================= */
-
-  async function loadAthletes() {
-
-    if (!checkSupabase()) {
-      return [];
-    }
+  function createSupabaseClient() {
 
     try {
 
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("athletes")
-          .select("*")
-          .order(
-            "created_at",
-            {
-              ascending: false
-            }
-          );
+      // اگر قبلاً ساخته شده
+      if (window.supabaseClient) {
 
+        supabaseClient =
+          window.supabaseClient;
 
-      if (error) {
-        throw error;
+        console.log(
+          "✅ Supabase Client قبلی پیدا شد."
+        );
+
+        return true;
       }
 
 
-      athletes =
-        data || [];
+      // بررسی کتابخانه Supabase
+      if (!window.supabase) {
+
+        console.error(
+          "❌ کتابخانه Supabase روی coach.html وجود ندارد."
+        );
+
+        return false;
+      }
+
+
+      // ساخت Client
+      supabaseClient =
+        window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+
+      // قرار دادن در window
+      window.supabaseClient =
+        supabaseClient;
 
 
       console.log(
-        "Athletes loaded:",
-        athletes
+        "✅ Supabase Client با موفقیت ساخته شد."
       );
 
 
-      return athletes;
-
+      return true;
 
     } catch (error) {
 
       console.error(
-        "loadAthletes error:",
+        "❌ خطا در ساخت Supabase Client:",
         error
       );
 
-      athletes = [];
-
-
-      showMessage(
-        "خطا در دریافت ورزشکاران:\n" +
-        (error.message || error)
-      );
-
-
-      return [];
-
+      return false;
     }
 
   }
 
 
-  /* =======================================================
-     RENDER ATHLETES
-  ======================================================= */
+  /* =========================================================
+     LOAD SUPABASE LIBRARY IF NEEDED
+  ========================================================= */
 
-  async function renderAthletes() {
+  function loadSupabaseLibrary() {
 
-    const grid =
-      el("coachAthleteGrid");
+    return new Promise((resolve) => {
 
-    if (!grid) {
-      return;
-    }
+      // اگر کتابخانه از قبل وجود دارد
+      if (window.supabase) {
 
+        resolve(true);
 
-    grid.innerHTML = `
-      <div class="evaluation-empty">
-
-        <div class="evaluation-empty-icon">
-          ⏳
-        </div>
-
-        <h2>
-          در حال بارگذاری...
-        </h2>
-
-        <p>
-          لطفاً کمی صبر کنید.
-        </p>
-
-      </div>
-    `;
-
-
-    await loadAthletes();
-
-
-    updateAthleteStats();
-
-    fillAthleteFilter();
-
-    fillEvaluationAthleteSelect();
-
-    fillAttendanceAthletes();
-
-    fillAchievementAthleteSelect();
-
-
-    if (!athletes.length) {
-
-      grid.innerHTML = `
-        <div class="evaluation-empty">
-
-          <div class="evaluation-empty-icon">
-            👥
-          </div>
-
-          <h2>
-            هنوز ورزشکاری ثبت نشده است
-          </h2>
-
-          <p>
-            برای شروع روی «افزودن ورزشکار» بزنید.
-          </p>
-
-        </div>
-      `;
-
-      return;
-
-    }
-
-
-    renderAthleteGrid();
-
-  }
-
-
-  /* =======================================================
-     RENDER ATHLETE GRID
-  ======================================================= */
-
-  function renderAthleteGrid() {
-
-    const grid =
-      el("coachAthleteGrid");
-
-    if (!grid) {
-      return;
-    }
-
-
-    const search =
-      (
-        el("coachSearch")?.value ||
-        ""
-      )
-        .trim()
-        .toLowerCase();
-
-
-    const filter =
-      el("coachFilter")?.value ||
-      "all";
-
-
-    let list =
-      [...athletes];
-
-
-    if (search) {
-
-      list =
-        list.filter(
-          athlete => {
-
-            const name =
-              getAthleteName(athlete)
-                .toLowerCase();
-
-
-            const nationalId =
-              String(
-                athlete.national_id ||
-                athlete.nationalId ||
-                ""
-              )
-                .toLowerCase();
-
-
-            return (
-              name.includes(search) ||
-              nationalId.includes(search)
-            );
-
-          }
-        );
-
-    }
-
-
-    if (filter !== "all") {
-
-      list =
-        list.filter(
-          athlete => {
-
-            return (
-              String(
-                athlete.age_group ||
-                athlete.ageGroup ||
-                athlete.category ||
-                ""
-              ) === String(filter)
-            );
-
-          }
-        );
-
-    }
-
-
-    if (!list.length) {
-
-      grid.innerHTML = `
-        <div class="evaluation-empty">
-
-          <div class="evaluation-empty-icon">
-            🔎
-          </div>
-
-          <h2>
-            ورزشکاری پیدا نشد
-          </h2>
-
-          <p>
-            عبارت جستجو یا فیلتر را تغییر دهید.
-          </p>
-
-        </div>
-      `;
-
-      return;
-
-    }
-
-
-    grid.innerHTML =
-      list
-        .map(
-          athlete => {
-
-            const name =
-              getAthleteName(athlete);
-
-
-            const ageGroup =
-              athlete.age_group ||
-              athlete.ageGroup ||
-              athlete.category ||
-              "—";
-
-
-            const weight =
-              athlete.weight ??
-              "—";
-
-
-            const photo =
-              athlete.photo_url ||
-              athlete.photoUrl ||
-              athlete.avatar_url ||
-              "";
-
-
-            return `
-              <div
-                class="athlete-card"
-                data-athlete-id="${escapeHtml(
-                  getAthleteId(athlete)
-                )}"
-              >
-
-                <div class="athlete-avatar">
-
-                  ${
-                    photo
-                      ?
-                    `
-                      <img
-                        src="${escapeHtml(photo)}"
-                        alt="${escapeHtml(name)}"
-                      >
-                    `
-                      :
-                    "🥋"
-                  }
-
-                </div>
-
-
-                <div class="athlete-info">
-
-                  <h3>
-                    ${escapeHtml(name)}
-                  </h3>
-
-                  <p>
-                    رده:
-                    ${escapeHtml(ageGroup)}
-                  </p>
-
-                  <p>
-                    وزن:
-                    ${escapeHtml(weight)}
-                    کیلو
-                  </p>
-
-                </div>
-
-              </div>
-            `;
-
-          }
-        )
-        .join("");
-
-  }
-
-
-  /* =======================================================
-     ATHLETE FILTER
-  ======================================================= */
-
-  function fillAthleteFilter() {
-
-    const select =
-      el("coachFilter");
-
-    if (!select) {
-      return;
-    }
-
-
-    const current =
-      select.value;
-
-
-    const groups =
-      [
-        ...new Set(
-          athletes
-            .map(
-              athlete =>
-                athlete.age_group ||
-                athlete.ageGroup ||
-                athlete.category
-            )
-            .filter(Boolean)
-        )
-      ];
-
-
-    select.innerHTML = `
-      <option value="all">
-        همه رده‌ها
-      </option>
-    `;
-
-
-    groups.forEach(
-      group => {
-
-        const option =
-          document.createElement("option");
-
-
-        option.value =
-          group;
-
-
-        option.textContent =
-          group;
-
-
-        select.appendChild(option);
-
+        return;
       }
-    );
 
 
-    if (
-      groups.includes(current)
-    ) {
-
-      select.value =
-        current;
-
-    }
-
-  }
-
-
-  /* =======================================================
-     ATHLETE MODAL
-  ======================================================= */
-
-  function openAthleteModal() {
-
-    const modal =
-      el("athleteModal");
-
-    if (!modal) {
-      return;
-    }
-
-
-    modal.classList.remove("hidden");
-
-    modal.style.display =
-      "flex";
-
-  }
-
-
-  function closeAthleteModal() {
-
-    const modal =
-      el("athleteModal");
-
-    if (!modal) {
-      return;
-    }
-
-
-    modal.classList.add("hidden");
-
-    modal.style.display =
-      "none";
-
-  }
-
-
-  function clearAthleteForm() {
-
-    [
-      "athleteFirstName",
-      "athleteLastName",
-      "athleteAgeGroup",
-      "athleteWeight",
-      "athleteNationalId",
-      "athleteBio",
-      "athletePhotoUrl"
-    ]
-      .forEach(
-        id => {
-
-          const input =
-            el(id);
-
-          if (input) {
-            input.value = "";
-          }
-
-        }
+      console.log(
+        "⏳ در حال بارگذاری کتابخانه Supabase..."
       );
 
-  }
+
+      const script =
+        document.createElement("script");
 
 
-  /* =======================================================
-     SAVE ATHLETE
-  ======================================================= */
-
-  async function saveAthlete() {
-
-    if (!checkSupabase()) {
-      return;
-    }
+      script.src =
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
 
 
-    const firstName =
-      el("athleteFirstName")
-        ?.value
-        .trim();
+      script.async = true;
 
 
-    const lastName =
-      el("athleteLastName")
-        ?.value
-        .trim();
+      script.onload = () => {
 
+        console.log(
+          "✅ کتابخانه Supabase بارگذاری شد."
+        );
 
-    const ageGroup =
-      el("athleteAgeGroup")
-        ?.value
-        .trim();
-
-
-    const weightValue =
-      el("athleteWeight")
-        ?.value;
-
-
-    const nationalId =
-      el("athleteNationalId")
-        ?.value
-        .trim();
-
-
-    const bio =
-      el("athleteBio")
-        ?.value
-        .trim();
-
-
-    const photoUrl =
-      el("athletePhotoUrl")
-        ?.value
-        .trim();
-
-
-    if (!firstName) {
-
-      showMessage(
-        "لطفاً نام ورزشکار را وارد کنید."
-      );
-
-      return;
-
-    }
-
-
-    if (!lastName) {
-
-      showMessage(
-        "لطفاً نام خانوادگی ورزشکار را وارد کنید."
-      );
-
-      return;
-
-    }
-
-
-    if (
-      nationalId &&
-      !/^\d{10}$/.test(nationalId)
-    ) {
-
-      showMessage(
-        "کد ملی باید ۱۰ رقم باشد."
-      );
-
-      return;
-
-    }
-
-
-    const saveButton =
-      el("saveAthleteBtn");
-
-
-    if (saveButton) {
-
-      saveButton.disabled =
-        true;
-
-      saveButton.textContent =
-        "در حال ثبت...";
-
-    }
-
-
-    try {
-
-      const payload = {
-
-        first_name:
-          firstName,
-
-        last_name:
-          lastName,
-
-        age_group:
-          ageGroup || null,
-
-        weight:
-          weightValue
-            ? Number(weightValue)
-            : null,
-
-        national_id:
-          nationalId || null,
-
-        bio:
-          bio || null,
-
-        photo_url:
-          photoUrl || null
+        resolve(true);
 
       };
 
 
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("athletes")
-          .insert(payload)
-          .select()
-          .single();
+      script.onerror = () => {
+
+        console.error(
+          "❌ بارگذاری کتابخانه Supabase ناموفق بود."
+        );
+
+        resolve(false);
+
+      };
 
 
-      if (error) {
-        throw error;
-      }
+      document.head.appendChild(script);
+
+    });
+
+  }
 
 
-      console.log(
-        "Athlete created:",
-        data
-      );
+  /* =========================================================
+     SUPABASE CONNECTION TEST
+  ========================================================= */
+
+  async function checkSupabase() {
+
+    console.log(
+      "🔎 در حال بررسی اتصال Supabase..."
+    );
 
 
-      showMessage(
-        "ورزشکار با موفقیت ثبت شد ✅"
-      );
-
-
-      clearAthleteForm();
-
-      closeAthleteModal();
-
-
-      await renderAthletes();
-
-      await loadDashboardStats();
-
-
-    } catch (error) {
+    if (!supabaseClient) {
 
       console.error(
-        "saveAthlete error:",
-        error
+        "❌ Supabase Client ساخته نشده است."
       );
 
-
-      showMessage(
-        "ثبت ورزشکار انجام نشد.\n\n" +
-        (error.message || error)
-      );
-
-
-    } finally {
-
-      if (saveButton) {
-
-        saveButton.disabled =
-          false;
-
-        saveButton.textContent =
-          "ثبت ورزشکار";
-
-      }
-
-    }
-
-  }
-
-
-  /* =======================================================
-     BIND ATHLETE BUTTONS
-  ======================================================= */
-
-  function bindAthleteButtons() {
-
-    const addButton =
-      el("addAthleteBtn");
-
-
-    if (
-      addButton &&
-      !addButton.dataset.bound
-    ) {
-
-      addButton.dataset.bound =
-        "true";
-
-
-      addButton.addEventListener(
-        "click",
-        () => {
-
-          clearAthleteForm();
-
-          openAthleteModal();
-
-        }
-      );
-
-    }
-
-
-    const closeButton =
-      el("closeAthleteModal");
-
-
-    if (
-      closeButton &&
-      !closeButton.dataset.bound
-    ) {
-
-      closeButton.dataset.bound =
-        "true";
-
-
-      closeButton.addEventListener(
-        "click",
-        closeAthleteModal
-      );
-
-    }
-
-
-    const saveButton =
-      el("saveAthleteBtn");
-
-
-    if (
-      saveButton &&
-      !saveButton.dataset.bound
-    ) {
-
-      saveButton.dataset.bound =
-        "true";
-
-
-      saveButton.addEventListener(
-        "click",
-        saveAthlete
-      );
-
-    }
-
-
-    const search =
-      el("coachSearch");
-
-
-    if (
-      search &&
-      !search.dataset.bound
-    ) {
-
-      search.dataset.bound =
-        "true";
-
-
-      search.addEventListener(
-        "input",
-        renderAthleteGrid
-      );
-
-    }
-
-
-    const filter =
-      el("coachFilter");
-
-
-    if (
-      filter &&
-      !filter.dataset.bound
-    ) {
-
-      filter.dataset.bound =
-        "true";
-
-
-      filter.addEventListener(
-        "change",
-        renderAthleteGrid
-      );
-
-    }
-
-  }
-
-
-  /* =======================================================
-     EVALUATION PERIODS
-  ======================================================= */
-
-  async function loadEvaluationPeriods() {
-
-    if (!checkSupabase()) {
-      return [];
+      return false;
     }
 
 
     try {
 
-      const {
-        data,
-        error
-      } =
+      /*
+       * فقط برای تست اتصال.
+       * اگر RLS فعال باشد، ممکن است query خطا بدهد.
+       * بنابراین خطا را دقیق در Console نمایش می‌دهیم.
+       */
+
+      const result =
         await supabaseClient
-          .from("evaluation_periods")
-          .select("*")
-          .order(
-            "start_date",
-            {
-              ascending: false
-            }
-          );
+          .from("Athletes")
+          .select("id")
+          .limit(1);
 
 
-      if (error) {
-        throw error;
-      }
+      const data =
+        result.data;
 
-
-      evaluationPeriods =
-        data || [];
-
-
-      return evaluationPeriods;
-
-
-    } catch (error) {
-
-      console.error(
-        "loadEvaluationPeriods error:",
-        error
-      );
-
-
-      evaluationPeriods =
-        [];
-
-
-      return [];
-
-    }
-
-  }
-
-
-  /* =======================================================
-     EVALUATION CRITERIA
-  ======================================================= */
-
-  async function loadEvaluationCriteria() {
-
-    if (!checkSupabase()) {
-      return [];
-    }
-
-
-    try {
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("evaluation_criteria")
-          .select("*")
-          .order(
-            "created_at",
-            {
-              ascending: true
-            }
-          );
+      const error =
+        result.error;
 
 
       if (error) {
 
-        console.warn(
-          "Criteria error:",
+        console.error(
+          "❌ Supabase Query Error:",
           error
         );
 
 
-        evaluationCriteria =
-          [];
-
-
-        return [];
-
-      }
-
-
-      evaluationCriteria =
-        data || [];
-
-
-      return evaluationCriteria;
-
-
-    } catch (error) {
-
-      console.error(
-        "loadEvaluationCriteria error:",
-        error
-      );
-
-
-      evaluationCriteria =
-        [];
-
-
-      return [];
-
-    }
-
-  }
-
-
-  /* =======================================================
-     EVALUATION ATHLETE SELECT
-  ======================================================= */
-
-  function fillEvaluationAthleteSelect() {
-
-    const select =
-      el("evaluationAthleteSelect");
-
-    if (!select) {
-      return;
-    }
-
-
-    const current =
-      select.value;
-
-
-    select.innerHTML = `
-      <option value="">
-        انتخاب ورزشکار
-      </option>
-    `;
-
-
-    athletes.forEach(
-      athlete => {
-
-        const option =
-          document.createElement("option");
-
-
-        option.value =
-          getAthleteId(athlete);
-
-
-        option.textContent =
-          getAthleteName(athlete);
-
-
-        select.appendChild(option);
-
-      }
-    );
-
-
-    if (current) {
-      select.value =
-        current;
-    }
-
-  }
-
-
-  /* =======================================================
-     EVALUATION PERIOD SELECT
-  ======================================================= */
-
-  function fillEvaluationPeriodSelect() {
-
-    const select =
-      el("evaluationPeriodSelect");
-
-    if (!select) {
-      return;
-    }
-
-
-    const current =
-      select.value;
-
-
-    select.innerHTML = `
-      <option value="">
-        انتخاب دوره ارزیابی
-      </option>
-    `;
-
-
-    evaluationPeriods.forEach(
-      period => {
-
-        const option =
-          document.createElement("option");
-
-
-        option.value =
-          period.id;
-
-
-        option.textContent =
-          period.name ||
-          period.title ||
-          "دوره ارزیابی";
-
-
-        select.appendChild(option);
-
-      }
-    );
-
-
-    if (current) {
-      select.value =
-        current;
-    }
-
-  }
-
-
-  /* =======================================================
-     PREPARE EVALUATION PAGE
-  ======================================================= */
-
-  async function prepareEvaluationPage() {
-
-    await loadAthletes();
-
-    await loadEvaluationPeriods();
-
-    await loadEvaluationCriteria();
-
-
-    fillEvaluationAthleteSelect();
-
-    fillEvaluationPeriodSelect();
-
-
-    await loadEvaluations();
-
-
-    evaluationInitialized =
-      true;
-
-  }
-
-
-  /* =======================================================
-     NEW EVALUATION
-  ======================================================= */
-
-  async function startNewEvaluation() {
-
-    const athleteId =
-      el("evaluationAthleteSelect")
-        ?.value;
-
-
-    const periodId =
-      el("evaluationPeriodSelect")
-        ?.value;
-
-
-    if (!athleteId) {
-
-      showMessage(
-        "ابتدا ورزشکار را انتخاب کنید."
-      );
-
-      return;
-
-    }
-
-
-    if (!periodId) {
-
-      showMessage(
-        "ابتدا دوره ارزیابی را انتخاب کنید."
-      );
-
-      return;
-
-    }
-
-
-    if (!checkSupabase()) {
-      return;
-    }
-
-
-    try {
-
-      const existing =
-        await supabaseClient
-          .from("evaluations")
-          .select("*")
-          .eq(
-            "athlete_id",
-            athleteId
-          )
-          .eq(
-            "period_id",
-            periodId
-          )
-          .maybeSingle();
-
-
-      if (existing.error) {
-        throw existing.error;
-      }
-
-
-      if (existing.data) {
-
-        showMessage(
-          "برای این ورزشکار در این دوره قبلاً ارزیابی ثبت شده است."
+        /*
+         * این خطا لزوماً به معنی قطع بودن اینترنت
+         * یا Supabase نیست.
+         */
+
+        showConnectionStatus(
+          false,
+          "Supabase در دسترس است اما دسترسی به جدول Athletes مشکل دارد."
         );
 
-        return;
 
-      }
-
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("evaluations")
-          .insert({
-
-            athlete_id:
-              athleteId,
-
-            period_id:
-              periodId
-
-          })
-          .select()
-          .single();
-
-
-      if (error) {
-        throw error;
+        return false;
       }
 
 
       console.log(
-        "Evaluation created:",
+        "✅ اتصال به Supabase موفق است."
+      );
+
+
+      console.log(
+        "📦 Athletes:",
         data
       );
 
 
-      showMessage(
-        "ارزیابی جدید ایجاد شد ✅"
+      showConnectionStatus(
+        true,
+        "اتصال به Supabase برقرار است."
       );
 
 
-      await loadEvaluations();
-
+      return true;
 
     } catch (error) {
 
       console.error(
-        "startNewEvaluation error:",
+        "❌ Supabase Connection Exception:",
         error
       );
 
 
-      showMessage(
-        "ایجاد ارزیابی انجام نشد.\n\n" +
-        (error.message || error)
+      showConnectionStatus(
+        false,
+        "خطا در ارتباط با Supabase."
       );
 
+
+      return false;
     }
 
   }
 
 
-  /* =======================================================
-     LOAD EVALUATIONS
-  ======================================================= */
+  /* =========================================================
+     CONNECTION STATUS
+  ========================================================= */
 
-  async function loadEvaluations() {
+  function showConnectionStatus(
+    success,
+    message
+  ) {
 
-    if (!checkSupabase()) {
-      return;
+    let box =
+      document.getElementById(
+        "supabaseStatus"
+      );
+
+
+    if (!box) {
+
+      box =
+        document.createElement("div");
+
+
+      box.id =
+        "supabaseStatus";
+
+
+      box.style.position =
+        "fixed";
+
+      box.style.left =
+        "15px";
+
+      box.style.bottom =
+        "15px";
+
+      box.style.zIndex =
+        "99999";
+
+      box.style.padding =
+        "10px 15px";
+
+      box.style.borderRadius =
+        "10px";
+
+      box.style.fontFamily =
+        "Tahoma, Arial, sans-serif";
+
+      box.style.fontSize =
+        "12px";
+
+      box.style.fontWeight =
+        "700";
+
+      box.style.boxShadow =
+        "0 5px 20px rgba(0,0,0,.15)";
+
+
+      document.body.appendChild(box);
+
     }
 
 
-    try {
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("evaluations")
-          .select("*")
-          .order(
-            "created_at",
-            {
-              ascending: false
-            }
-          );
+    box.textContent =
+      success
+        ? "🟢 " + message
+        : "🔴 " + message;
 
 
-      if (error) {
-        throw error;
+    box.style.background =
+      success
+        ? "#dcfce7"
+        : "#fee2e2";
+
+
+    box.style.color =
+      success
+        ? "#166534"
+        : "#991b1b";
+
+
+    // بعد از چند ثانیه مخفی شود
+    setTimeout(() => {
+
+      if (box) {
+
+        box.style.opacity =
+          "0";
+
+        box.style.transition =
+          "opacity .4s";
+
       }
 
-
-      evaluations =
-        data || [];
-
-
-      renderEvaluations();
-
-      updateEvaluationStats();
-
-
-    } catch (error) {
-
-      console.error(
-        "loadEvaluations error:",
-        error
-      );
-
-    }
+    }, 5000);
 
   }
 
 
-  /* =======================================================
-     RENDER EVALUATIONS
-  ======================================================= */
+  /* =========================================================
+     LOAD ATHLETES
+  ========================================================= */
 
-  function renderEvaluations() {
-
-    const container =
-      el("evaluationsList");
-
-    if (!container) {
-      return;
-    }
-
-
-    if (!evaluations.length) {
-
-      container.innerHTML = `
-        <div class="evaluation-empty">
-
-          <div class="evaluation-empty-icon">
-            📊
-          </div>
-
-          <h2>
-            هنوز ارزیابی‌ای ثبت نشده است
-          </h2>
-
-          <p>
-            برای شروع، یک ورزشکار و دوره ارزیابی انتخاب کنید.
-          </p>
-
-        </div>
-      `;
-
-      return;
-
-    }
-
-
-    container.innerHTML =
-      evaluations
-        .map(
-          evaluation => {
-
-            const athlete =
-              athletes.find(
-                a =>
-                  String(getAthleteId(a)) ===
-                  String(evaluation.athlete_id)
-              );
-
-
-            const period =
-              evaluationPeriods.find(
-                p =>
-                  String(p.id) ===
-                  String(evaluation.period_id)
-              );
-
-
-            const name =
-              getAthleteName(athlete);
-
-
-            return `
-              <div class="evaluation-card">
-
-                <div class="evaluation-card-header">
-
-                  <div class="evaluation-athlete">
-
-                    <div class="evaluation-avatar">
-                      🥋
-                    </div>
-
-                    <div>
-
-                      <h3>
-                        ${escapeHtml(name)}
-                      </h3>
-
-                      <p>
-                        ${
-                          escapeHtml(
-                            period?.name ||
-                            period?.title ||
-                            "دوره ارزیابی"
-                          )
-                        }
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                  <div class="evaluation-score">
-
-                    <span>
-                      امتیاز
-                    </span>
-
-                    <strong>
-                      ${evaluation.total_score ?? "—"}
-                    </strong>
-
-                  </div>
-
-                </div>
-
-              </div>
-            `;
-
-          }
-        )
-        .join("");
-
-  }
-
-
-  /* =======================================================
-     ATTENDANCE
-  ======================================================= */
-
-  async function initializeAttendancePage() {
-
-    await loadAthletes();
-
-    fillAttendanceAthletes();
-
-    updateAttendanceDateText();
-
-
-    await loadAttendanceForDate(
-      el("attendanceDate")?.value ||
-      getTodayISO()
-    );
-
-
-    attendanceInitialized =
-      true;
-
-  }
-
-
-  function fillAttendanceAthletes() {
-
-    const total =
-      el("attendanceTotalAthletes");
-
-
-    if (total) {
-
-      total.textContent =
-        toPersianNumber(
-          athletes.length
-        );
-
-    }
-
-  }
-
-
-  /* =======================================================
-     LOAD ATTENDANCE FOR DATE
-  ======================================================= */
-
-  async function loadAttendanceForDate(date) {
-
-    if (!date) {
-      date = getTodayISO();
-    }
-
-
-    updateAttendanceDateText();
-
+  async function loadAthletes() {
 
     const list =
-      el("attendanceList");
-
-
-    if (list) {
-
-      list.innerHTML = `
-        <div class="attendance-loading">
-          در حال بارگذاری حضور و غیاب...
-        </div>
-      `;
-
-    }
-
-
-    if (!checkSupabase()) {
-      return;
-    }
-
-
-    attendanceData = {};
-
-
-    try {
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("attendance")
-          .select("*")
-          .eq(
-            "date",
-            date
-          );
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      (data || [])
-        .forEach(
-          row => {
-
-            attendanceData[
-              String(row.athlete_id)
-            ] = {
-
-              status:
-                row.status ||
-                "absent",
-
-              note:
-                row.note ||
-                ""
-
-            };
-
-          }
-        );
-
-
-      renderAttendanceList();
-
-      updateAttendanceSummary();
-
-
-    } catch (error) {
-
-      console.error(
-        "loadAttendanceForDate error:",
-        error
+      document.getElementById(
+        "athletesList"
       );
-
-
-      const errorBox =
-        el("attendanceError");
-
-
-      if (errorBox) {
-
-        errorBox.style.display =
-          "block";
-
-
-        errorBox.textContent =
-          "خطا در دریافت حضور و غیاب: " +
-          (
-            error.message ||
-            error
-          );
-
-      }
-
-
-      renderAttendanceList();
-
-    }
-
-  }
-
-
-  /* =======================================================
-     RENDER ATTENDANCE
-  ======================================================= */
-
-  function renderAttendanceList() {
-
-    const list =
-      el("attendanceList");
 
 
     if (!list) {
@@ -1713,643 +371,301 @@
     }
 
 
-    const search =
-      (
-        el("attendanceSearch")
-          ?.value ||
-        ""
-      )
-        .trim()
-        .toLowerCase();
-
-
-    const filter =
-      el("attendanceFilter")
-        ?.value ||
-        "all";
-
-
-    let listAthletes =
-      [...athletes];
-
-
-    if (search) {
-
-      listAthletes =
-        listAthletes.filter(
-          athlete =>
-            getAthleteName(athlete)
-              .toLowerCase()
-              .includes(search)
-        );
-
-    }
-
-
-    if (filter !== "all") {
-
-      listAthletes =
-        listAthletes.filter(
-          athlete => {
-
-            const id =
-              String(
-                getAthleteId(athlete)
-              );
-
-
-            const status =
-              attendanceData[id]
-                ?.status ||
-              "absent";
-
-
-            return (
-              status === filter
-            );
-
-          }
-        );
-
-    }
-
-
-    if (!listAthletes.length) {
+    if (!supabaseClient) {
 
       list.innerHTML = `
-        <div class="attendance-empty">
-
-          <div class="attendance-empty-icon">
-            👥
-          </div>
-
-          <h3>
-            ورزشکاری پیدا نشد
-          </h3>
-
+        <div class="evaluation-empty">
+          <div class="evaluation-empty-icon">🔴</div>
+          <h2>اتصال به Supabase برقرار نیست</h2>
           <p>
-            فیلتر یا جستجو را تغییر دهید.
+            اتصال پایگاه داده برقرار نشد.
           </p>
-
         </div>
       `;
 
       return;
-
-    }
-
-
-    list.innerHTML =
-      listAthletes
-        .map(
-          athlete => {
-
-            const id =
-              String(
-                getAthleteId(athlete)
-              );
-
-
-            const current =
-              attendanceData[id] || {
-
-                status:
-                  "absent",
-
-                note:
-                  ""
-
-              };
-
-
-            const name =
-              getAthleteName(athlete);
-
-
-            const ageGroup =
-              athlete.age_group ||
-              athlete.ageGroup ||
-              athlete.category ||
-              "—";
-
-
-            return `
-              <div
-                class="attendance-row"
-                data-athlete-id="${escapeHtml(id)}"
-              >
-
-                <div class="attendance-athlete">
-
-                  <div class="attendance-avatar">
-                    🥋
-                  </div>
-
-                  <div class="attendance-athlete-info">
-
-                    <strong>
-                      ${escapeHtml(name)}
-                    </strong>
-
-                    <span>
-                      ${escapeHtml(ageGroup)}
-                    </span>
-
-                  </div>
-
-                </div>
-
-
-                <div class="attendance-status-group">
-
-                  ${attendanceButton(
-                    id,
-                    "present",
-                    "حاضر",
-                    "🟢",
-                    current.status
-                  )}
-
-                  ${attendanceButton(
-                    id,
-                    "late",
-                    "تأخیر",
-                    "🟡",
-                    current.status
-                  )}
-
-                  ${attendanceButton(
-                    id,
-                    "absent",
-                    "غایب",
-                    "🔴",
-                    current.status
-                  )}
-
-                  ${attendanceButton(
-                    id,
-                    "excused",
-                    "موجه",
-                    "🔵",
-                    current.status
-                  )}
-
-                </div>
-
-
-                <textarea
-                  class="attendance-note"
-                  data-athlete-note="${escapeHtml(id)}"
-                  placeholder="توضیحات..."
-                >${escapeHtml(current.note)}</textarea>
-
-              </div>
-            `;
-
-          }
-        )
-        .join("");
-
-
-    bindAttendanceButtons();
-
-    updateAttendanceSummary();
-
-  }
-
-
-  function attendanceButton(
-    athleteId,
-    status,
-    text,
-    icon,
-    currentStatus
-  ) {
-
-    const active =
-      currentStatus === status
-        ? "active"
-        : "";
-
-
-    return `
-      <button
-        type="button"
-        class="attendance-status-btn ${active}"
-        data-athlete-id="${escapeHtml(athleteId)}"
-        data-status="${status}"
-      >
-        ${icon}
-        ${text}
-      </button>
-    `;
-
-  }
-
-
-  /* =======================================================
-     ATTENDANCE BUTTONS
-  ======================================================= */
-
-  function bindAttendanceButtons() {
-
-    document
-      .querySelectorAll(
-        ".attendance-status-btn"
-      )
-      .forEach(
-        button => {
-
-          if (
-            button.dataset.bound
-          ) {
-            return;
-          }
-
-
-          button.dataset.bound =
-            "true";
-
-
-          button.addEventListener(
-            "click",
-            function () {
-
-              const athleteId =
-                this.dataset.athleteId;
-
-
-              const status =
-                this.dataset.status;
-
-
-              if (!athleteId) {
-                return;
-              }
-
-
-              attendanceData[
-                athleteId
-              ] = {
-
-                status:
-                  status,
-
-                note:
-                  attendanceData[
-                    athleteId
-                  ]?.note || ""
-
-              };
-
-
-              document
-                .querySelectorAll(
-                  `.attendance-status-btn[data-athlete-id="${CSS.escape(athleteId)}"]`
-                )
-                .forEach(
-                  btn =>
-                    btn.classList.remove(
-                      "active"
-                    )
-                );
-
-
-              this.classList.add(
-                "active"
-              );
-
-
-              updateAttendanceSummary();
-
-            }
-          );
-
-        }
-      );
-
-
-    document
-      .querySelectorAll(
-        ".attendance-note"
-      )
-      .forEach(
-        textarea => {
-
-          if (
-            textarea.dataset.bound
-          ) {
-            return;
-          }
-
-
-          textarea.dataset.bound =
-            "true";
-
-
-          textarea.addEventListener(
-            "input",
-            function () {
-
-              const id =
-                this.dataset.athleteNote;
-
-
-              if (!id) {
-                return;
-              }
-
-
-              if (
-                !attendanceData[id]
-              ) {
-
-                attendanceData[id] = {
-
-                  status:
-                    "absent",
-
-                  note:
-                    ""
-
-                };
-
-              }
-
-
-              attendanceData[id].note =
-                this.value;
-
-            }
-          );
-
-        }
-      );
-
-  }
-
-
-  /* =======================================================
-     SAVE ATTENDANCE
-  ======================================================= */
-
-  async function saveAttendance() {
-
-    if (!checkSupabase()) {
-      return;
-    }
-
-
-    const date =
-      el("attendanceDate")
-        ?.value;
-
-
-    if (!date) {
-
-      showMessage(
-        "تاریخ جلسه را انتخاب کنید."
-      );
-
-      return;
-
-    }
-
-
-    if (!athletes.length) {
-
-      showMessage(
-        "هیچ ورزشکاری برای ثبت حضور و غیاب وجود ندارد."
-      );
-
-      return;
-
-    }
-
-
-    const button =
-      el("saveAttendanceBtn");
-
-
-    if (button) {
-
-      button.disabled =
-        true;
-
-      button.textContent =
-        "در حال ذخیره...";
-
     }
 
 
     try {
 
-      document
-        .querySelectorAll(
-          ".attendance-note"
-        )
-        .forEach(
-          textarea => {
-
-            const id =
-              textarea.dataset.athleteNote;
-
-
-            if (!id) {
-              return;
-            }
-
-
-            if (
-              !attendanceData[id]
-            ) {
-
-              attendanceData[id] = {
-
-                status:
-                  "absent",
-
-                note:
-                  ""
-
-              };
-
-            }
-
-
-            attendanceData[id].note =
-              textarea.value;
-
-          }
-        );
-
-
-      const rows =
-        athletes.map(
-          athlete => {
-
-            const athleteId =
-              getAthleteId(athlete);
-
-
-            const record =
-              attendanceData[
-                String(athleteId)
-              ] || {
-
-                status:
-                  "absent",
-
-                note:
-                  ""
-
-              };
-
-
-            return {
-
-              athlete_id:
-                athleteId,
-
-              date:
-                date,
-
-              status:
-                record.status,
-
-              note:
-                record.note || null
-
-            };
-
-          }
-        );
+      console.log(
+        "⏳ در حال دریافت ورزشکاران..."
+      );
 
 
       const {
+        data,
         error
       } =
         await supabaseClient
-          .from("attendance")
-          .upsert(
-            rows,
-            {
-              onConflict:
-                "athlete_id,date"
-            }
-          );
+          .from("Athletes")
+          .select("*")
+          .order("created_at", {
+            ascending: false
+          });
 
 
       if (error) {
-        throw error;
+
+        console.error(
+          "❌ خطا در دریافت ورزشکاران:",
+          error
+        );
+
+
+        /*
+         * اگر created_at وجود نداشته باشد،
+         * یک بار بدون order امتحان می‌کنیم.
+         */
+
+        const retry =
+          await supabaseClient
+            .from("Athletes")
+            .select("*");
+
+
+        if (retry.error) {
+
+          list.innerHTML = `
+            <div class="evaluation-empty">
+
+              <div class="evaluation-empty-icon">
+                ⚠️
+              </div>
+
+              <h2>
+                خطا در دریافت ورزشکاران
+              </h2>
+
+              <p>
+                ${escapeHTML(
+                  retry.error.message ||
+                  "خطای نامشخص"
+                )}
+              </p>
+
+            </div>
+          `;
+
+          return;
+        }
+
+
+        renderAthletes(
+          retry.data || []
+        );
+
+        return;
       }
 
 
-      showMessage(
-        "حضور و غیاب با موفقیت ذخیره شد ✅"
+      renderAthletes(
+        data || []
       );
-
-
-      await loadAttendanceForDate(
-        date
-      );
-
-
-      await loadDashboardStats();
 
 
     } catch (error) {
 
       console.error(
-        "saveAttendance error:",
+        "❌ Exception:",
         error
       );
-
-
-      showMessage(
-        "ذخیره حضور و غیاب انجام نشد.\n\n" +
-        (
-          error.message ||
-          error
-        )
-      );
-
-
-    } finally {
-
-      if (button) {
-
-        button.disabled =
-          false;
-
-        button.textContent =
-          "💾 ذخیره حضور و غیاب";
-
-      }
 
     }
 
   }
 
 
-  /* =======================================================
-     ATTENDANCE SUMMARY
-  ======================================================= */
+  /* =========================================================
+     RENDER ATHLETES
+  ========================================================= */
 
-  function updateAttendanceSummary() {
+  function renderAthletes(
+    athletes
+  ) {
 
-    let present =
-      0;
-
-    let late =
-      0;
-
-    let absent =
-      0;
+    const list =
+      document.getElementById(
+        "athletesList"
+      );
 
 
-    athletes.forEach(
-      athlete => {
-
-        const id =
-          String(
-            getAthleteId(athlete)
-          );
+    if (!list) {
+      return;
+    }
 
 
-        const status =
-          attendanceData[id]
-            ?.status ||
-          "absent";
+    if (!athletes.length) {
+
+      list.innerHTML = `
+        <div class="evaluation-empty">
+
+          <div class="evaluation-empty-icon">
+            👥
+          </div>
+
+          <h2>
+            ورزشکاری ثبت نشده است
+          </h2>
+
+          <p>
+            هنوز ورزشکاری در سیستم ثبت نشده است.
+          </p>
+
+        </div>
+      `;
+
+      updateDashboard(
+        athletes
+      );
+
+      return;
+    }
 
 
-        if (status === "present") {
+    list.innerHTML =
+      athletes
+        .map(
+          athlete =>
+            createAthleteCard(
+              athlete
+            )
+        )
+        .join("");
 
-          present++;
 
-        }
-
-        else if (status === "late") {
-
-          late++;
-
-        }
-
-        else {
-
-          absent++;
-
-        }
-
-      }
+    updateDashboard(
+      athletes
     );
 
+  }
 
-    if (el("attendanceTotalAthletes")) {
 
-      el(
-        "attendanceTotalAthletes"
-      ).textContent =
+  /* =========================================================
+     ATHLETE CARD
+  ========================================================= */
+
+  function createAthleteCard(
+    athlete
+  ) {
+
+    const name =
+      athlete.name ||
+      athlete.full_name ||
+      athlete.first_name ||
+      "بدون نام";
+
+
+    const category =
+      athlete.category ||
+      athlete.age_group ||
+      athlete.ageGroup ||
+      "—";
+
+
+    const weight =
+      athlete.weight ||
+      athlete.weight_class ||
+      "—";
+
+
+    const belt =
+      athlete.belt ||
+      athlete.rank ||
+      "—";
+
+
+    return `
+
+      <div
+        class="athlete-card"
+        style="
+          background:#fff;
+          border:1px solid #e6e9ed;
+          border-radius:16px;
+          padding:18px;
+          margin-bottom:12px;
+        "
+      >
+
+        <div
+          style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:15px;
+          "
+        >
+
+          <div>
+
+            <h3
+              style="
+                margin:0 0 8px;
+                font-size:16px;
+              "
+            >
+              👤 ${escapeHTML(name)}
+            </h3>
+
+            <div
+              style="
+                color:#667085;
+                font-size:12px;
+                line-height:2;
+              "
+            >
+
+              رده سنی:
+              <strong>
+                ${escapeHTML(category)}
+              </strong>
+
+              <br>
+
+              وزن:
+              <strong>
+                ${escapeHTML(String(weight))}
+              </strong>
+
+              <br>
+
+              کمربند:
+              <strong>
+                ${escapeHTML(belt)}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  /* =========================================================
+     DASHBOARD
+  ========================================================= */
+
+  async function updateDashboard(
+    athletes
+  ) {
+
+    const dashboardAthletes =
+      document.getElementById(
+        "dashboardAthletes"
+      );
+
+
+    if (dashboardAthletes) {
+
+      dashboardAthletes.textContent =
         toPersianNumber(
           athletes.length
         );
@@ -2357,402 +673,690 @@
     }
 
 
-    if (el("attendancePresentCount")) {
-
-      el(
-        "attendancePresentCount"
-      ).textContent =
-        toPersianNumber(
-          present
-        );
-
-    }
-
-
-    if (el("attendanceLateCount")) {
-
-      el(
-        "attendanceLateCount"
-      ).textContent =
-        toPersianNumber(
-          late
-        );
-
-    }
-
-
-    if (el("attendanceAbsentCount")) {
-
-      el(
-        "attendanceAbsentCount"
-      ).textContent =
-        toPersianNumber(
-          absent
-        );
-
-    }
-
-
-    const selected =
-      Object.keys(
-        attendanceData
-      ).length;
-
-
-    if (
-      el("attendanceSelectedCount")
-    ) {
-
-      el(
-        "attendanceSelectedCount"
-      ).textContent =
-        toPersianNumber(
-          selected
-        );
-
-    }
-
-  }
-
-
-  /* =======================================================
-     DATE TEXT
-  ======================================================= */
-
-  function updateAttendanceDateText() {
-
-    const input =
-      el("attendanceDate");
-
-
-    const output =
-      el(
-        "attendanceSelectedDateText"
-      );
-
-
-    if (!input || !output) {
-      return;
-    }
-
-
-    if (!input.value) {
-
-      output.textContent =
-        "—";
-
-      return;
-
-    }
-
-
-    output.textContent =
-      input.value;
-
-  }
-
-
-  /* =======================================================
-     ACHIEVEMENTS
-     مقام‌ها و افتخارات
-  ======================================================= */
-
-  const achievementTypes = {
-
-    gold: {
-      title: "🥇 مقام اول / طلا",
-      short: "🥇 طلا"
-    },
-
-    silver: {
-      title: "🥈 مقام دوم / نقره",
-      short: "🥈 نقره"
-    },
-
-    bronze: {
-      title: "🥉 مقام سوم / برنز",
-      short: "🥉 برنز"
-    },
-
-    other: {
-      title: "🏆 افتخار / سایر",
-      short: "🏆 سایر"
-    }
-
-  };
-
-
-  function getAchievementTypeLabel(type) {
-
-    return (
-      achievementTypes[type]?.short ||
-      "🏆 سایر"
-    );
-
-  }
-
-
-  function getAchievementTypeTitle(type) {
-
-    return (
-      achievementTypes[type]?.title ||
-      "🏆 افتخار / سایر"
-    );
-
-  }
-
-
-  /* =======================================================
-     LOAD ACHIEVEMENTS
-  ======================================================= */
-
-  async function loadAchievements() {
-
-    if (!checkSupabase()) {
-      return [];
-    }
-
-
+    // تعداد ارزیابی‌ها
     try {
 
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("achievements")
-          .select("*")
-          .order(
-            "achievement_date",
-            {
-              ascending: false,
-              nullsFirst: false
-            }
+      if (supabaseClient) {
+
+        const result =
+          await supabaseClient
+            .from("evaluations")
+            .select("id", {
+              count: "exact",
+              head: true
+            });
+
+
+        if (
+          !result.error &&
+          document.getElementById(
+            "dashboardEvaluations"
           )
-          .order(
-            "created_at",
-            {
-              ascending: false
-            }
-          );
+        ) {
 
+          document.getElementById(
+            "dashboardEvaluations"
+          ).textContent =
+            toPersianNumber(
+              result.count || 0
+            );
 
-      if (error) {
-        throw error;
+        }
+
       }
-
-
-      achievements =
-        data || [];
-
-
-      console.log(
-        "Achievements loaded:",
-        achievements
-      );
-
-
-      renderAchievements();
-
-      updateAchievementStats();
-
-
-      return achievements;
-
 
     } catch (error) {
 
-      console.error(
-        "loadAchievements error:",
+      console.warn(
+        "⚠️ شمارش ارزیابی‌ها انجام نشد:",
         error
       );
 
-
-      achievements =
-        [];
+    }
 
 
-      renderAchievements();
+    // افتخارات
+    try {
 
-      updateAchievementStats();
+      if (supabaseClient) {
+
+        const result =
+          await supabaseClient
+            .from("achievements")
+            .select("id", {
+              count: "exact",
+              head: true
+            });
 
 
-      return [];
+        if (
+          !result.error &&
+          document.getElementById(
+            "dashboardAchievements"
+          )
+        ) {
+
+          document.getElementById(
+            "dashboardAchievements"
+          ).textContent =
+            toPersianNumber(
+              result.count || 0
+            );
+
+        }
+
+      }
+
+    } catch (error) {
+
+      console.warn(
+        "⚠️ شمارش افتخارات انجام نشد:",
+        error
+      );
 
     }
 
   }
 
 
-  /* =======================================================
-     ACHIEVEMENT ATHLETE SELECT
-  ======================================================= */
+  /* =========================================================
+     ADD ATHLETE
+  ========================================================= */
 
-  function fillAchievementAthleteSelect() {
+  function setupAddAthlete() {
 
-    const select =
-      el("achievementAthleteSelect");
+    const button =
+      document.getElementById(
+        "addAthleteBtn"
+      );
 
-    if (!select) {
+
+    if (!button) {
       return;
     }
 
 
-    const current =
-      select.value;
+    button.addEventListener(
+      "click",
+      function () {
+
+        alert(
+          "بخش افزودن ورزشکار در مرحله بعد به سیستم اصلی متصل می‌شود."
+        );
+
+      }
+    );
+
+  }
 
 
-    select.innerHTML = `
-      <option value="">
-        انتخاب ورزشکار
-      </option>
-    `;
+  /* =========================================================
+     ADD EVALUATION
+  ========================================================= */
+
+  function setupEvaluation() {
+
+    const button =
+      document.getElementById(
+        "addEvaluationBtn"
+      );
 
 
-    athletes.forEach(
-      athlete => {
-
-        const id =
-          getAthleteId(athlete);
+    if (!button) {
+      return;
+    }
 
 
-        if (!id) {
+    button.addEventListener(
+      "click",
+      function () {
+
+        alert(
+          "بخش ثبت ارزیابی در مرحله بعد فعال می‌شود."
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     ATTENDANCE
+  ========================================================= */
+
+  function setupAttendance() {
+
+    const button =
+      document.getElementById(
+        "addAttendanceBtn"
+      );
+
+
+    if (!button) {
+      return;
+    }
+
+
+    button.addEventListener(
+      "click",
+      function () {
+
+        alert(
+          "بخش حضور و غیاب در مرحله بعد فعال می‌شود."
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     ACHIEVEMENTS
+  ========================================================= */
+
+  function setupAchievements() {
+
+    const button =
+      document.getElementById(
+        "addAchievementBtn"
+      );
+
+
+    if (!button) {
+      return;
+    }
+
+
+    button.addEventListener(
+      "click",
+      function () {
+
+        alert(
+          "بخش ثبت افتخار در مرحله بعد به جدول افتخارات متصل می‌شود."
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     ANNOUNCEMENTS
+  ========================================================= */
+
+  function setupAnnouncements() {
+
+    const save =
+      document.getElementById(
+        "saveAnnouncementBtn"
+      );
+
+
+    if (!save) {
+      return;
+    }
+
+
+    save.addEventListener(
+      "click",
+      async function () {
+
+        const title =
+          document.getElementById(
+            "announcementTitle"
+          )?.value.trim();
+
+
+        const type =
+          document.getElementById(
+            "announcementType"
+          )?.value;
+
+
+        const date =
+          document.getElementById(
+            "announcementDate"
+          )?.value;
+
+
+        const location =
+          document.getElementById(
+            "announcementLocation"
+          )?.value.trim();
+
+
+        const startTime =
+          document.getElementById(
+            "announcementStartTime"
+          )?.value;
+
+
+        const endTime =
+          document.getElementById(
+            "announcementEndTime"
+          )?.value;
+
+
+        const content =
+          document.getElementById(
+            "announcementContent"
+          )?.value.trim();
+
+
+        if (!title) {
+
+          alert(
+            "لطفاً عنوان اطلاعیه را وارد کنید."
+          );
+
           return;
         }
 
 
-        const option =
-          document.createElement("option");
+        if (!supabaseClient) {
+
+          alert(
+            "Supabase آماده نیست."
+          );
+
+          return;
+        }
 
 
-        option.value =
-          id;
+        save.disabled =
+          true;
 
 
-        option.textContent =
-          getAthleteName(athlete);
+        const oldText =
+          save.innerHTML;
 
 
-        select.appendChild(option);
-
-      }
-    );
+        save.innerHTML =
+          "⏳ در حال ذخیره...";
 
 
-    if (current) {
+        try {
 
-      select.value =
-        current;
+          const payload = {
 
-    }
+            title:
+              title,
 
-  }
+            type:
+              type,
 
+            date:
+              date || null,
 
-  /* =======================================================
-     CLEAR ACHIEVEMENT FORM
-  ======================================================= */
+            location:
+              location || null,
 
-  function clearAchievementForm() {
+            start_time:
+              startTime || null,
 
-    [
-      "achievementAthleteSelect",
-      "achievementTitle",
-      "achievementCompetition",
-      "achievementType",
-      "achievementAgeGroup",
-      "achievementWeight",
-      "achievementDate",
-      "achievementDescription"
-    ]
-      .forEach(
-        id => {
+            end_time:
+              endTime || null,
 
-          const input =
-            el(id);
+            content:
+              content || null
+
+          };
 
 
-          if (!input) {
+          const {
+            error
+          } =
+            await supabaseClient
+              .from("announcements")
+              .insert(payload);
+
+
+          if (error) {
+
+            console.error(
+              "❌ Announcement Error:",
+              error
+            );
+
+
+            alert(
+              "ذخیره اطلاعیه انجام نشد.\n\n" +
+              error.message
+            );
+
             return;
           }
 
 
-          if (
-            input.tagName === "SELECT"
-          ) {
+          alert(
+            "✅ اطلاعیه با موفقیت ثبت شد."
+          );
 
-            input.selectedIndex =
-              0;
 
-          }
+          closeModalById(
+            "announcementModal"
+          );
 
-          else {
 
-            input.value =
-              "";
+          clearAnnouncementForm();
 
-          }
+
+        } catch (error) {
+
+          console.error(
+            error
+          );
+
+
+          alert(
+            "خطا هنگام ذخیره اطلاعیه:\n\n" +
+            error.message
+          );
+
+
+        } finally {
+
+          save.disabled =
+            false;
+
+          save.innerHTML =
+            oldText;
 
         }
-      );
 
-
-    const dateInput =
-      el("achievementDate");
-
-
-    if (dateInput) {
-
-      dateInput.value =
-        getTodayISO();
-
-    }
-
-  }
-
-
-  /* =======================================================
-     OPEN ACHIEVEMENT MODAL
-  ======================================================= */
-
-  function openAchievementModal() {
-
-    const modal =
-      el("achievementModal");
-
-    if (!modal) {
-
-      showMessage(
-        "بخش فرم مقام‌ها در صفحه پیدا نشد."
-      );
-
-      return;
-
-    }
-
-
-    clearAchievementForm();
-
-
-    modal.classList.remove(
-      "hidden"
+      }
     );
 
+  }
 
-    modal.style.display =
-      "flex";
+
+  /* =========================================================
+     COMPETITIONS
+  ========================================================= */
+
+  function setupCompetitions() {
+
+    const save =
+      document.getElementById(
+        "saveCompetitionBtn"
+      );
+
+
+    if (!save) {
+      return;
+    }
+
+
+    save.addEventListener(
+      "click",
+      async function () {
+
+        const title =
+          document.getElementById(
+            "competitionTitle"
+          )?.value.trim();
+
+
+        const date =
+          document.getElementById(
+            "competitionDate"
+          )?.value;
+
+
+        const location =
+          document.getElementById(
+            "competitionLocation"
+          )?.value.trim();
+
+
+        const startTime =
+          document.getElementById(
+            "competitionStartTime"
+          )?.value;
+
+
+        const endTime =
+          document.getElementById(
+            "competitionEndTime"
+          )?.value;
+
+
+        const ageGroup =
+          document.getElementById(
+            "competitionAgeGroup"
+          )?.value.trim();
+
+
+        const weights =
+          document.getElementById(
+            "competitionWeights"
+          )?.value.trim();
+
+
+        const description =
+          document.getElementById(
+            "competitionDescription"
+          )?.value.trim();
+
+
+        if (!title) {
+
+          alert(
+            "لطفاً نام مسابقه را وارد کنید."
+          );
+
+          return;
+        }
+
+
+        if (!supabaseClient) {
+
+          alert(
+            "Supabase آماده نیست."
+          );
+
+          return;
+        }
+
+
+        save.disabled =
+          true;
+
+
+        const oldText =
+          save.innerHTML;
+
+
+        save.innerHTML =
+          "⏳ در حال ذخیره...";
+
+
+        try {
+
+          const payload = {
+
+            title:
+              title,
+
+            date:
+              date || null,
+
+            location:
+              location || null,
+
+            start_time:
+              startTime || null,
+
+            end_time:
+              endTime || null,
+
+            age_group:
+              ageGroup || null,
+
+            weights:
+              weights || null,
+
+            description:
+              description || null
+
+          };
+
+
+          const {
+            error
+          } =
+            await supabaseClient
+              .from("competitions")
+              .insert(payload);
+
+
+          if (error) {
+
+            console.error(
+              "❌ Competition Error:",
+              error
+            );
+
+
+            alert(
+              "ثبت مسابقه انجام نشد.\n\n" +
+              error.message
+            );
+
+            return;
+          }
+
+
+          alert(
+            "✅ مسابقه با موفقیت ثبت شد."
+          );
+
+
+          closeModalById(
+            "competitionModal"
+          );
+
+
+          clearCompetitionForm();
+
+
+        } catch (error) {
+
+          console.error(
+            error
+          );
+
+
+          alert(
+            "خطا هنگام ثبت مسابقه:\n\n" +
+            error.message
+          );
+
+
+        } finally {
+
+          save.disabled =
+            false;
+
+          save.innerHTML =
+            oldText;
+
+        }
+
+      }
+    );
 
   }
 
 
-  /* =======================================================
-     CLOSE ACHIEVEMENT MODAL
-  ======================================================= */
+  /* =========================================================
+     CLEAR FORMS
+  ========================================================= */
 
-  function closeAchievementModal() {
+  function clearAnnouncementForm() {
+
+    const ids = [
+
+      "announcementTitle",
+      "announcementDate",
+      "announcementLocation",
+      "announcementStartTime",
+      "announcementEndTime",
+      "announcementContent"
+
+    ];
+
+
+    ids.forEach(
+      id => {
+
+        const element =
+          document.getElementById(id);
+
+
+        if (element) {
+
+          element.value =
+            "";
+
+        }
+
+      }
+    );
+
+  }
+
+
+  function clearCompetitionForm() {
+
+    const ids = [
+
+      "competitionTitle",
+      "competitionDate",
+      "competitionLocation",
+      "competitionStartTime",
+      "competitionEndTime",
+      "competitionAgeGroup",
+      "competitionWeights",
+      "competitionDescription"
+
+    ];
+
+
+    ids.forEach(
+      id => {
+
+        const element =
+          document.getElementById(id);
+
+
+        if (element) {
+
+          element.value =
+            "";
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     MODAL HELPERS
+  ========================================================= */
+
+  function closeModalById(
+    id
+  ) {
 
     const modal =
-      el("achievementModal");
+      document.getElementById(id);
+
 
     if (!modal) {
       return;
@@ -2770,1250 +1374,15 @@
   }
 
 
-  /* =======================================================
-     SAVE ACHIEVEMENT
-  ======================================================= */
+  /* =========================================================
+     AUTH CHECK
+  ========================================================= */
 
-  async function saveAchievement() {
+  async function checkAuth() {
 
-    if (!checkSupabase()) {
-      return;
-    }
+    if (!supabaseClient) {
 
-
-    const athleteId =
-      el("achievementAthleteSelect")
-        ?.value;
-
-
-    const title =
-      el("achievementTitle")
-        ?.value
-        .trim();
-
-
-    const competitionName =
-      el("achievementCompetition")
-        ?.value
-        .trim();
-
-
-    const achievementType =
-      el("achievementType")
-        ?.value ||
-      "other";
-
-
-    const ageGroup =
-      el("achievementAgeGroup")
-        ?.value
-        .trim();
-
-
-    const weightValue =
-      el("achievementWeight")
-        ?.value;
-
-
-    const achievementDate =
-      el("achievementDate")
-        ?.value;
-
-
-    const description =
-      el("achievementDescription")
-        ?.value
-        .trim();
-
-
-    /* اعتبارسنجی */
-
-    if (!athleteId) {
-
-      showMessage(
-        "لطفاً ورزشکار را انتخاب کنید."
-      );
-
-      return;
-
-    }
-
-
-    if (!title) {
-
-      showMessage(
-        "لطفاً عنوان مقام یا افتخار را وارد کنید."
-      );
-
-      return;
-
-    }
-
-
-    if (!achievementType) {
-
-      showMessage(
-        "نوع مقام را انتخاب کنید."
-      );
-
-      return;
-
-    }
-
-
-    const saveButton =
-      el("saveAchievementBtn");
-
-
-    if (saveButton) {
-
-      saveButton.disabled =
-        true;
-
-      saveButton.textContent =
-        "در حال ثبت...";
-
-    }
-
-
-    try {
-
-      const selectedAthlete =
-        athletes.find(
-          athlete =>
-            String(
-              getAthleteId(athlete)
-            ) ===
-            String(athleteId)
-        );
-
-
-      const payload = {
-
-        athlete_id:
-          athleteId,
-
-        title:
-          title,
-
-        competition_name:
-          competitionName ||
-          null,
-
-        achievement_type:
-          achievementType,
-
-        age_group:
-          ageGroup ||
-          selectedAthlete?.age_group ||
-          selectedAthlete?.ageGroup ||
-          selectedAthlete?.category ||
-          null,
-
-        weight:
-          weightValue
-            ? Number(weightValue)
-            : selectedAthlete?.weight ??
-              null,
-
-        achievement_date:
-          achievementDate ||
-          null,
-
-        description:
-          description ||
-          null
-
-      };
-
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("achievements")
-          .insert(payload)
-          .select()
-          .single();
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      console.log(
-        "Achievement created:",
-        data
-      );
-
-
-      showMessage(
-        "مقام با موفقیت ثبت شد 🏆✅"
-      );
-
-
-      closeAchievementModal();
-
-
-      await loadAchievements();
-
-      await loadDashboardStats();
-
-
-    } catch (error) {
-
-      console.error(
-        "saveAchievement error:",
-        error
-      );
-
-
-      showMessage(
-        "ثبت مقام انجام نشد.\n\n" +
-        (
-          error.message ||
-          error
-        )
-      );
-
-
-    } finally {
-
-      if (saveButton) {
-
-        saveButton.disabled =
-          false;
-
-        saveButton.textContent =
-          "ثبت مقام";
-
-      }
-
-    }
-
-  }
-
-
-  /* =======================================================
-     DELETE ACHIEVEMENT
-  ======================================================= */
-
-  async function deleteAchievement(
-    achievementId
-  ) {
-
-    if (!achievementId) {
-      return;
-    }
-
-
-    if (!checkSupabase()) {
-      return;
-    }
-
-
-    const achievement =
-      achievements.find(
-        item =>
-          String(item.id) ===
-          String(achievementId)
-      );
-
-
-    const title =
-      achievement?.title ||
-      "این مقام";
-
-
-    const confirmed =
-      confirm(
-        `آیا از حذف «${title}» مطمئن هستید؟`
-      );
-
-
-    if (!confirmed) {
-      return;
-    }
-
-
-    try {
-
-      const {
-        error
-      } =
-        await supabaseClient
-          .from("achievements")
-          .delete()
-          .eq(
-            "id",
-            achievementId
-          );
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      showMessage(
-        "مقام با موفقیت حذف شد ✅"
-      );
-
-
-      await loadAchievements();
-
-      await loadDashboardStats();
-
-
-    } catch (error) {
-
-      console.error(
-        "deleteAchievement error:",
-        error
-      );
-
-
-      showMessage(
-        "حذف مقام انجام نشد.\n\n" +
-        (
-          error.message ||
-          error
-        )
-      );
-
-    }
-
-  }
-
-
-  /* =======================================================
-     RENDER ACHIEVEMENTS
-  ======================================================= */
-
-  function renderAchievements() {
-
-    const container =
-      el("achievementsList");
-
-
-    if (!container) {
-      return;
-    }
-
-
-    const search =
-      (
-        el("achievementSearch")
-          ?.value ||
-        ""
-      )
-        .trim()
-        .toLowerCase();
-
-
-    const filter =
-      el("achievementFilter")
-        ?.value ||
-        "all";
-
-
-    let list =
-      [...achievements];
-
-
-    if (search) {
-
-      list =
-        list.filter(
-          achievement => {
-
-            const athlete =
-              athletes.find(
-                a =>
-                  String(
-                    getAthleteId(a)
-                  ) ===
-                  String(
-                    achievement.athlete_id
-                  )
-              );
-
-
-            const athleteName =
-              getAthleteName(athlete)
-                .toLowerCase();
-
-
-            const title =
-              String(
-                achievement.title ||
-                ""
-              )
-                .toLowerCase();
-
-
-            const competition =
-              String(
-                achievement.competition_name ||
-                ""
-              )
-                .toLowerCase();
-
-
-            return (
-              athleteName.includes(search) ||
-              title.includes(search) ||
-              competition.includes(search)
-            );
-
-          }
-        );
-
-    }
-
-
-    if (filter !== "all") {
-
-      list =
-        list.filter(
-          achievement =>
-            String(
-              achievement.achievement_type ||
-              "other"
-            ) ===
-            String(filter)
-        );
-
-    }
-
-
-    if (!list.length) {
-
-      container.innerHTML = `
-        <div class="evaluation-empty">
-
-          <div class="evaluation-empty-icon">
-            🏆
-          </div>
-
-          <h2>
-            هنوز مقامی ثبت نشده است
-          </h2>
-
-          <p>
-            برای ثبت اولین مقام، روی «افزودن مقام» بزنید.
-          </p>
-
-        </div>
-      `;
-
-      return;
-
-    }
-
-
-    container.innerHTML =
-      list
-        .map(
-          achievement => {
-
-            const athlete =
-              athletes.find(
-                a =>
-                  String(
-                    getAthleteId(a)
-                  ) ===
-                  String(
-                    achievement.athlete_id
-                  )
-              );
-
-
-            const athleteName =
-              getAthleteName(athlete);
-
-
-            const type =
-              achievement.achievement_type ||
-              "other";
-
-
-            const typeLabel =
-              getAchievementTypeLabel(
-                type
-              );
-
-
-            const title =
-              achievement.title ||
-              "بدون عنوان";
-
-
-            const competition =
-              achievement.competition_name ||
-              "مسابقه ثبت نشده";
-
-
-            const date =
-              achievement.achievement_date ||
-              "";
-
-
-            const ageGroup =
-              achievement.age_group ||
-              athlete?.age_group ||
-              athlete?.ageGroup ||
-              athlete?.category ||
-              "—";
-
-
-            const weight =
-              achievement.weight ??
-              athlete?.weight ??
-              "—";
-
-
-            const description =
-              achievement.description ||
-              "";
-
-
-            return `
-              <div
-                class="achievement-card"
-                data-achievement-id="${escapeHtml(
-                  achievement.id
-                )}"
-              >
-
-                <div class="achievement-card-top">
-
-                  <div class="achievement-medal">
-                    ${escapeHtml(
-                      typeLabel.split(" ")[0] || "🏆"
-                    )}
-                  </div>
-
-                  <div class="achievement-main">
-
-                    <h3>
-                      ${escapeHtml(title)}
-                    </h3>
-
-                    <div class="achievement-athlete-name">
-                      🥋
-                      ${escapeHtml(athleteName)}
-                    </div>
-
-                  </div>
-
-                  <button
-                    type="button"
-                    class="achievement-delete-btn"
-                    data-delete-achievement="${escapeHtml(
-                      achievement.id
-                    )}"
-                    title="حذف مقام"
-                  >
-                    🗑️
-                  </button>
-
-                </div>
-
-
-                <div class="achievement-type-badge">
-                  ${escapeHtml(
-                    typeLabel
-                  )}
-                </div>
-
-
-                <div class="achievement-details">
-
-                  <div class="achievement-detail">
-
-                    <span>
-                      🏟️ مسابقه
-                    </span>
-
-                    <strong>
-                      ${escapeHtml(
-                        competition
-                      )}
-                    </strong>
-
-                  </div>
-
-
-                  <div class="achievement-detail">
-
-                    <span>
-                      🏅 رده
-                    </span>
-
-                    <strong>
-                      ${escapeHtml(
-                        ageGroup
-                      )}
-                    </strong>
-
-                  </div>
-
-
-                  <div class="achievement-detail">
-
-                    <span>
-                      ⚖️ وزن
-                    </span>
-
-                    <strong>
-                      ${
-                        escapeHtml(
-                          weight
-                        )
-                      }
-                      ${
-                        weight !== "—"
-                          ? " کیلو"
-                          : ""
-                      }
-                    </strong>
-
-                  </div>
-
-
-                  <div class="achievement-detail">
-
-                    <span>
-                      📅 تاریخ
-                    </span>
-
-                    <strong>
-                      ${escapeHtml(
-                        date || "—"
-                      )}
-                    </strong>
-
-                  </div>
-
-                </div>
-
-
-                ${
-                  description
-                    ?
-                  `
-                    <div class="achievement-description">
-                      ${escapeHtml(
-                        description
-                      )}
-                    </div>
-                  `
-                    :
-                  ""
-                }
-
-              </div>
-            `;
-
-          }
-        )
-        .join("");
-
-
-    bindAchievementDeleteButtons();
-
-  }
-
-
-  /* =======================================================
-     ACHIEVEMENT DELETE BUTTONS
-  ======================================================= */
-
-  function bindAchievementDeleteButtons() {
-
-    document
-      .querySelectorAll(
-        "[data-delete-achievement]"
-      )
-      .forEach(
-        button => {
-
-          if (
-            button.dataset.bound
-          ) {
-            return;
-          }
-
-
-          button.dataset.bound =
-            "true";
-
-
-          button.addEventListener(
-            "click",
-            () => {
-
-              deleteAchievement(
-                button.dataset.deleteAchievement
-              );
-
-            }
-          );
-
-        }
-      );
-
-  }
-
-
-  /* =======================================================
-     ACHIEVEMENT STATS
-  ======================================================= */
-
-  function updateAchievementStats() {
-
-    const total =
-      achievements.length;
-
-
-    const gold =
-      achievements.filter(
-        item =>
-          item.achievement_type ===
-          "gold"
-      ).length;
-
-
-    const silver =
-      achievements.filter(
-        item =>
-          item.achievement_type ===
-          "silver"
-      ).length;
-
-
-    const bronze =
-      achievements.filter(
-        item =>
-          item.achievement_type ===
-          "bronze"
-      ).length;
-
-
-    const elements = {
-
-      total:
-        [
-          "totalAchievements",
-          "achievementsTotal",
-          "totalAchievementCount"
-        ],
-
-      gold:
-        [
-          "goldAchievements",
-          "achievementGoldCount"
-        ],
-
-      silver:
-        [
-          "silverAchievements",
-          "achievementSilverCount"
-        ],
-
-      bronze:
-        [
-          "bronzeAchievements",
-          "achievementBronzeCount"
-        ]
-
-    };
-
-
-    elements.total.forEach(
-      id => {
-
-        if (el(id)) {
-
-          el(id).textContent =
-            toPersianNumber(
-              total
-            );
-
-        }
-
-      }
-    );
-
-
-    elements.gold.forEach(
-      id => {
-
-        if (el(id)) {
-
-          el(id).textContent =
-            toPersianNumber(
-              gold
-            );
-
-        }
-
-      }
-    );
-
-
-    elements.silver.forEach(
-      id => {
-
-        if (el(id)) {
-
-          el(id).textContent =
-            toPersianNumber(
-              silver
-            );
-
-        }
-
-      }
-    );
-
-
-    elements.bronze.forEach(
-      id => {
-
-        if (el(id)) {
-
-          el(id).textContent =
-            toPersianNumber(
-              bronze
-            );
-
-        }
-
-      }
-    );
-
-  }
-
-
-  /* =======================================================
-     PREPARE ACHIEVEMENTS PAGE
-  ======================================================= */
-
-  async function prepareAchievementsPage() {
-
-    await loadAthletes();
-
-    fillAchievementAthleteSelect();
-
-    await loadAchievements();
-
-
-    achievementsInitialized =
-      true;
-
-  }
-
-
-  /* =======================================================
-     BIND ACHIEVEMENT BUTTONS
-  ======================================================= */
-
-  function bindAchievementButtons() {
-
-    const addButton =
-      el("addAchievementBtn");
-
-
-    if (
-      addButton &&
-      !addButton.dataset.bound
-    ) {
-
-      addButton.dataset.bound =
-        "true";
-
-
-      addButton.addEventListener(
-        "click",
-        openAchievementModal
-      );
-
-    }
-
-
-    const closeButton =
-      el("closeAchievementModal");
-
-
-    if (
-      closeButton &&
-      !closeButton.dataset.bound
-    ) {
-
-      closeButton.dataset.bound =
-        "true";
-
-
-      closeButton.addEventListener(
-        "click",
-        closeAchievementModal
-      );
-
-    }
-
-
-    const saveButton =
-      el("saveAchievementBtn");
-
-
-    if (
-      saveButton &&
-      !saveButton.dataset.bound
-    ) {
-
-      saveButton.dataset.bound =
-        "true";
-
-
-      saveButton.addEventListener(
-        "click",
-        saveAchievement
-      );
-
-    }
-
-
-    const search =
-      el("achievementSearch");
-
-
-    if (
-      search &&
-      !search.dataset.bound
-    ) {
-
-      search.dataset.bound =
-        "true";
-
-
-      search.addEventListener(
-        "input",
-        renderAchievements
-      );
-
-    }
-
-
-    const filter =
-      el("achievementFilter");
-
-
-    if (
-      filter &&
-      !filter.dataset.bound
-    ) {
-
-      filter.dataset.bound =
-        "true";
-
-
-      filter.addEventListener(
-        "change",
-        renderAchievements
-      );
-
-    }
-
-
-    const modal =
-      el("achievementModal");
-
-
-    if (
-      modal &&
-      !modal.dataset.bound
-    ) {
-
-      modal.dataset.bound =
-        "true";
-
-
-      modal.addEventListener(
-        "click",
-        function (event) {
-
-          if (
-            event.target === modal
-          ) {
-
-            closeAchievementModal();
-
-          }
-
-        }
-      );
-
-    }
-
-  }
-
-
-  /* =======================================================
-     DASHBOARD
-  ======================================================= */
-
-  async function loadDashboardStats() {
-
-    if (!checkSupabase()) {
-      return;
-    }
-
-
-    /* ورزشکاران */
-
-    try {
-
-      const {
-        count,
-        error
-      } =
-        await supabaseClient
-          .from("athletes")
-          .select(
-            "*",
-            {
-              count: "exact",
-              head: true
-            }
-          );
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      if (
-        el("totalAthletes")
-      ) {
-
-        el("totalAthletes")
-          .textContent =
-          toPersianNumber(
-            count || 0
-          );
-
-      }
-
-    } catch (error) {
-
-      console.warn(
-        "dashboard athletes:",
-        error
-      );
-
-    }
-
-
-    /* ارزیابی‌ها */
-
-    try {
-
-      const {
-        count,
-        error
-      } =
-        await supabaseClient
-          .from("evaluations")
-          .select(
-            "*",
-            {
-              count: "exact",
-              head: true
-            }
-          );
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      if (
-        el("totalEvaluations")
-      ) {
-
-        el("totalEvaluations")
-          .textContent =
-          toPersianNumber(
-            count || 0
-          );
-
-      }
-
-    } catch (error) {
-
-      console.warn(
-        "dashboard evaluations:",
-        error
-      );
-
-    }
-
-
-    /* حضور امروز */
-
-    try {
-
-      const {
-        count,
-        error
-      } =
-        await supabaseClient
-          .from("attendance")
-          .select(
-            "*",
-            {
-              count: "exact",
-              head: true
-            }
-          )
-          .eq(
-            "date",
-            getTodayISO()
-          )
-          .eq(
-            "status",
-            "present"
-          );
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      if (
-        el("todayAttendance")
-      ) {
-
-        el("todayAttendance")
-          .textContent =
-          toPersianNumber(
-            count || 0
-          );
-
-      }
-
-    } catch (error) {
-
-      console.warn(
-        "dashboard attendance:",
-        error
-      );
-
-    }
-
-
-    /* مقام‌ها */
-
-    try {
-
-      const {
-        count,
-        error
-      } =
-        await supabaseClient
-          .from("achievements")
-          .select(
-            "*",
-            {
-              count: "exact",
-              head: true
-            }
-          );
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      if (
-        el("totalAchievements")
-      ) {
-
-        el("totalAchievements")
-          .textContent =
-          toPersianNumber(
-            count || 0
-          );
-
-      }
-
-    } catch (error) {
-
-      if (
-        el("totalAchievements")
-      ) {
-
-        el("totalAchievements")
-          .textContent =
-          "۰";
-
-      }
-
-    }
-
-  }
-
-
-  function updateAthleteStats() {
-
-    if (
-      el("totalAthletes")
-    ) {
-
-      el("totalAthletes")
-        .textContent =
-        toPersianNumber(
-          athletes.length
-        );
-
-    }
-
-  }
-
-
-  function updateEvaluationStats() {
-
-    if (
-      el("totalEvaluations")
-    ) {
-
-      el("totalEvaluations")
-        .textContent =
-        toPersianNumber(
-          evaluations.length
-        );
-
-    }
-
-  }
-
-
-  /* =======================================================
-     COACH EMAIL
-  ======================================================= */
-
-  async function loadCoachUser() {
-
-    if (!checkSupabase()) {
-      return;
+      return false;
     }
 
 
@@ -4025,278 +1394,244 @@
       } =
         await supabaseClient
           .auth
-          .getUser();
+          .getSession();
 
 
       if (error) {
-        throw error;
+
+        console.error(
+          "❌ Auth Session Error:",
+          error
+        );
+
+        return false;
       }
 
 
-      const email =
-        data?.user?.email ||
-        "مربی";
+      if (
+        data &&
+        data.session
+      ) {
 
+        console.log(
+          "✅ جلسه کاربر فعال است."
+        );
 
-      const emailElement =
-        el("coachEmail");
-
-
-      if (emailElement) {
-
-        emailElement.textContent =
-          email;
-
+        return true;
       }
+
+
+      console.warn(
+        "⚠️ جلسه ورود فعال نیست."
+      );
+
+
+      /*
+       * فعلاً redirect نمی‌کنیم تا
+       * مشکل اتصال را بتوانیم بررسی کنیم.
+       */
+
+
+      return false;
 
     } catch (error) {
 
-      console.warn(
-        "loadCoachUser:",
+      console.error(
+        "❌ Auth Exception:",
         error
       );
 
+      return false;
     }
 
   }
 
 
-  /* =======================================================
-     GLOBAL FUNCTIONS
-  ======================================================= */
+  /* =========================================================
+     UTILS
+  ========================================================= */
 
-  window.renderAthletes =
-    renderAthletes;
+  function escapeHTML(
+    value
+  ) {
 
-
-  window.prepareEvaluationPage =
-    prepareEvaluationPage;
-
-
-  window.initializeAttendancePage =
-    initializeAttendancePage;
-
-
-  window.loadAttendanceForDate =
-    loadAttendanceForDate;
-
-
-  window.renderAttendanceList =
-    renderAttendanceList;
-
-
-  window.saveAttendance =
-    saveAttendance;
-
-
-  window.openAthleteModal =
-    openAthleteModal;
-
-
-  window.closeAthleteModal =
-    closeAthleteModal;
-
-
-  window.saveAthlete =
-    saveAthlete;
-
-
-  window.startNewEvaluation =
-    startNewEvaluation;
-
-
-  /* مقام‌ها */
-
-  window.loadAchievements =
-    loadAchievements;
-
-
-  window.renderAchievements =
-    renderAchievements;
-
-
-  window.prepareAchievementsPage =
-    prepareAchievementsPage;
-
-
-  window.openAchievementModal =
-    openAchievementModal;
-
-
-  window.closeAchievementModal =
-    closeAchievementModal;
-
-
-  window.saveAchievement =
-    saveAchievement;
-
-
-  window.deleteAchievement =
-    deleteAchievement;
-
-
-  window.fillAchievementAthleteSelect =
-    fillAchievementAthleteSelect;
-
-
-  /* =======================================================
-     DOM READY
-  ======================================================= */
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    async function () {
-
-      console.log(
-        "Judo Tabiat coach.js loaded - FULL VERSION"
+    return String(
+      value ?? ""
+    )
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
       );
 
-
-      /* ---------------------------------------------------
-         ورزشکاران
-      --------------------------------------------------- */
-
-      bindAthleteButtons();
+  }
 
 
-      /* ---------------------------------------------------
-         ارزیابی جدید
-      --------------------------------------------------- */
+  function toPersianNumber(
+    number
+  ) {
 
-      const newEvaluationBtn =
-        el("newEvaluationBtn");
+    return String(
+      number ?? 0
+    ).replace(
+      /\d/g,
+      digit =>
+        "۰۱۲۳۴۵۶۷۸۹"[
+          digit
+        ]
+    );
 
-
-      if (
-        newEvaluationBtn &&
-        !newEvaluationBtn.dataset.bound
-      ) {
-
-        newEvaluationBtn.dataset.bound =
-          "true";
-
-
-        newEvaluationBtn.addEventListener(
-          "click",
-          startNewEvaluation
-        );
-
-      }
+  }
 
 
-      /* ---------------------------------------------------
-         Modal ورزشکار
-      --------------------------------------------------- */
+  /* =========================================================
+     INITIALIZE
+  ========================================================= */
 
-      const modal =
-        el("athleteModal");
+  async function initializeCoachPanel() {
 
-
-      if (modal) {
-
-        modal.addEventListener(
-          "click",
-          function (event) {
-
-            if (
-              event.target === modal
-            ) {
-
-              closeAthleteModal();
-
-            }
-
-          }
-        );
-
-      }
+    console.log(
+      "🚀 Judo Tabia Coach Panel شروع شد."
+    );
 
 
-      /* ---------------------------------------------------
-         مقام‌ها و افتخارات
-      --------------------------------------------------- */
+    /*
+     * مرحله ۱:
+     * اطمینان از وجود Supabase
+     */
 
-      bindAchievementButtons();
-
-
-      /* ---------------------------------------------------
-         بارگذاری اولیه
-      --------------------------------------------------- */
-
-      await loadCoachUser();
+    const libraryLoaded =
+      await loadSupabaseLibrary();
 
 
-      await loadAthletes();
+    if (!libraryLoaded) {
 
+      showConnectionStatus(
+        false,
+        "کتابخانه Supabase بارگذاری نشد."
+      );
 
-      updateAthleteStats();
-
-
-      fillAthleteFilter();
-
-
-      fillEvaluationAthleteSelect();
-
-
-      fillAchievementAthleteSelect();
-
-
-      await loadEvaluationPeriods();
-
-
-      fillEvaluationPeriodSelect();
-
-
-      await loadEvaluations();
-
-
-      await loadAchievements();
-
-
-      await loadDashboardStats();
-
-
-      /* ---------------------------------------------------
-         اگر حضور و غیاب از ابتدا فعال بود
-      --------------------------------------------------- */
-
-      const attendancePage =
-        el("page-attendance");
-
-
-      if (
-        attendancePage &&
-        attendancePage.classList.contains(
-          "active"
-        )
-      ) {
-
-        await initializeAttendancePage();
-
-      }
-
-
-      /* ---------------------------------------------------
-         اگر صفحه افتخارات از ابتدا فعال بود
-      --------------------------------------------------- */
-
-      const achievementsPage =
-        el("page-achievements");
-
-
-      if (
-        achievementsPage &&
-        achievementsPage.classList.contains(
-          "active"
-        )
-      ) {
-
-        await prepareAchievementsPage();
-
-      }
-
+      return;
     }
-  );
+
+
+    /*
+     * مرحله ۲:
+     * ساخت Client
+     */
+
+    const clientCreated =
+      createSupabaseClient();
+
+
+    if (!clientCreated) {
+
+      showConnectionStatus(
+        false,
+        "Supabase Client ساخته نشد."
+      );
+
+      return;
+    }
+
+
+    /*
+     * مرحله ۳:
+     * تست واقعی جدول Athletes
+     */
+
+    await checkSupabase();
+
+
+    /*
+     * مرحله ۴:
+     * Auth
+     */
+
+    await checkAuth();
+
+
+    /*
+     * مرحله ۵:
+     * بارگذاری ورزشکاران
+     */
+
+    await loadAthletes();
+
+
+    /*
+     * مرحله ۶:
+     * فعال کردن امکانات
+     */
+
+    setupAddAthlete();
+
+    setupEvaluation();
+
+    setupAttendance();
+
+    setupAchievements();
+
+    setupAnnouncements();
+
+    setupCompetitions();
+
+
+    console.log(
+      "✅ Coach Panel آماده است."
+    );
+
+  }
+
+
+  /* =========================================================
+     START
+  ========================================================= */
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeCoachPanel
+    );
+
+  } else {
+
+    initializeCoachPanel();
+
+  }
+
+
+  /* =========================================================
+     GLOBAL
+  ========================================================= */
+
+  window.coachSupabase =
+    supabaseClient;
+
+  window.checkCoachSupabase =
+    checkSupabase;
+
+  window.loadCoachAthletes =
+    loadAthletes;
 
 
 })();
