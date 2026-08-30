@@ -1,660 +1,424 @@
-<!-- =========================================================
-     مسابقات و اطلاعیه‌ها
-========================================================= --><section id="page-events" class="coach-page">  <!-- =======================================================
-       HEADER
-  ======================================================== -->  <div class="page-header"><div>
-  <h1>مسابقات و اطلاعیه‌ها</h1>
-
-  <p>
-    مدیریت مسابقات، تمرین‌ها، اردوها و اطلاعیه‌های باشگاه
-  </p>
-</div>
-
-  </div>  <!-- =======================================================
-       TABS
-  ======================================================== -->  <div class="events-tabs"><button
-  type="button"
-  class="events-tab active"
-  data-events-tab="announcements"
->
-  📢 اطلاعیه‌ها
-</button>
-
-<button
-  type="button"
-  class="events-tab"
-  data-events-tab="competitions"
->
-  📅 مسابقات
-</button>
-
-  </div>  <!-- =======================================================
-       ANNOUNCEMENTS
-  ======================================================== -->  <div
-    id="eventsPanelAnnouncements"
-    class="events-panel active"
-  ><div class="section-header">
-
-  <div>
-    <h2>📢 اطلاعیه‌ها و برنامه‌ها</h2>
-
-    <p>
-      اطلاع‌رسانی تمرین‌ها، اردوها، جلسات و برنامه‌های باشگاه
-    </p>
-  </div>
-
-  <button
-    type="button"
-    id="addAnnouncementBtn"
-    class="primary-btn"
-  >
-    ➕ افزودن اطلاعیه
-  </button>
-
-</div>
-
-
-<!-- آمار -->
-
-<div class="events-stats">
-
-  <div class="event-stat-card">
-
-    <div class="event-stat-icon">
-      📢
-    </div>
-
-    <div>
-      <span>کل اطلاعیه‌ها</span>
-      <strong id="totalAnnouncements">۰</strong>
-    </div>
-
-  </div>
-
-
-  <div class="event-stat-card">
-
-    <div class="event-stat-icon">
-      🔔
-    </div>
-
-    <div>
-      <span>فعال</span>
-      <strong id="activeAnnouncements">۰</strong>
-    </div>
-
-  </div>
-
-
-  <div class="event-stat-card">
-
-    <div class="event-stat-icon">
-      📅
-    </div>
-
-    <div>
-      <span>برنامه‌های پیش‌رو</span>
-      <strong id="upcomingAnnouncements">۰</strong>
-    </div>
-
-  </div>
-
-</div>
-
-
-<!-- جستجو و فیلتر -->
-
-<div class="events-toolbar">
-
-  <input
-    type="search"
-    id="announcementSearch"
-    placeholder="🔎 جستجو در اطلاعیه‌ها..."
-  >
-
-
-  <select id="announcementFilter">
-
-    <option value="all">
-      همه اطلاعیه‌ها
-    </option>
-
-    <option value="training">
-      🥋 تمرین
-    </option>
-
-    <option value="bodybuilding">
-      🏋️ بدنسازی
-    </option>
-
-    <option value="track">
-      🏃 پیست
-    </option>
-
-    <option value="camp">
-      🚌 اردو
-    </option>
-
-    <option value="meeting">
-      👥 جلسه
-    </option>
-
-    <option value="general">
-      📢 عمومی
-    </option>
-
-    <option value="important">
-      🚨 مهم
-    </option>
-
-  </select>
-
-</div>
-
-
-<!-- لیست اطلاعیه‌ها -->
-
-<div
-  id="announcementsList"
-  class="announcements-list"
->
-
-  <div class="evaluation-empty">
-
-    <div class="evaluation-empty-icon">
-      📢
-    </div>
-
-    <h2>
-      هنوز اطلاعیه‌ای ثبت نشده است
-    </h2>
-
-    <p>
-      برای ثبت اولین اطلاعیه روی «افزودن اطلاعیه» بزنید.
-    </p>
-
-  </div>
-
-</div>
-
-  </div>  <!-- =======================================================
-       COMPETITIONS
-  ======================================================== -->  <div
-    id="eventsPanelCompetitions"
-    class="events-panel"
-  ><div class="section-header">
-
-  <div>
-    <h2>📅 مسابقات</h2>
-
-    <p>
-      مدیریت مسابقات و رویدادهای رسمی ورزشکاران
-    </p>
-  </div>
-
-  <button
-    type="button"
-    id="addCompetitionBtn"
-    class="primary-btn"
-  >
-    ➕ افزودن مسابقه
-  </button>
-
-</div>
-
-
-<!-- آمار مسابقات -->
-
-<div class="events-stats">
-
-  <div class="event-stat-card">
-
-    <div class="event-stat-icon">
-      📅
-    </div>
-
-    <div>
-      <span>کل مسابقات</span>
-      <strong id="totalCompetitions">۰</strong>
-    </div>
-
-  </div>
-
-
-  <div class="event-stat-card">
-
-    <div class="event-stat-icon">
-      ⏳
-    </div>
-
-    <div>
-      <span>مسابقات پیش‌رو</span>
-      <strong id="upcomingCompetitions">۰</strong>
-    </div>
-
-  </div>
-
-
-  <div class="event-stat-card">
-
-    <div class="event-stat-icon">
-      🏆
-    </div>
-
-    <div>
-      <span>برگزارشده</span>
-      <strong id="completedCompetitions">۰</strong>
-    </div>
-
-  </div>
-
-</div>
-
-
-<!-- جستجو و فیلتر مسابقات -->
-
-<div class="events-toolbar">
-
-  <input
-    type="search"
-    id="competitionSearch"
-    placeholder="🔎 جستجو در مسابقات..."
-  >
-
-
-  <select id="competitionFilter">
-
-    <option value="all">
-      همه مسابقات
-    </option>
-
-    <option value="upcoming">
-      ⏳ پیش‌رو
-    </option>
-
-    <option value="completed">
-      ✅ برگزارشده
-    </option>
-
-    <option value="cancelled">
-      ❌ لغوشده
-    </option>
-
-  </select>
-
-</div>
-
-
-<!-- لیست مسابقات -->
-
-<div
-  id="competitionsList"
-  class="competitions-list"
->
-
-  <div class="evaluation-empty">
-
-    <div class="evaluation-empty-icon">
-      📅
-    </div>
-
-    <h2>
-      هنوز مسابقه‌ای ثبت نشده است
-    </h2>
-
-    <p>
-      برای ثبت مسابقه جدید روی «افزودن مسابقه» بزنید.
-    </p>
-
-  </div>
-
-</div>
-
-  </div></section><!-- =========================================================
-     MODAL افزودن اطلاعیه
-========================================================= --><div
-  id="announcementModal"
-  class="modal hidden"
-  style="display:none;"
->  <div class="modal-content events-modal"><div class="modal-header">
-
-  <div>
-    <h2>📢 افزودن اطلاعیه</h2>
-
-    <p>
-      یک اطلاعیه یا برنامه جدید برای باشگاه ثبت کنید.
-    </p>
-  </div>
-
-  <button
-    type="button"
-    id="closeAnnouncementModal"
-    class="modal-close"
-  >
-    ✕
-  </button>
-
-</div>
-
-
-<div class="form-grid">
-
-  <div class="form-group">
-
-    <label for="announcementTitle">
-      عنوان اطلاعیه
-    </label>
-
-    <input
-      type="text"
-      id="announcementTitle"
-      placeholder="مثلاً تمرین بدنسازی فردا"
-    >
-
-  </div>
-
-
-  <div class="form-group">
-
-    <label for="announcementType">
-      نوع اطلاعیه
-    </label>
-
-    <select id="announcementType">
-
-      <option value="general">
-        📢 عمومی
-      </option>
-
-      <option value="training">
-        🥋 تمرین جودو
-      </option>
-
-      <option value="bodybuilding">
-        🏋️ بدنسازی
-      </option>
-
-      <option value="track">
-        🏃 تمرین پیست
-      </option>
-
-      <option value="camp">
-        🚌 اردو
-      </option>
-
-      <option value="meeting">
-        👥 جلسه
-      </option>
-
-      <option value="important">
-        🚨 مهم
-      </option>
-
-    </select>
-
-  </div>
-
-
-  <div class="form-group">
-
-    <label for="announcementDate">
-      تاریخ برنامه
-    </label>
-
-    <input
-      type="date"
-      id="announcementDate"
-    >
-
-  </div>
-
-
-  <div class="form-group">
-
-    <label for="announcementLocation">
-      محل
-    </label>
-
-    <input
-      type="text"
-      id="announcementLocation"
-      placeholder="مثلاً سالن طبیعت یا پیست"
-    >
-
-  </div>
-
-
-  <div class="form-group">
-
-    <label for="announcementStartTime">
-      ساعت شروع
-    </label>
-
-    <input
-      type="time"
-      id="announcementStartTime"
-    >
-
-  </div>
-
-
-  <div class="form-group">
-
-    <label for="announcementEndTime">
-      ساعت پایان
-    </label>
-
-    <input
-      type="time"
-      id="announcementEndTime"
-    >
-
-  </div>
-
-
-  <div class="form-group full-width">
-
-    <label for="announcementContent">
-      متن اطلاعیه
-    </label>
-
-    <textarea
-      id="announcementContent"
-      rows="5"
-      placeholder="مثلاً فردا تمرین بدنسازی از ساعت ۱۰ تا ۱۲ برگزار می‌شود..."
-    ></textarea>
-
-  </div>
-
-</div>
-
-
-<div class="modal-actions">
-
-  <button
-    type="button"
-    id="cancelAnnouncementBtn"
-    class="secondary-btn"
-  >
-    انصراف
-  </button>
-
-  <button
-    type="button"
-    id="saveAnnouncementBtn"
-    class="primary-btn"
-  >
-    📢 انتشار اطلاعیه
-  </button>
-
-</div>
-
-  </div></div><!-- =========================================================
-     MODAL افزودن مسابقه
-========================================================= --><div
-  id="competitionModal"
-  class="modal hidden"
-  style="display:none;"
->  <div class="modal-content events-modal"><div class="modal-header">
-
-  <div>
-    <h2>📅 افزودن مسابقه</h2>
-
-    <p>
-      اطلاعات مسابقه جدید را وارد کنید.
-    </p>
-  </div>
-
-  <button
-    type="button"
-    id="closeCompetitionModal"
-    class="modal-close"
-  >
-    ✕
-  </button>
-
-</div>
-
-
-<div class="form-grid">
-
-  <div class="form-group full-width">
-
-    <label for="competitionTitle">
-      نام مسابقه
-    </label>
-
-    <input
-      type="text"
-      id="competitionTitle"
-      placeholder="مثلاً مسابقات انتخابی استان تهران"
-    >
-
-  </div>
-
-
-  <div class="form-group">
-
-    <label for="competitionDate">
-      تاریخ مسابقه
-    </label>
-
-    <input
-      type="date"
-      id="competitionDate"
-    >
-
-  </div>
-
-
-  <div class="form-group">
-
-    <label for="competitionLocation">
-      محل برگزاری
-    </label>
-
-    <input
-      type="text"
-      id="competitionLocation"
-      placeholder="مثلاً سالن شهید افراسیابی"
-    >
-
-  </div>
-
-
-  <div class="form-group">
-
-    <label for="competitionStartTime">
-      ساعت شروع
-    </label>
-
-    <input
-      type="time"
-      id="competitionStartTime"
-    >
-
-  </div>
-
-
-  <div class="form-group">
-
-    <label for="competitionEndTime">
-      ساعت پایان
-    </label>
-
-    <input
-      type="time"
-      id="competitionEndTime"
-    >
-
-  </div>
-
-
-  <div class="form-group">
-
-    <label for="competitionAgeGroup">
-      رده سنی
-    </label>
-
-    <input
-      type="text"
-      id="competitionAgeGroup"
-      placeholder="مثلاً نوجوانان"
-    >
-
-  </div>
-
-
-  <div class="form-group">
-
-    <label for="competitionWeights">
-      وزن‌ها
-    </label>
-
-    <input
-      type="text"
-      id="competitionWeights"
-      placeholder="مثلاً ۵۵، ۶۰، ۶۶ کیلو"
-    >
-
-  </div>
-
-
-  <div class="form-group full-width">
-
-    <label for="competitionDescription">
-      توضیحات
-    </label>
-
-    <textarea
-      id="competitionDescription"
-      rows="5"
-      placeholder="توضیحات مربوط به مسابقه..."
-    ></textarea>
-
-  </div>
-
-</div>
-
-
-<div class="modal-actions">
-
-  <button
-    type="button"
-    id="cancelCompetitionBtn"
-    class="secondary-btn"
-  >
-    انصراف
-  </button>
-
-  <button
-    type="button"
-    id="saveCompetitionBtn"
-    class="primary-btn"
-  >
-    📅 ثبت مسابقه
-  </button>
-
-</div>
-
-  </div></div>
+<style>
+
+/* =========================================================
+JUDO TABIAT - EVENTS & ANNOUNCEMENTS
+مسابقات و اطلاعیه‌ها
+========================================================= */
+
+.events-tabs {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+  padding: 6px;
+  background: #f3f5f7;
+  border-radius: 14px;
+  width: fit-content;
+}
+
+.events-tab {
+  border: none;
+  background: transparent;
+  padding: 11px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #667085;
+  transition: 0.2s ease;
+}
+
+.events-tab:hover {
+  background: #ffffff;
+}
+
+.events-tab.active {
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 3px 12px rgba(0,0,0,.07);
+}
+
+.events-panel {
+  display: none;
+}
+
+.events-panel.active {
+  display: block;
+}
+
+/* HEADER */
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+
+.section-header p {
+  margin: 0;
+  color: #667085;
+  font-size: 13px;
+}
+
+/* STATS */
+
+.events-stats {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.event-stat-card {
+  background: #fff;
+  border: 1px solid #e6e9ed;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.04);
+}
+
+.event-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  font-size: 23px;
+  flex-shrink: 0;
+}
+
+.event-stat-card span {
+  display: block;
+  font-size: 12px;
+  color: #667085;
+  margin-bottom: 5px;
+}
+
+.event-stat-card strong {
+  display: block;
+  font-size: 23px;
+  color: #111827;
+}
+
+/* TOOLBAR */
+
+.events-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.events-toolbar input,
+.events-toolbar select {
+  height: 44px;
+  border: 1px solid #dfe3e8;
+  border-radius: 11px;
+  background: #fff;
+  padding: 0 13px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.events-toolbar input {
+  flex: 1;
+}
+
+.events-toolbar select {
+  min-width: 190px;
+}
+
+/* LIST */
+
+.announcements-list,
+.competitions-list {
+  display: grid;
+  gap: 15px;
+}
+
+.announcement-card,
+.competition-card {
+  background: #fff;
+  border: 1px solid #e6e9ed;
+  border-radius: 17px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.04);
+}
+
+.announcement-card-top,
+.competition-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.announcement-icon,
+.competition-icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 13px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+}
+
+.announcement-main,
+.competition-main {
+  flex: 1;
+}
+
+.announcement-main h3,
+.competition-main h3 {
+  margin: 0 0 7px;
+  font-size: 17px;
+  color: #111827;
+}
+
+.announcement-type-badge,
+.competition-status-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 5px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #475467;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.announcement-delete-btn,
+.competition-delete-btn,
+.announcement-edit-btn,
+.competition-edit-btn {
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.announcement-delete-btn,
+.competition-delete-btn {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.announcement-edit-btn,
+.competition-edit-btn {
+  background: #f3f4f6;
+}
+
+/* DETAILS */
+
+.announcement-details,
+.competition-details {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 10px;
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid #eef0f2;
+}
+
+.event-detail {
+  background: #f8fafc;
+  border-radius: 11px;
+  padding: 11px;
+}
+
+.event-detail span {
+  display: block;
+  font-size: 11px;
+  color: #667085;
+  margin-bottom: 5px;
+}
+
+.event-detail strong {
+  display: block;
+  font-size: 12px;
+  color: #344054;
+}
+
+.announcement-content,
+.competition-description {
+  margin-top: 15px;
+  padding: 13px 15px;
+  background: #f8fafc;
+  border-radius: 11px;
+  color: #475467;
+  font-size: 13px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+/* MODAL */
+
+.events-modal {
+  width: min(700px,calc(100% - 30px));
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #344054;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dfe3e8;
+  border-radius: 11px;
+  padding: 11px 12px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.form-group input,
+.form-group select {
+  height: 44px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 110px;
+  line-height: 1.8;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 17px;
+  border-top: 1px solid #eef0f2;
+}
+
+.primary-btn,
+.secondary-btn {
+  border: none;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary-btn {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.primary-btn {
+  background: #111827;
+  color: #fff;
+}
+
+/* MOBILE */
+
+@media (max-width:800px) {
+
+  .events-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .section-header .primary-btn {
+    width: 100%;
+  }
+
+  .events-toolbar {
+    flex-direction: column;
+  }
+
+  .events-toolbar select {
+    width: 100%;
+  }
+
+  .announcement-details,
+  .competition-details {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group.full-width {
+    grid-column: auto;
+  }
+
+  .events-tabs {
+    width: 100%;
+  }
+
+  .events-tab {
+    flex: 1;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width:480px) {
+
+  .announcement-card,
+  .competition-card {
+    padding: 15px;
+  }
+
+  .announcement-main h3,
+  .competition-main h3 {
+    font-size: 15px;
+  }
+}
+
+</style>
