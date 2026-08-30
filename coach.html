@@ -8,10 +8,6 @@
   <title>طبیعت جودو | پنل مربی</title>
 
   <style>
-    /* =========================================================
-       JUDO TABIAT - COACH PANEL
-       COMPLETE COACH.HTML
-    ========================================================= */
 
     * {
       box-sizing: border-box;
@@ -831,6 +827,7 @@
         width: 100%;
       }
     }
+
   </style>
 </head>
 
@@ -996,7 +993,6 @@
               <p>ورزشکاران ثبت‌شده در باشگاه</p>
             </div>
 
-            <!-- FIXED -->
             <button
               type="button"
               id="addAthleteBtn"
@@ -1055,7 +1051,6 @@
               <p>ثبت و مشاهده ارزیابی‌ها</p>
             </div>
 
-            <!-- FIXED -->
             <button
               type="button"
               id="addEvaluationBtn"
@@ -1108,7 +1103,6 @@
               <p>ثبت حضور جلسات تمرینی</p>
             </div>
 
-            <!-- FIXED -->
             <button
               type="button"
               id="addAttendanceBtn"
@@ -1163,7 +1157,6 @@
               </p>
             </div>
 
-            <!-- FIXED -->
             <button
               type="button"
               id="addAchievementBtn"
@@ -1215,8 +1208,6 @@
         </div>
 
 
-        <!-- TABS -->
-
         <div class="events-tabs">
 
           <button
@@ -1238,9 +1229,7 @@
         </div>
 
 
-        <!-- ===================================================
-             ANNOUNCEMENTS
-        ==================================================== -->
+        <!-- ANNOUNCEMENTS -->
 
         <div
           id="eventsPanelAnnouncements"
@@ -1360,9 +1349,7 @@
         </div>
 
 
-        <!-- ===================================================
-             COMPETITIONS
-        ==================================================== -->
+        <!-- COMPETITIONS -->
 
         <div
           id="eventsPanelCompetitions"
@@ -1491,9 +1478,7 @@
       </section>
 
 
-      <!-- =====================================================
-           RECORDS
-      ====================================================== -->
+      <!-- RECORDS -->
 
       <section id="page-records" class="coach-page">
 
@@ -1526,9 +1511,7 @@
       </section>
 
 
-      <!-- =====================================================
-           SETTINGS
-      ====================================================== -->
+      <!-- SETTINGS -->
 
       <section id="page-settings" class="coach-page">
 
@@ -1936,30 +1919,48 @@ document.addEventListener("DOMContentLoaded", function () {
      MAIN NAVIGATION
   ======================================================== */
 
-  const navItems = document.querySelectorAll(".nav-item");
-  const pages = document.querySelectorAll(".coach-page");
+  const navItems =
+    document.querySelectorAll(".nav-item");
+
+  const pages =
+    document.querySelectorAll(".coach-page");
+
 
   navItems.forEach(function (item) {
 
     item.addEventListener("click", function () {
 
-      const pageName = item.dataset.page;
+      const pageName =
+        item.dataset.page;
+
 
       navItems.forEach(function (nav) {
+
         nav.classList.remove("active");
+
       });
+
 
       item.classList.add("active");
 
+
       pages.forEach(function (page) {
+
         page.classList.remove("active");
+
       });
 
+
       const targetPage =
-        document.getElementById("page-" + pageName);
+        document.getElementById(
+          "page-" + pageName
+        );
+
 
       if (targetPage) {
+
         targetPage.classList.add("active");
+
       }
 
     });
@@ -1974,39 +1975,76 @@ document.addEventListener("DOMContentLoaded", function () {
   const eventTabs =
     document.querySelectorAll(".events-tab");
 
+
   const announcementPanel =
-    document.getElementById("eventsPanelAnnouncements");
+    document.getElementById(
+      "eventsPanelAnnouncements"
+    );
+
 
   const competitionPanel =
-    document.getElementById("eventsPanelCompetitions");
+    document.getElementById(
+      "eventsPanelCompetitions"
+    );
 
 
   eventTabs.forEach(function (tab) {
 
     tab.addEventListener("click", function () {
 
-      const target = tab.dataset.eventsTab;
+      const target =
+        tab.dataset.eventsTab;
+
 
       eventTabs.forEach(function (t) {
+
         t.classList.remove("active");
+
       });
+
 
       tab.classList.add("active");
 
+
       if (announcementPanel) {
-        announcementPanel.classList.remove("active");
+
+        announcementPanel.classList.remove(
+          "active"
+        );
+
       }
+
 
       if (competitionPanel) {
-        competitionPanel.classList.remove("active");
+
+        competitionPanel.classList.remove(
+          "active"
+        );
+
       }
 
-      if (target === "announcements" && announcementPanel) {
-        announcementPanel.classList.add("active");
+
+      if (
+        target === "announcements" &&
+        announcementPanel
+      ) {
+
+        announcementPanel.classList.add(
+          "active"
+        );
+
       }
 
-      if (target === "competitions" && competitionPanel) {
-        competitionPanel.classList.add("active");
+
+      if (
+        target === "competitions" &&
+        competitionPanel
+      ) {
+
+        competitionPanel.classList.add(
+          "active"
+        );
+
       }
 
     });
@@ -2019,24 +2057,41 @@ document.addEventListener("DOMContentLoaded", function () {
   ======================================================== */
 
   const announcementModal =
-    document.getElementById("announcementModal");
+    document.getElementById(
+      "announcementModal"
+    );
+
 
   const addAnnouncementBtn =
-    document.getElementById("addAnnouncementBtn");
+    document.getElementById(
+      "addAnnouncementBtn"
+    );
+
 
   const closeAnnouncementModal =
-    document.getElementById("closeAnnouncementModal");
+    document.getElementById(
+      "closeAnnouncementModal"
+    );
+
 
   const cancelAnnouncementBtn =
-    document.getElementById("cancelAnnouncementBtn");
+    document.getElementById(
+      "cancelAnnouncementBtn"
+    );
 
 
   function openAnnouncementModal() {
 
     if (!announcementModal) return;
 
-    announcementModal.classList.remove("hidden");
-    announcementModal.style.display = "flex";
+
+    announcementModal.classList.remove(
+      "hidden"
+    );
+
+
+    announcementModal.style.display =
+      "flex";
 
   }
 
@@ -2045,33 +2100,45 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!announcementModal) return;
 
-    announcementModal.classList.add("hidden");
-    announcementModal.style.display = "none";
+
+    announcementModal.classList.add(
+      "hidden"
+    );
+
+
+    announcementModal.style.display =
+      "none";
 
   }
 
 
   if (addAnnouncementBtn) {
+
     addAnnouncementBtn.addEventListener(
       "click",
       openAnnouncementModal
     );
+
   }
 
 
   if (closeAnnouncementModal) {
+
     closeAnnouncementModal.addEventListener(
       "click",
       closeAnnouncement
     );
+
   }
 
 
   if (cancelAnnouncementBtn) {
+
     cancelAnnouncementBtn.addEventListener(
       "click",
       closeAnnouncement
     );
+
   }
 
 
@@ -2080,24 +2147,41 @@ document.addEventListener("DOMContentLoaded", function () {
   ======================================================== */
 
   const competitionModal =
-    document.getElementById("competitionModal");
+    document.getElementById(
+      "competitionModal"
+    );
+
 
   const addCompetitionBtn =
-    document.getElementById("addCompetitionBtn");
+    document.getElementById(
+      "addCompetitionBtn"
+    );
+
 
   const closeCompetitionModal =
-    document.getElementById("closeCompetitionModal");
+    document.getElementById(
+      "closeCompetitionModal"
+    );
+
 
   const cancelCompetitionBtn =
-    document.getElementById("cancelCompetitionBtn");
+    document.getElementById(
+      "cancelCompetitionBtn"
+    );
 
 
   function openCompetitionModal() {
 
     if (!competitionModal) return;
 
-    competitionModal.classList.remove("hidden");
-    competitionModal.style.display = "flex";
+
+    competitionModal.classList.remove(
+      "hidden"
+    );
+
+
+    competitionModal.style.display =
+      "flex";
 
   }
 
@@ -2106,33 +2190,45 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!competitionModal) return;
 
-    competitionModal.classList.add("hidden");
-    competitionModal.style.display = "none";
+
+    competitionModal.classList.add(
+      "hidden"
+    );
+
+
+    competitionModal.style.display =
+      "none";
 
   }
 
 
   if (addCompetitionBtn) {
+
     addCompetitionBtn.addEventListener(
       "click",
       openCompetitionModal
     );
+
   }
 
 
   if (closeCompetitionModal) {
+
     closeCompetitionModal.addEventListener(
       "click",
       closeCompetition
     );
+
   }
 
 
   if (cancelCompetitionBtn) {
+
     cancelCompetitionBtn.addEventListener(
       "click",
       closeCompetition
     );
+
   }
 
 
@@ -2146,8 +2242,13 @@ document.addEventListener("DOMContentLoaded", function () {
       "click",
       function (event) {
 
-        if (event.target === announcementModal) {
+        if (
+          event.target ===
+          announcementModal
+        ) {
+
           closeAnnouncement();
+
         }
 
       }
@@ -2162,8 +2263,13 @@ document.addEventListener("DOMContentLoaded", function () {
       "click",
       function (event) {
 
-        if (event.target === competitionModal) {
+        if (
+          event.target ===
+          competitionModal
+        ) {
+
           closeCompetition();
+
         }
 
       }
@@ -2177,10 +2283,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 <!-- =========================================================
+     SUPABASE LIBRARY
+========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<!-- =========================================================
      COACH JAVASCRIPT
 ========================================================= -->
 
 <script src="coach.js"></script>
 
+
 </body>
-          </html>
+</html>
