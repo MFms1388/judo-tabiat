@@ -2,20 +2,14 @@
 <html lang="fa" dir="rtl">
 
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>پنل مربی | جودو طبیعت</title>
 
   <link rel="stylesheet" href="style.css">
 
   <style>
-
     /* =====================================================
        COACH PAGE
     ====================================================== */
@@ -35,7 +29,6 @@
       border: none;
       font-family: inherit;
     }
-
 
     /* =====================================================
        TOOLBAR
@@ -66,7 +59,6 @@
     .toolbar select:focus {
       border-color: #16834b;
     }
-
 
     /* =====================================================
        EVALUATION
@@ -189,7 +181,6 @@
       margin: 0;
     }
 
-
     /* =====================================================
        EMPTY
     ====================================================== */
@@ -216,7 +207,6 @@
       margin: 0;
     }
 
-
     /* =====================================================
        SETTINGS
     ====================================================== */
@@ -224,7 +214,6 @@
     .setting-card {
       cursor: default;
     }
-
 
     /* =====================================================
        ATTENDANCE
@@ -352,10 +341,7 @@
       padding: 16px;
       box-shadow: 0 8px 25px rgba(0,0,0,.05);
       display: grid;
-      grid-template-columns:
-        minmax(220px, 1fr)
-        360px
-        minmax(180px, 260px);
+      grid-template-columns: minmax(220px, 1fr) 360px minmax(180px, 260px);
       gap: 18px;
       align-items: center;
     }
@@ -516,126 +502,209 @@
       margin-bottom: 15px;
     }
 
-
     /* =====================================================
        ACHIEVEMENTS
     ====================================================== */
 
-    .achievements-list {
+    .achievements-toolbar {
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,.05);
       display: grid;
-      gap: 14px;
+      grid-template-columns: 1fr 220px auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .achievements-toolbar input,
+    .achievements-toolbar select {
+      width: 100%;
+      min-height: 46px;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      border-radius: 11px;
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      background: #fff;
+    }
+
+    .achievements-toolbar input:focus,
+    .achievements-toolbar select:focus {
+      border-color: #16834b;
+    }
+
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
     }
 
     .achievement-card {
+      position: relative;
       background: #fff;
-      border-radius: 18px;
-      padding: 18px;
+      border-radius: 20px;
+      padding: 20px;
       box-shadow: 0 8px 25px rgba(0,0,0,.05);
-      display: grid;
-      grid-template-columns:
-        minmax(220px,1fr)
-        auto
-        auto;
-      gap: 18px;
-      align-items: center;
-    }
-
-    .achievement-athlete {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .achievement-avatar {
-      width: 52px;
-      height: 52px;
-      min-width: 52px;
-      border-radius: 50%;
-      background: #f1f3f2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       overflow: hidden;
-      font-size: 24px;
     }
 
-    .achievement-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .achievement-athlete-info strong {
-      display: block;
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
-
-    .achievement-athlete-info span {
-      display: block;
-      color: #777;
-      font-size: 12px;
+    .achievement-card-top {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-bottom: 15px;
     }
 
     .achievement-medal {
-      min-width: 90px;
-      text-align: center;
-      padding: 10px 14px;
-      border-radius: 12px;
-      background: #f7f7f7;
-      font-weight: 800;
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      border-radius: 15px;
+      background: #fff7df;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
     }
 
-    .achievement-medal.gold {
-      background: #fff7d6;
+    .achievement-card h3 {
+      margin: 0 0 4px;
+      font-size: 16px;
     }
 
-    .achievement-medal.silver {
-      background: #eeeeee;
-    }
-
-    .achievement-medal.bronze {
-      background: #f8e5d8;
-    }
-
-    .achievement-info {
-      text-align: right;
-    }
-
-    .achievement-info strong {
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .achievement-info span {
+    .achievement-card small {
       color: #777;
       font-size: 12px;
     }
 
-    .achievement-actions {
-      display: flex;
-      gap: 7px;
+    .achievement-details {
+      border-top: 1px solid #eee;
+      padding-top: 13px;
+      display: grid;
+      gap: 8px;
     }
 
-    .achievement-actions button {
+    .achievement-detail {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .achievement-detail span:first-child {
+      color: #777;
+    }
+
+    .achievement-detail strong {
+      text-align: left;
+    }
+
+    .achievement-card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .achievement-action-btn {
+      flex: 1;
+      min-height: 40px;
       border: 1px solid #ddd;
       background: #fff;
-      border-radius: 9px;
-      min-width: 38px;
-      height: 38px;
+      border-radius: 10px;
       cursor: pointer;
       font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
     }
 
-    .achievement-actions button:hover {
-      background: #f5f5f5;
+    .achievement-action-btn:hover {
+      border-color: #16834b;
     }
 
+    .achievement-empty {
+      background: #fff;
+      border-radius: 20px;
+      padding: 55px 20px;
+      text-align: center;
+      color: #777;
+      box-shadow: 0 8px 25px rgba(0,0,0,.05);
+    }
+
+    .achievement-empty-icon {
+      font-size: 55px;
+      margin-bottom: 12px;
+    }
+
+    .achievement-empty h2 {
+      color: #222;
+      margin: 0 0 8px;
+    }
+
+    .achievement-empty p {
+      margin: 0 0 20px;
+    }
+
+    /* =====================================================
+       ACHIEVEMENT MODAL
+    ====================================================== */
+
+    .achievement-form {
+      display: grid;
+      gap: 13px;
+      margin-top: 18px;
+    }
+
+    .achievement-form label {
+      display: grid;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .achievement-form input,
+    .achievement-form select,
+    .achievement-form textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      border-radius: 11px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      background: #fff;
+    }
+
+    .achievement-form input,
+    .achievement-form select {
+      min-height: 45px;
+    }
+
+    .achievement-form textarea {
+      resize: vertical;
+    }
+
+    .achievement-form input:focus,
+    .achievement-form select:focus,
+    .achievement-form textarea:focus {
+      border-color: #16834b;
+    }
 
     /* =====================================================
        MOBILE
     ====================================================== */
+
+    @media (max-width: 1000px) {
+
+      .achievements-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+    }
 
     @media (max-width: 900px) {
 
@@ -655,12 +724,15 @@
         grid-column: 1 / -1;
       }
 
-      .achievement-card {
-        grid-template-columns: 1fr;
+      .achievements-toolbar {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .achievements-toolbar button {
+        grid-column: 1 / -1;
       }
 
     }
-
 
     @media (max-width: 750px) {
 
@@ -698,8 +770,19 @@
         grid-column: auto;
       }
 
-    }
+      .achievements-grid {
+        grid-template-columns: 1fr;
+      }
 
+      .achievements-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .achievements-toolbar button {
+        grid-column: auto;
+      }
+
+    }
 
     @media (max-width: 500px) {
 
@@ -729,31 +812,19 @@
         width: 100%;
       }
 
-      .achievement-medal {
-        width: 100%;
-        box-sizing: border-box;
-      }
-
-      .achievement-actions {
-        justify-content: flex-start;
-      }
-
     }
 
   </style>
 
 </head>
 
-
 <body>
-
 
   <!-- =====================================================
        COACH APP
   ====================================================== -->
 
   <div class="coach-app">
-
 
     <!-- ===================================================
          TOPBAR
@@ -777,19 +848,11 @@
         </div>
 
         <div>
-
-          <strong>
-            جودو طبیعت
-          </strong>
-
-          <span>
-            پنل مدیریت مربی
-          </span>
-
+          <strong>جودو طبیعت</strong>
+          <span>پنل مدیریت مربی</span>
         </div>
 
       </div>
-
 
       <button
         class="logout-btn"
@@ -815,132 +878,81 @@
         مدیریت باشگاه
       </div>
 
-
       <nav>
-
 
         <button
           class="nav-item active"
           data-page="dashboard"
           type="button"
         >
-
-          <span>
-            🏠
-          </span>
-
+          <span>🏠</span>
           داشبورد
-
         </button>
-
 
         <button
           class="nav-item"
           data-page="athletes"
           type="button"
         >
-
-          <span>
-            👥
-          </span>
-
+          <span>👥</span>
           ورزشکاران
-
         </button>
-
 
         <button
           class="nav-item"
           data-page="evaluations"
           type="button"
         >
-
-          <span>
-            📊
-          </span>
-
+          <span>📊</span>
           ارزیابی
-
         </button>
-
 
         <button
           class="nav-item"
           data-page="attendance"
           type="button"
         >
-
-          <span>
-            🟢
-          </span>
-
+          <span>🟢</span>
           حضور و غیاب
-
         </button>
-
 
         <button
           class="nav-item"
           data-page="achievements"
           type="button"
         >
-
-          <span>
-            🏆
-          </span>
-
+          <span>🏆</span>
           مقام‌ها و افتخارات
-
         </button>
-
 
         <button
           class="nav-item"
           data-page="events"
           type="button"
         >
-
-          <span>
-            📅
-          </span>
-
+          <span>📅</span>
           مسابقات و اطلاعیه‌ها
-
         </button>
-
 
         <button
           class="nav-item"
           data-page="records"
           type="button"
         >
-
-          <span>
-            📈
-          </span>
-
+          <span>📈</span>
           آمار و رکوردها
-
         </button>
-
 
         <button
           class="nav-item"
           data-page="settings"
           type="button"
         >
-
-          <span>
-            ⚙️
-          </span>
-
+          <span>⚙️</span>
           تنظیمات سایت
-
         </button>
 
-
       </nav>
-
 
       <div class="sidebar-footer">
 
@@ -996,12 +1008,9 @@
 
         <div class="stats-grid">
 
-
           <div class="stat-card">
 
-            <span>
-              👥
-            </span>
+            <span>👥</span>
 
             <div>
 
@@ -1020,9 +1029,7 @@
 
           <div class="stat-card">
 
-            <span>
-              📊
-            </span>
+            <span>📊</span>
 
             <div>
 
@@ -1041,9 +1048,7 @@
 
           <div class="stat-card">
 
-            <span>
-              🟢
-            </span>
+            <span>🟢</span>
 
             <div>
 
@@ -1062,9 +1067,7 @@
 
           <div class="stat-card">
 
-            <span>
-              🏆
-            </span>
+            <span>🏆</span>
 
             <div>
 
@@ -1079,7 +1082,6 @@
             </div>
 
           </div>
-
 
         </div>
 
@@ -1097,16 +1099,13 @@
 
           <div class="quick-grid">
 
-
             <button
               class="quick-card"
               data-go="athletes"
               type="button"
             >
 
-              <span>
-                ➕
-              </span>
+              <span>➕</span>
 
               <strong>
                 افزودن ورزشکار
@@ -1125,9 +1124,7 @@
               type="button"
             >
 
-              <span>
-                📋
-              </span>
+              <span>📋</span>
 
               <strong>
                 ارزیابی جدید
@@ -1146,9 +1143,7 @@
               type="button"
             >
 
-              <span>
-                🟢
-              </span>
+              <span>🟢</span>
 
               <strong>
                 حضور و غیاب
@@ -1167,9 +1162,7 @@
               type="button"
             >
 
-              <span>
-                🏆
-              </span>
+              <span>🏆</span>
 
               <strong>
                 ثبت مقام
@@ -1180,7 +1173,6 @@
               </small>
 
             </button>
-
 
           </div>
 
@@ -1237,7 +1229,6 @@
             autocomplete="off"
           >
 
-
           <select id="coachFilter">
 
             <option value="all">
@@ -1290,10 +1281,7 @@
 
         <div class="evaluation-toolbar">
 
-
-          <select
-            id="evaluationAthleteSelect"
-          >
+          <select id="evaluationAthleteSelect">
 
             <option value="">
               انتخاب ورزشکار
@@ -1302,9 +1290,7 @@
           </select>
 
 
-          <select
-            id="evaluationPeriodSelect"
-          >
+          <select id="evaluationPeriodSelect">
 
             <option value="">
               انتخاب دوره ارزیابی
@@ -1320,7 +1306,6 @@
           >
             ➕ ارزیابی جدید
           </button>
-
 
         </div>
 
@@ -1356,7 +1341,6 @@
         class="coach-page"
         id="page-attendance"
       >
-
 
         <div class="attendance-page-header">
 
@@ -1397,10 +1381,7 @@
         </div>
 
 
-        <!-- آمار روز -->
-
         <div class="attendance-summary">
-
 
           <div class="attendance-summary-card">
 
@@ -1485,14 +1466,10 @@
 
           </div>
 
-
         </div>
 
 
-        <!-- ابزارهای حضور و غیاب -->
-
         <div class="attendance-toolbar">
-
 
           <input
             id="attendanceSearch"
@@ -1535,11 +1512,8 @@
             🔄 بارگذاری اطلاعات
           </button>
 
-
         </div>
 
-
-        <!-- پیام خطا -->
 
         <div
           id="attendanceError"
@@ -1547,8 +1521,6 @@
           style="display:none;"
         ></div>
 
-
-        <!-- لیست ورزشکاران -->
 
         <div
           id="attendanceList"
@@ -1561,8 +1533,6 @@
 
         </div>
 
-
-        <!-- نوار ذخیره -->
 
         <div class="attendance-bottom-bar">
 
@@ -1596,8 +1566,6 @@
         </div>
 
 
-        <!-- سابقه -->
-
         <div class="attendance-history-box">
 
           <h3>
@@ -1629,7 +1597,6 @@
         id="page-achievements"
       >
 
-
         <div class="page-heading">
 
           <div>
@@ -1643,7 +1610,7 @@
             </h1>
 
             <p>
-              ثبت، مشاهده و مدیریت مقام‌های ورزشکاران
+              ثبت افتخارات و نتایج ورزشکاران
             </p>
 
           </div>
@@ -1660,107 +1627,12 @@
         </div>
 
 
-        <!-- آمار افتخارات -->
-
-        <div class="stats-grid">
-
-
-          <div class="stat-card">
-
-            <span>
-              🏆
-            </span>
-
-            <div>
-
-              <small>
-                کل مقام‌ها
-              </small>
-
-              <strong id="achievementTotal">
-                ۰
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <span>
-              🥇
-            </span>
-
-            <div>
-
-              <small>
-                مدال طلا
-              </small>
-
-              <strong id="achievementGold">
-                ۰
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <span>
-              🥈
-            </span>
-
-            <div>
-
-              <small>
-                مدال نقره
-              </small>
-
-              <strong id="achievementSilver">
-                ۰
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <span>
-              🥉
-            </span>
-
-            <div>
-
-              <small>
-                مدال برنز
-              </small>
-
-              <strong id="achievementBronze">
-                ۰
-              </strong>
-
-            </div>
-
-          </div>
-
-
-        </div>
-
-
-        <!-- جستجو و فیلتر -->
-
-        <div class="toolbar">
-
+        <div class="achievements-toolbar">
 
           <input
             id="achievementSearch"
             type="search"
-            placeholder="جستجوی ورزشکار یا عنوان مسابقه..."
+            placeholder="جستجوی نام ورزشکار یا مسابقه..."
             autocomplete="off"
           >
 
@@ -1783,37 +1655,57 @@
               🥉 برنز
             </option>
 
+            <option value="other">
+              سایر
+            </option>
+
           </select>
 
+
+          <button
+            class="primary"
+            id="refreshAchievementsBtn"
+            type="button"
+          >
+            🔄 بروزرسانی
+          </button>
 
         </div>
 
 
-        <!-- لیست افتخارات -->
-
         <div
           id="achievementsList"
-          class="achievements-list"
+          class="achievements-grid"
         >
 
-          <div class="empty-panel">
+          <div
+            class="achievement-empty"
+            style="grid-column:1/-1;"
+          >
 
-            <div>
+            <div class="achievement-empty-icon">
               🏆
             </div>
 
             <h2>
-              هنوز مقامی ثبت نشده است
+              هنوز مقام یا افتخاری ثبت نشده است
             </h2>
 
             <p>
-              برای شروع، روی «ثبت مقام جدید» بزنید.
+              اولین افتخار ورزشکاران باشگاه را ثبت کنید.
             </p>
+
+            <button
+              class="primary"
+              id="emptyAddAchievementBtn"
+              type="button"
+            >
+              ➕ ثبت اولین مقام
+            </button>
 
           </div>
 
         </div>
-
 
       </section>
 
@@ -1948,12 +1840,9 @@
 
         <div class="settings-grid">
 
-
           <div class="setting-card">
 
-            <span>
-              🏢
-            </span>
+            <span>🏢</span>
 
             <h3>
               اطلاعات باشگاه
@@ -1968,9 +1857,7 @@
 
           <div class="setting-card">
 
-            <span>
-              📞
-            </span>
+            <span>📞</span>
 
             <h3>
               راه‌های ارتباطی
@@ -1985,9 +1872,7 @@
 
           <div class="setting-card">
 
-            <span>
-              📍
-            </span>
+            <span>📍</span>
 
             <h3>
               آدرس باشگاه
@@ -2002,9 +1887,7 @@
 
           <div class="setting-card">
 
-            <span>
-              ⚙️
-            </span>
+            <span>⚙️</span>
 
             <h3>
               تنظیمات عمومی
@@ -2016,11 +1899,9 @@
 
           </div>
 
-
         </div>
 
       </section>
-
 
     </main>
 
@@ -2038,7 +1919,6 @@
 
     <div class="modal-card">
 
-
       <button
         class="close"
         id="closeAthleteModal"
@@ -2048,16 +1928,13 @@
         ×
       </button>
 
-
       <span class="eyebrow">
         NEW ATHLETE
       </span>
 
-
       <h2>
         افزودن ورزشکار
       </h2>
-
 
       <p class="muted">
         اطلاعات ورزشکار را وارد کنید.
@@ -2166,6 +2043,166 @@
         ثبت ورزشکار
       </button>
 
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       ACHIEVEMENT MODAL
+  ====================================================== -->
+
+  <div
+    class="modal hidden"
+    id="achievementModal"
+  >
+
+    <div class="modal-card">
+
+      <button
+        class="close"
+        id="closeAchievementModal"
+        type="button"
+        aria-label="بستن"
+      >
+        ×
+      </button>
+
+      <span class="eyebrow">
+        NEW ACHIEVEMENT
+      </span>
+
+      <h2>
+        ثبت مقام و افتخار
+      </h2>
+
+      <p class="muted">
+        اطلاعات مقام کسب‌شده را وارد کنید.
+      </p>
+
+
+      <div class="achievement-form">
+
+        <label>
+
+          ورزشکار
+
+          <select id="achievementAthleteSelect">
+
+            <option value="">
+              انتخاب ورزشکار
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <label>
+
+          مقام
+
+          <select id="achievementPlace">
+
+            <option value="">
+              انتخاب مقام
+            </option>
+
+            <option value="gold">
+              🥇 مقام اول
+            </option>
+
+            <option value="silver">
+              🥈 مقام دوم
+            </option>
+
+            <option value="bronze">
+              🥉 مقام سوم
+            </option>
+
+            <option value="other">
+              🏅 سایر
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <label>
+
+          نام مسابقات
+
+          <input
+            id="achievementCompetition"
+            type="text"
+            placeholder="مثلاً مسابقات قهرمانی استان تهران"
+          >
+
+        </label>
+
+
+        <label>
+
+          تاریخ مسابقه
+
+          <input
+            id="achievementDate"
+            type="date"
+          >
+
+        </label>
+
+
+        <label>
+
+          رده سنی
+
+          <input
+            id="achievementAgeGroup"
+            type="text"
+            placeholder="مثلاً نوجوانان"
+          >
+
+        </label>
+
+
+        <label>
+
+          وزن
+
+          <input
+            id="achievementWeight"
+            type="number"
+            step="0.1"
+            placeholder="مثلاً 66"
+          >
+
+        </label>
+
+
+        <label>
+
+          توضیحات
+
+          <textarea
+            id="achievementDescription"
+            rows="3"
+            placeholder="توضیحات تکمیلی درباره مسابقه یا مقام"
+          ></textarea>
+
+        </label>
+
+
+        <button
+          class="primary wide"
+          id="saveAchievementBtn"
+          type="button"
+        >
+          🏆 ثبت افتخار
+        </button>
+
+      </div>
 
     </div>
 
@@ -2202,7 +2239,6 @@
     document.addEventListener(
       "DOMContentLoaded",
       function () {
-
 
         /* ===============================================
            MENU
@@ -2241,7 +2277,6 @@
 
 
         function openCoachPage(pageName) {
-
 
           pages.forEach(
             page =>
@@ -2329,7 +2364,7 @@
           }
 
 
-          /* مقام‌ها و افتخارات */
+          /* مقام‌ها */
 
           if (
             pageName === "achievements" &&
@@ -2353,7 +2388,6 @@
 
                 const pageName =
                   this.dataset.page;
-
 
                 if (pageName) {
 
@@ -2384,7 +2418,6 @@
                   const pageName =
                     this.dataset.go;
 
-
                   if (!pageName) {
                     return;
                   }
@@ -2405,11 +2438,8 @@
                             "addAthleteBtn"
                           );
 
-
                         if (button) {
-
                           button.click();
-
                         }
 
                       },
@@ -2431,11 +2461,8 @@
                             "newEvaluationBtn"
                           );
 
-
                         if (button) {
-
                           button.click();
-
                         }
 
                       },
@@ -2457,11 +2484,8 @@
                             "addAchievementBtn"
                           );
 
-
                         if (button) {
-
                           button.click();
-
                         }
 
                       },
@@ -2764,7 +2788,7 @@
 
 
         /* ===============================================
-           ACHIEVEMENTS SEARCH
+           ACHIEVEMENT SEARCH
         ================================================ */
 
         const achievementSearch =
@@ -2802,7 +2826,7 @@
 
 
         /* ===============================================
-           ACHIEVEMENTS FILTER
+           ACHIEVEMENT FILTER
         ================================================ */
 
         const achievementFilter =
@@ -2840,13 +2864,92 @@
 
 
         /* ===============================================
-           ADD ACHIEVEMENT
+           REFRESH ACHIEVEMENTS
+        ================================================ */
+
+        const refreshAchievementsBtn =
+          document.getElementById(
+            "refreshAchievementsBtn"
+          );
+
+
+        if (
+          refreshAchievementsBtn &&
+          !refreshAchievementsBtn.dataset.bound
+        ) {
+
+          refreshAchievementsBtn.dataset.bound =
+            "true";
+
+
+          refreshAchievementsBtn.addEventListener(
+            "click",
+            function () {
+
+              if (
+                typeof window.initializeAchievementsPage ===
+                "function"
+              ) {
+
+                window.initializeAchievementsPage();
+
+              } else if (
+                typeof window.renderAchievements ===
+                "function"
+              ) {
+
+                window.renderAchievements();
+
+              }
+
+            }
+          );
+
+        }
+
+
+        /* ===============================================
+           ACHIEVEMENT MODAL OPEN
         ================================================ */
 
         const addAchievementBtn =
           document.getElementById(
             "addAchievementBtn"
           );
+
+
+        const emptyAddAchievementBtn =
+          document.getElementById(
+            "emptyAddAchievementBtn"
+          );
+
+
+        function openAchievementModal() {
+
+          const modal =
+            document.getElementById(
+              "achievementModal"
+            );
+
+
+          if (!modal) {
+            return;
+          }
+
+
+          if (
+            typeof window.prepareAchievementForm ===
+            "function"
+          ) {
+
+            window.prepareAchievementForm();
+
+          }
+
+
+          modal.classList.remove("hidden");
+
+        }
 
 
         if (
@@ -2860,19 +2963,102 @@
 
           addAchievementBtn.addEventListener(
             "click",
+            openAchievementModal
+          );
+
+        }
+
+
+        if (
+          emptyAddAchievementBtn &&
+          !emptyAddAchievementBtn.dataset.bound
+        ) {
+
+          emptyAddAchievementBtn.dataset.bound =
+            "true";
+
+
+          emptyAddAchievementBtn.addEventListener(
+            "click",
+            openAchievementModal
+          );
+
+        }
+
+
+        /* ===============================================
+           ACHIEVEMENT MODAL CLOSE
+        ================================================ */
+
+        const closeAchievementModal =
+          document.getElementById(
+            "closeAchievementModal"
+          );
+
+
+        if (
+          closeAchievementModal &&
+          !closeAchievementModal.dataset.bound
+        ) {
+
+          closeAchievementModal.dataset.bound =
+            "true";
+
+
+          closeAchievementModal.addEventListener(
+            "click",
+            function () {
+
+              const modal =
+                document.getElementById(
+                  "achievementModal"
+                );
+
+
+              if (modal) {
+                modal.classList.add("hidden");
+              }
+
+            }
+          );
+
+        }
+
+
+        /* ===============================================
+           SAVE ACHIEVEMENT
+        ================================================ */
+
+        const saveAchievementBtn =
+          document.getElementById(
+            "saveAchievementBtn"
+          );
+
+
+        if (
+          saveAchievementBtn &&
+          !saveAchievementBtn.dataset.bound
+        ) {
+
+          saveAchievementBtn.dataset.bound =
+            "true";
+
+
+          saveAchievementBtn.addEventListener(
+            "click",
             function () {
 
               if (
-                typeof window.openAchievementModal ===
+                typeof window.saveAchievement ===
                 "function"
               ) {
 
-                window.openAchievementModal();
+                window.saveAchievement();
 
               } else {
 
                 alert(
-                  "فرم ثبت مقام در مرحله بعد به coach.js متصل می‌شود."
+                  "سیستم مقام‌ها هنوز به coach.js متصل نشده است."
                 );
 
               }
