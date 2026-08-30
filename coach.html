@@ -2,29 +2,22 @@
 <html lang="fa" dir="rtl">
 
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>طبیعت جودو | پنل مربی</title>
-
 
   <style>
 
     /* =========================================================
-       JUDO TABIAT
-       COACH PANEL
+       JUDO TABIAT - COACH PANEL
        COMPLETE COACH.HTML
+       VERSION: 2026.08.30
     ========================================================= */
 
     * {
       box-sizing: border-box;
     }
-
 
     html,
     body {
@@ -36,7 +29,6 @@
       color: #111827;
     }
 
-
     button,
     input,
     select,
@@ -44,15 +36,9 @@
       font-family: inherit;
     }
 
-
     button {
       cursor: pointer;
     }
-
-
-    /* =========================================================
-       APP
-    ========================================================= */
 
     .coach-app {
       min-height: 100vh;
@@ -80,7 +66,6 @@
       overflow-y: auto;
     }
 
-
     .brand {
       display: flex;
       align-items: center;
@@ -89,7 +74,6 @@
       border-bottom: 1px solid rgba(255,255,255,.08);
       margin-bottom: 20px;
     }
-
 
     .brand-logo {
       width: 46px;
@@ -103,12 +87,10 @@
       font-size: 24px;
     }
 
-
     .brand-text strong {
       display: block;
       font-size: 16px;
     }
-
 
     .brand-text span {
       display: block;
@@ -117,13 +99,11 @@
       margin-top: 4px;
     }
 
-
     .sidebar-nav {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
-
 
     .nav-item {
       width: 100%;
@@ -140,19 +120,16 @@
       transition: .2s;
     }
 
-
     .nav-item:hover {
       background: rgba(255,255,255,.07);
       color: white;
     }
-
 
     .nav-item.active {
       background: white;
       color: #111827;
       font-weight: 700;
     }
-
 
     .nav-icon {
       width: 24px;
@@ -171,7 +148,6 @@
       min-height: 100vh;
     }
 
-
     .coach-topbar {
       height: 70px;
       background: white;
@@ -185,12 +161,10 @@
       z-index: 500;
     }
 
-
     .topbar-title {
       font-size: 18px;
       font-weight: 800;
     }
-
 
     .coach-user {
       display: flex;
@@ -199,7 +173,6 @@
       font-size: 13px;
       color: #475467;
     }
-
 
     .user-avatar {
       width: 38px;
@@ -211,7 +184,6 @@
       align-items: center;
       justify-content: center;
     }
-
 
     .coach-content {
       padding: 28px;
@@ -226,22 +198,18 @@
       display: none;
     }
 
-
     .coach-page.active {
       display: block;
     }
-
 
     .page-header {
       margin-bottom: 24px;
     }
 
-
     .page-header h1 {
       margin: 0 0 7px;
       font-size: 25px;
     }
-
 
     .page-header p {
       margin: 0;
@@ -261,7 +229,6 @@
       gap: 16px;
     }
 
-
     .dashboard-card,
     .stat-card,
     .content-card {
@@ -272,7 +239,6 @@
       box-shadow: 0 4px 15px rgba(0,0,0,.035);
     }
 
-
     .dashboard-card span,
     .stat-card span {
       display: block;
@@ -280,7 +246,6 @@
       font-size: 12px;
       margin-bottom: 8px;
     }
-
 
     .dashboard-card strong,
     .stat-card strong {
@@ -303,23 +268,19 @@
       font-weight: 700;
     }
 
-
     .primary-btn {
       background: #111827;
       color: white;
     }
 
-
     .primary-btn:hover {
       opacity: .9;
     }
-
 
     .secondary-btn {
       background: #eef1f4;
       color: #344054;
     }
-
 
     .danger-btn {
       background: #fef2f2;
@@ -339,12 +300,10 @@
       margin-bottom: 20px;
     }
 
-
     .section-header h2 {
       margin: 0 0 6px;
       font-size: 20px;
     }
-
 
     .section-header p {
       margin: 0;
@@ -367,7 +326,6 @@
       width: fit-content;
     }
 
-
     .events-tab {
       border: none;
       background: transparent;
@@ -378,18 +336,15 @@
       color: #667085;
     }
 
-
     .events-tab.active {
       background: white;
       color: #111827;
       box-shadow: 0 3px 12px rgba(0,0,0,.07);
     }
 
-
     .events-panel {
       display: none;
     }
-
 
     .events-panel.active {
       display: block;
@@ -407,7 +362,6 @@
       margin-bottom: 20px;
     }
 
-
     .event-stat-card {
       background: white;
       border: 1px solid #e6e9ed;
@@ -418,7 +372,6 @@
       gap: 14px;
       box-shadow: 0 4px 15px rgba(0,0,0,.04);
     }
-
 
     .event-stat-icon {
       width: 48px;
@@ -432,14 +385,12 @@
       flex-shrink: 0;
     }
 
-
     .event-stat-card span {
       display: block;
       font-size: 12px;
       color: #667085;
       margin-bottom: 5px;
     }
-
 
     .event-stat-card strong {
       font-size: 23px;
@@ -456,7 +407,6 @@
       margin-bottom: 20px;
     }
 
-
     .events-toolbar input,
     .events-toolbar select {
       height: 44px;
@@ -468,11 +418,9 @@
       outline: none;
     }
 
-
     .events-toolbar input {
       flex: 1;
     }
-
 
     .events-toolbar select {
       min-width: 190px;
@@ -489,7 +437,6 @@
       gap: 15px;
     }
 
-
     .announcement-card,
     .competition-card {
       background: white;
@@ -499,14 +446,12 @@
       box-shadow: 0 4px 16px rgba(0,0,0,.04);
     }
 
-
     .announcement-card-top,
     .competition-card-top {
       display: flex;
       align-items: flex-start;
       gap: 14px;
     }
-
 
     .announcement-icon,
     .competition-icon {
@@ -521,19 +466,16 @@
       font-size: 23px;
     }
 
-
     .announcement-main,
     .competition-main {
       flex: 1;
     }
-
 
     .announcement-main h3,
     .competition-main h3 {
       margin: 0 0 7px;
       font-size: 17px;
     }
-
 
     .announcement-type-badge,
     .competition-status-badge {
@@ -546,12 +488,10 @@
       font-weight: 700;
     }
 
-
     .event-actions {
       display: flex;
       gap: 6px;
     }
-
 
     .announcement-delete-btn,
     .competition-delete-btn,
@@ -564,19 +504,16 @@
       font-size: 15px;
     }
 
-
     .announcement-delete-btn,
     .competition-delete-btn {
       background: #fef2f2;
       color: #dc2626;
     }
 
-
     .announcement-edit-btn,
     .competition-edit-btn {
       background: #f3f4f6;
     }
-
 
     .announcement-details,
     .competition-details {
@@ -588,13 +525,11 @@
       border-top: 1px solid #eef0f2;
     }
 
-
     .event-detail {
       background: #f8fafc;
       border-radius: 11px;
       padding: 11px;
     }
-
 
     .event-detail span {
       display: block;
@@ -603,12 +538,10 @@
       margin-bottom: 5px;
     }
 
-
     .event-detail strong {
       display: block;
       font-size: 12px;
     }
-
 
     .announcement-content,
     .competition-description {
@@ -636,16 +569,106 @@
       color: #667085;
     }
 
-
     .evaluation-empty-icon {
       font-size: 38px;
       margin-bottom: 10px;
     }
 
-
     .evaluation-empty h2 {
       color: #344054;
       font-size: 17px;
+    }
+
+
+    /* =========================================================
+       RECORDS
+    ========================================================= */
+
+    .records-stats-grid {
+      margin-bottom: 20px;
+    }
+
+    .records-best-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 16px;
+    }
+
+    .record-best-box {
+      background: white;
+      border: 1px solid #e6e9ed;
+      border-radius: 17px;
+      padding: 22px;
+      box-shadow: 0 4px 15px rgba(0,0,0,.035);
+    }
+
+    .record-best-box h3 {
+      margin: 0 0 12px;
+      font-size: 15px;
+    }
+
+    .record-best-box p {
+      margin: 0;
+      color: #667085;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .records-table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    .records-table {
+      width: 100%;
+      min-width: 750px;
+      border-collapse: collapse;
+    }
+
+    .records-table th,
+    .records-table td {
+      padding: 14px 12px;
+      text-align: right;
+      border-bottom: 1px solid #eef0f2;
+      font-size: 12px;
+    }
+
+    .records-table th {
+      background: #f8fafc;
+      color: #475467;
+      font-weight: 800;
+    }
+
+    .records-table td {
+      color: #344054;
+    }
+
+    .record-type-badge {
+      display: inline-flex;
+      padding: 6px 9px;
+      border-radius: 8px;
+      background: #f3f4f6;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .record-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .record-action-btn {
+      border: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: #f3f4f6;
+    }
+
+    .record-action-btn.delete {
+      background: #fef2f2;
+      color: #dc2626;
     }
 
 
@@ -664,11 +687,9 @@
       z-index: 5000;
     }
 
-
     .modal.hidden {
       display: none !important;
     }
-
 
     .modal-content {
       background: white;
@@ -680,11 +701,9 @@
       box-shadow: 0 20px 60px rgba(0,0,0,.2);
     }
 
-
     .events-modal {
       width: min(700px,calc(100% - 30px));
     }
-
 
     .modal-header {
       display: flex;
@@ -694,19 +713,16 @@
       margin-bottom: 22px;
     }
 
-
     .modal-header h2 {
       margin: 0 0 6px;
       font-size: 19px;
     }
-
 
     .modal-header p {
       margin: 0;
       color: #667085;
       font-size: 12px;
     }
-
 
     .modal-close {
       border: 0;
@@ -717,13 +733,11 @@
       font-size: 16px;
     }
 
-
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2,1fr);
       gap: 15px;
     }
-
 
     .form-group {
       display: flex;
@@ -731,18 +745,15 @@
       gap: 7px;
     }
 
-
     .form-group.full-width {
       grid-column: 1 / -1;
     }
-
 
     .form-group label {
       font-size: 12px;
       font-weight: 700;
       color: #344054;
     }
-
 
     .form-group input,
     .form-group select,
@@ -756,19 +767,16 @@
       outline: none;
     }
 
-
     .form-group input,
     .form-group select {
       height: 44px;
     }
-
 
     .form-group textarea {
       min-height: 110px;
       resize: vertical;
       line-height: 1.8;
     }
-
 
     .modal-actions {
       display: flex;
@@ -781,7 +789,7 @@
 
 
     /* =========================================================
-       GENERIC
+       GENERIC CONTENT
     ========================================================= */
 
     .simple-grid {
@@ -790,7 +798,6 @@
       gap: 16px;
     }
 
-
     .simple-box {
       background: white;
       border: 1px solid #e6e9ed;
@@ -798,7 +805,6 @@
       padding: 25px;
       min-height: 130px;
     }
-
 
     .simple-box h3 {
       margin-top: 0;
@@ -816,20 +822,18 @@
         min-width: 220px;
       }
 
-
       .coach-main {
         width: calc(100% - 220px);
         margin-right: 220px;
       }
-
 
       .dashboard-grid,
       .stats-grid {
         grid-template-columns: repeat(2,1fr);
       }
 
-
-      .simple-grid {
+      .simple-grid,
+      .records-best-grid {
         grid-template-columns: 1fr;
       }
 
@@ -848,17 +852,14 @@
         padding: 8px;
       }
 
-
       .brand {
         display: none;
       }
-
 
       .sidebar-nav {
         flex-direction: row;
         overflow-x: auto;
       }
-
 
       .nav-item {
         min-width: 80px;
@@ -871,11 +872,9 @@
         text-align: center;
       }
 
-
       .nav-icon {
         font-size: 17px;
       }
-
 
       .coach-main {
         width: 100%;
@@ -883,16 +882,13 @@
         padding-top: 68px;
       }
 
-
       .coach-topbar {
         padding: 0 15px;
       }
 
-
       .coach-content {
         padding: 18px 14px;
       }
-
 
       .dashboard-grid,
       .stats-grid,
@@ -900,58 +896,47 @@
         grid-template-columns: 1fr;
       }
 
-
       .section-header {
         flex-direction: column;
         align-items: stretch;
       }
 
-
       .section-header .primary-btn {
         width: 100%;
       }
-
 
       .events-toolbar {
         flex-direction: column;
       }
 
-
       .events-toolbar select {
         width: 100%;
       }
-
 
       .announcement-details,
       .competition-details {
         grid-template-columns: 1fr;
       }
 
-
       .form-grid {
         grid-template-columns: 1fr;
       }
-
 
       .form-group.full-width {
         grid-column: auto;
       }
 
-
       .events-tabs {
         width: 100%;
       }
-
 
       .events-tab {
         flex: 1;
       }
 
-
       .modal-actions {
         flex-direction: column-reverse;
       }
-
 
       .modal-actions button {
         width: 100%;
@@ -960,12 +945,10 @@
     }
 
   </style>
-
 </head>
 
 
 <body>
-
 
 <div class="coach-app">
 
@@ -976,19 +959,13 @@
 
   <aside class="coach-sidebar">
 
-
     <div class="brand">
 
-      <div class="brand-logo">
-        🥋
-      </div>
-
+      <div class="brand-logo">🥋</div>
 
       <div class="brand-text">
 
-        <strong>
-          طبیعت جودو
-        </strong>
+        <strong>طبیعت جودو</strong>
 
         <span>
           پنل مدیریت مربی
@@ -1001,91 +978,88 @@
 
     <nav class="sidebar-nav">
 
+      <button type="button"
+              class="nav-item active"
+              data-page="dashboard">
 
-      <button
-        type="button"
-        class="nav-item active"
-        data-page="dashboard"
-      >
         <span class="nav-icon">📊</span>
         <span>داشبورد</span>
+
       </button>
 
 
-      <button
-        type="button"
-        class="nav-item"
-        data-page="athletes"
-      >
+      <button type="button"
+              class="nav-item"
+              data-page="athletes">
+
         <span class="nav-icon">👥</span>
         <span>ورزشکاران</span>
+
       </button>
 
 
-      <button
-        type="button"
-        class="nav-item"
-        data-page="evaluations"
-      >
+      <button type="button"
+              class="nav-item"
+              data-page="evaluations">
+
         <span class="nav-icon">📈</span>
         <span>ارزیابی</span>
+
       </button>
 
 
-      <button
-        type="button"
-        class="nav-item"
-        data-page="attendance"
-      >
+      <button type="button"
+              class="nav-item"
+              data-page="attendance">
+
         <span class="nav-icon">🟢</span>
         <span>حضور و غیاب</span>
+
       </button>
 
 
-      <button
-        type="button"
-        class="nav-item"
-        data-page="achievements"
-      >
+      <button type="button"
+              class="nav-item"
+              data-page="achievements">
+
         <span class="nav-icon">🏆</span>
         <span>مقام‌ها و افتخارات</span>
+
       </button>
 
 
-      <button
-        type="button"
-        class="nav-item"
-        data-page="events"
-      >
+      <button type="button"
+              class="nav-item"
+              data-page="events">
+
         <span class="nav-icon">📅</span>
         <span>مسابقات و اطلاعیه‌ها</span>
+
       </button>
 
 
-      <button
-        type="button"
-        class="nav-item"
-        data-page="records"
-      >
+      <button type="button"
+              class="nav-item"
+              data-page="records">
+
         <span class="nav-icon">📈</span>
         <span>آمار و رکوردها</span>
+
       </button>
 
 
-      <button
-        type="button"
-        class="nav-item"
-        data-page="settings"
-      >
+      <button type="button"
+              class="nav-item"
+              data-page="settings">
+
         <span class="nav-icon">⚙️</span>
         <span>تنظیمات سایت</span>
-      </button>
 
+      </button>
 
     </nav>
 
   </aside>
-
 
 
   <!-- =======================================================
@@ -1104,9 +1078,7 @@
 
       <div class="coach-user">
 
-        <span>
-          مربی
-        </span>
+        <span>مربی</span>
 
         <div class="user-avatar">
           👤
@@ -1117,7 +1089,6 @@
     </header>
 
 
-
     <div class="coach-content">
 
 
@@ -1125,16 +1096,12 @@
            DASHBOARD
       ====================================================== -->
 
-      <section
-        id="page-dashboard"
-        class="coach-page active"
-      >
+      <section id="page-dashboard"
+               class="coach-page active">
 
         <div class="page-header">
 
-          <h1>
-            داشبورد
-          </h1>
+          <h1>داشبورد</h1>
 
           <p>
             نمای کلی عملکرد و وضعیت باشگاه
@@ -1197,21 +1164,17 @@
 
           </div>
 
-
         </div>
 
       </section>
-
 
 
       <!-- =====================================================
            ATHLETES
       ====================================================== -->
 
-      <section
-        id="page-athletes"
-        class="coach-page"
-      >
+      <section id="page-athletes"
+               class="coach-page">
 
         <div class="page-header">
 
@@ -1227,7 +1190,6 @@
 
 
         <div class="content-card">
-
 
           <div class="section-header">
 
@@ -1247,9 +1209,10 @@
             <button
               type="button"
               id="addAthleteBtn"
-              class="primary-btn"
-            >
+              class="primary-btn">
+
               ➕ افزودن ورزشکار
+
             </button>
 
           </div>
@@ -1268,28 +1231,24 @@
               </h2>
 
               <p>
-                ورزشکاران ثبت‌شده در این بخش نمایش داده می‌شوند.
+                ورزشکاران از سیستم مدیریت ورزشکاران نمایش داده می‌شوند.
               </p>
 
             </div>
 
           </div>
 
-
         </div>
 
       </section>
-
 
 
       <!-- =====================================================
            EVALUATIONS
       ====================================================== -->
 
-      <section
-        id="page-evaluations"
-        class="coach-page"
-      >
+      <section id="page-evaluations"
+               class="coach-page">
 
         <div class="page-header">
 
@@ -1305,7 +1264,6 @@
 
 
         <div class="content-card">
-
 
           <div class="section-header">
 
@@ -1325,18 +1283,16 @@
             <button
               type="button"
               id="addEvaluationBtn"
-              class="primary-btn"
-            >
+              class="primary-btn">
+
               ➕ ارزیابی جدید
+
             </button>
 
           </div>
 
 
-          <div
-            id="evaluationsList"
-            class="evaluation-empty"
-          >
+          <div class="evaluation-empty">
 
             <div class="evaluation-empty-icon">
               📊
@@ -1352,21 +1308,17 @@
 
           </div>
 
-
         </div>
 
       </section>
-
 
 
       <!-- =====================================================
            ATTENDANCE
       ====================================================== -->
 
-      <section
-        id="page-attendance"
-        class="coach-page"
-      >
+      <section id="page-attendance"
+               class="coach-page">
 
         <div class="page-header">
 
@@ -1382,7 +1334,6 @@
 
 
         <div class="content-card">
-
 
           <div class="section-header">
 
@@ -1402,18 +1353,16 @@
             <button
               type="button"
               id="addAttendanceBtn"
-              class="primary-btn"
-            >
+              class="primary-btn">
+
               ➕ ثبت حضور
+
             </button>
 
           </div>
 
 
-          <div
-            id="attendanceList"
-            class="evaluation-empty"
-          >
+          <div class="evaluation-empty">
 
             <div class="evaluation-empty-icon">
               🟢
@@ -1429,21 +1378,17 @@
 
           </div>
 
-
         </div>
 
       </section>
-
 
 
       <!-- =====================================================
            ACHIEVEMENTS
       ====================================================== -->
 
-      <section
-        id="page-achievements"
-        class="coach-page"
-      >
+      <section id="page-achievements"
+               class="coach-page">
 
         <div class="page-header">
 
@@ -1459,7 +1404,6 @@
 
 
         <div class="content-card">
-
 
           <div class="section-header">
 
@@ -1479,9 +1423,10 @@
             <button
               type="button"
               id="addAchievementBtn"
-              class="primary-btn"
-            >
+              class="primary-btn">
+
               ➕ ثبت افتخار
+
             </button>
 
           </div>
@@ -1528,31 +1473,19 @@
 
             </div>
 
-
           </div>
-
-
-          <div
-            id="achievementsList"
-            style="margin-top:20px;"
-          ></div>
-
 
         </div>
 
       </section>
 
 
-
       <!-- =====================================================
            EVENTS
       ====================================================== -->
 
-      <section
-        id="page-events"
-        class="coach-page"
-      >
-
+      <section id="page-events"
+               class="coach-page">
 
         <div class="page-header">
 
@@ -1567,42 +1500,35 @@
         </div>
 
 
-
-        <!-- EVENTS TABS -->
-
         <div class="events-tabs">
-
 
           <button
             type="button"
             class="events-tab active"
-            data-events-tab="announcements"
-          >
+            data-events-tab="announcements">
+
             📢 اطلاعیه‌ها
+
           </button>
 
 
           <button
             type="button"
             class="events-tab"
-            data-events-tab="competitions"
-          >
-            📅 مسابقات
-          </button>
+            data-events-tab="competitions">
 
+            📅 مسابقات
+
+          </button>
 
         </div>
 
 
-
-        <!-- ===================================================
-             ANNOUNCEMENTS
-        ==================================================== -->
+        <!-- ANNOUNCEMENTS -->
 
         <div
           id="eventsPanelAnnouncements"
-          class="events-panel active"
-        >
+          class="events-panel active">
 
 
           <div class="section-header">
@@ -1623,13 +1549,13 @@
             <button
               type="button"
               id="addAnnouncementBtn"
-              class="primary-btn"
-            >
+              class="primary-btn">
+
               ➕ افزودن اطلاعیه
+
             </button>
 
           </div>
-
 
 
           <div class="events-stats">
@@ -1697,13 +1623,10 @@
 
             </div>
 
-
           </div>
 
 
-
           <div class="events-toolbar">
-
 
             <input
               type="search"
@@ -1748,15 +1671,12 @@
 
             </select>
 
-
           </div>
-
 
 
           <div
             id="announcementsList"
-            class="announcements-list"
-          >
+            class="announcements-list">
 
             <div class="evaluation-empty">
 
@@ -1776,19 +1696,14 @@
 
           </div>
 
-
         </div>
 
 
-
-        <!-- ===================================================
-             COMPETITIONS
-        ==================================================== -->
+        <!-- COMPETITIONS -->
 
         <div
           id="eventsPanelCompetitions"
-          class="events-panel"
-        >
+          class="events-panel">
 
 
           <div class="section-header">
@@ -1809,13 +1724,13 @@
             <button
               type="button"
               id="addCompetitionBtn"
-              class="primary-btn"
-            >
+              class="primary-btn">
+
               ➕ افزودن مسابقه
+
             </button>
 
           </div>
-
 
 
           <div class="events-stats">
@@ -1883,13 +1798,10 @@
 
             </div>
 
-
           </div>
 
 
-
           <div class="events-toolbar">
-
 
             <input
               type="search"
@@ -1918,15 +1830,12 @@
 
             </select>
 
-
           </div>
-
 
 
           <div
             id="competitionsList"
-            class="competitions-list"
-          >
+            class="competitions-list">
 
             <div class="evaluation-empty">
 
@@ -1946,22 +1855,18 @@
 
           </div>
 
-
         </div>
-
 
       </section>
 
 
-
       <!-- =====================================================
-           RECORDS
+           RECORDS & STATISTICS
       ====================================================== -->
 
-      <section
-        id="page-records"
-        class="coach-page"
-      >
+      <section id="page-records"
+               class="coach-page">
+
 
         <div class="page-header">
 
@@ -1970,27 +1875,228 @@
           </h1>
 
           <p>
-            مشاهده آمار و پیشرفت ورزشکاران
+            مشاهده آمار، رکوردها و روند پیشرفت ورزشکاران
           </p>
 
         </div>
 
 
-        <div class="content-card">
+        <!-- GENERAL STATISTICS -->
 
-          <div class="evaluation-empty">
+        <div class="stats-grid records-stats-grid">
 
-            <div class="evaluation-empty-icon">
-              📈
+
+          <div class="stat-card">
+
+            <span>
+              👥 تعداد ورزشکاران
+            </span>
+
+            <strong id="recordsAthletesCount">
+              ۰
+            </strong>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <span>
+              📊 تعداد ارزیابی‌ها
+            </span>
+
+            <strong id="recordsEvaluationsCount">
+              ۰
+            </strong>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <span>
+              🏆 تعداد افتخارات
+            </span>
+
+            <strong id="recordsAchievementsCount">
+              ۰
+            </strong>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <span>
+              📈 تعداد رکوردها
+            </span>
+
+            <strong id="recordsCount">
+              ۰
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <!-- BEST PERFORMANCE -->
+
+        <div
+          class="content-card"
+          style="margin-top:20px;">
+
+          <div class="section-header">
+
+            <div>
+
+              <h2>
+                ⭐ بهترین عملکردها
+              </h2>
+
+              <p>
+                بهترین نتایج ثبت‌شده در باشگاه
+              </p>
+
             </div>
 
-            <h2>
-              آمار و رکوردها
-            </h2>
+          </div>
 
-            <p>
-              رکوردهای ورزشکاران در این بخش نمایش داده می‌شود.
-            </p>
+
+          <div class="records-best-grid">
+
+
+            <div class="record-best-box">
+
+              <h3>
+                🏃 بهترین رکورد دو
+              </h3>
+
+              <p id="bestRunningRecord">
+                هنوز رکوردی ثبت نشده است.
+              </p>
+
+            </div>
+
+
+            <div class="record-best-box">
+
+              <h3>
+                💪 بهترین رکورد بدنسازی
+              </h3>
+
+              <p id="bestStrengthRecord">
+                هنوز رکوردی ثبت نشده است.
+              </p>
+
+            </div>
+
+
+            <div class="record-best-box">
+
+              <h3>
+                📊 بهترین ارزیابی
+              </h3>
+
+              <p id="bestEvaluationRecord">
+                هنوز ارزیابی‌ای ثبت نشده است.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- RECORDS TABLE -->
+
+        <div
+          class="content-card"
+          style="margin-top:20px;">
+
+          <div class="section-header">
+
+            <div>
+
+              <h2>
+                📋 رکوردهای ورزشکاران
+              </h2>
+
+              <p>
+                ثبت و مدیریت رکوردهای ورزشی
+              </p>
+
+            </div>
+
+
+            <button
+              type="button"
+              id="addRecordBtn"
+              class="primary-btn">
+
+              ➕ ثبت رکورد
+
+            </button>
+
+          </div>
+
+
+          <div class="events-toolbar">
+
+            <input
+              type="search"
+              id="recordSearch"
+              placeholder="🔎 جستجو در رکوردها..."
+            >
+
+
+            <select id="recordTypeFilter">
+
+              <option value="all">
+                همه رکوردها
+              </option>
+
+              <option value="running">
+                🏃 دو و استقامت
+              </option>
+
+              <option value="strength">
+                💪 بدنسازی
+              </option>
+
+              <option value="judo">
+                🥋 جودو
+              </option>
+
+              <option value="other">
+                📌 سایر
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div
+            id="recordsList"
+            class="records-table-wrapper">
+
+            <div class="evaluation-empty">
+
+              <div class="evaluation-empty-icon">
+                📈
+              </div>
+
+              <h2>
+                هنوز رکوردی ثبت نشده است
+              </h2>
+
+              <p>
+                برای ثبت اولین رکورد روی «ثبت رکورد» بزنید.
+              </p>
+
+            </div>
 
           </div>
 
@@ -1999,15 +2105,12 @@
       </section>
 
 
-
       <!-- =====================================================
            SETTINGS
       ====================================================== -->
 
-      <section
-        id="page-settings"
-        class="coach-page"
-      >
+      <section id="page-settings"
+               class="coach-page">
 
         <div class="page-header">
 
@@ -2063,18 +2166,15 @@
 
           </div>
 
-
         </div>
 
       </section>
-
 
     </div>
 
   </main>
 
 </div>
-
 
 
 <!-- =========================================================
@@ -2084,12 +2184,9 @@
 <div
   id="announcementModal"
   class="modal hidden"
-  style="display:none;"
->
-
+  style="display:none;">
 
   <div class="modal-content events-modal">
-
 
     <div class="modal-header">
 
@@ -2109,13 +2206,13 @@
       <button
         type="button"
         id="closeAnnouncementModal"
-        class="modal-close"
-      >
+        class="modal-close">
+
         ✕
+
       </button>
 
     </div>
-
 
 
     <div class="form-grid">
@@ -2130,8 +2227,7 @@
         <input
           type="text"
           id="announcementTitle"
-          placeholder="مثلاً تمرین بدنسازی فردا"
-        >
+          placeholder="مثلاً تمرین بدنسازی فردا">
 
       </div>
 
@@ -2185,8 +2281,7 @@
 
         <input
           type="date"
-          id="announcementDate"
-        >
+          id="announcementDate">
 
       </div>
 
@@ -2200,8 +2295,7 @@
         <input
           type="text"
           id="announcementLocation"
-          placeholder="مثلاً سالن طبیعت یا پیست"
-        >
+          placeholder="مثلاً سالن طبیعت یا پیست">
 
       </div>
 
@@ -2214,8 +2308,7 @@
 
         <input
           type="time"
-          id="announcementStartTime"
-        >
+          id="announcementStartTime">
 
       </div>
 
@@ -2228,8 +2321,7 @@
 
         <input
           type="time"
-          id="announcementEndTime"
-        >
+          id="announcementEndTime">
 
       </div>
 
@@ -2243,44 +2335,39 @@
         <textarea
           id="announcementContent"
           rows="5"
-          placeholder="مثلاً فردا تمرین بدنسازی از ساعت ۱۰ تا ۱۲ برگزار می‌شود..."
-        ></textarea>
+          placeholder="مثلاً فردا تمرین بدنسازی از ساعت ۱۰ تا ۱۲ برگزار می‌شود..."></textarea>
 
       </div>
-
 
     </div>
 
 
-
     <div class="modal-actions">
-
 
       <button
         type="button"
         id="cancelAnnouncementBtn"
-        class="secondary-btn"
-      >
+        class="secondary-btn">
+
         انصراف
+
       </button>
 
 
       <button
         type="button"
         id="saveAnnouncementBtn"
-        class="primary-btn"
-      >
+        class="primary-btn">
+
         📢 انتشار اطلاعیه
+
       </button>
 
-
     </div>
-
 
   </div>
 
 </div>
-
 
 
 <!-- =========================================================
@@ -2290,12 +2377,9 @@
 <div
   id="competitionModal"
   class="modal hidden"
-  style="display:none;"
->
-
+  style="display:none;">
 
   <div class="modal-content events-modal">
-
 
     <div class="modal-header">
 
@@ -2315,13 +2399,13 @@
       <button
         type="button"
         id="closeCompetitionModal"
-        class="modal-close"
-      >
+        class="modal-close">
+
         ✕
+
       </button>
 
     </div>
-
 
 
     <div class="form-grid">
@@ -2336,8 +2420,7 @@
         <input
           type="text"
           id="competitionTitle"
-          placeholder="مثلاً مسابقات انتخابی استان تهران"
-        >
+          placeholder="مثلاً مسابقات انتخابی استان تهران">
 
       </div>
 
@@ -2350,8 +2433,7 @@
 
         <input
           type="date"
-          id="competitionDate"
-        >
+          id="competitionDate">
 
       </div>
 
@@ -2365,8 +2447,7 @@
         <input
           type="text"
           id="competitionLocation"
-          placeholder="مثلاً سالن شهید افراسیابی"
-        >
+          placeholder="مثلاً سالن شهید افراسیابی">
 
       </div>
 
@@ -2379,8 +2460,7 @@
 
         <input
           type="time"
-          id="competitionStartTime"
-        >
+          id="competitionStartTime">
 
       </div>
 
@@ -2393,8 +2473,7 @@
 
         <input
           type="time"
-          id="competitionEndTime"
-        >
+          id="competitionEndTime">
 
       </div>
 
@@ -2408,8 +2487,7 @@
         <input
           type="text"
           id="competitionAgeGroup"
-          placeholder="مثلاً نوجوانان"
-        >
+          placeholder="مثلاً نوجوانان">
 
       </div>
 
@@ -2423,8 +2501,7 @@
         <input
           type="text"
           id="competitionWeights"
-          placeholder="مثلاً ۵۵، ۶۰، ۶۶ کیلو"
-        >
+          placeholder="مثلاً ۵۵، ۶۰، ۶۶ کیلو">
 
       </div>
 
@@ -2438,72 +2515,236 @@
         <textarea
           id="competitionDescription"
           rows="5"
-          placeholder="توضیحات مربوط به مسابقه..."
-        ></textarea>
+          placeholder="توضیحات مربوط به مسابقه..."></textarea>
 
       </div>
-
 
     </div>
 
 
-
     <div class="modal-actions">
-
 
       <button
         type="button"
         id="cancelCompetitionBtn"
-        class="secondary-btn"
-      >
+        class="secondary-btn">
+
         انصراف
+
       </button>
 
 
       <button
         type="button"
         id="saveCompetitionBtn"
-        class="primary-btn"
-      >
+        class="primary-btn">
+
         📅 ثبت مسابقه
+
       </button>
 
-
     </div>
-
 
   </div>
 
 </div>
 
 
-
 <!-- =========================================================
-     SUPABASE
-     
-     بسیار مهم:
-     اول کتابخانه Supabase
-     بعد coach.js
+     RECORD MODAL
 ========================================================= -->
 
-<script
-  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
+<div
+  id="recordModal"
+  class="modal hidden"
+  style="display:none;">
 
+  <div class="modal-content events-modal">
+
+    <div class="modal-header">
+
+      <div>
+
+        <h2>
+          📈 ثبت رکورد جدید
+        </h2>
+
+        <p>
+          اطلاعات رکورد ورزشکار را وارد کنید.
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        id="closeRecordModal"
+        class="modal-close">
+
+        ✕
+
+      </button>
+
+    </div>
+
+
+    <div class="form-grid">
+
+
+      <div class="form-group full-width">
+
+        <label for="recordAthlete">
+          ورزشکار
+        </label>
+
+        <select id="recordAthlete">
+
+          <option value="">
+            انتخاب ورزشکار
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="recordType">
+          نوع رکورد
+        </label>
+
+        <select id="recordType">
+
+          <option value="running">
+            🏃 دو و استقامت
+          </option>
+
+          <option value="strength">
+            💪 بدنسازی
+          </option>
+
+          <option value="judo">
+            🥋 جودو
+          </option>
+
+          <option value="other">
+            📌 سایر
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="recordTitle">
+          عنوان رکورد
+        </label>
+
+        <input
+          type="text"
+          id="recordTitle"
+          placeholder="مثلاً دوی ۴۰۰ متر">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="recordValue">
+          مقدار رکورد
+        </label>
+
+        <input
+          type="text"
+          id="recordValue"
+          placeholder="مثلاً 1:06">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="recordUnit">
+          واحد
+        </label>
+
+        <input
+          type="text"
+          id="recordUnit"
+          placeholder="مثلاً دقیقه، کیلوگرم، تکرار">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="recordDate">
+          تاریخ ثبت
+        </label>
+
+        <input
+          type="date"
+          id="recordDate">
+
+      </div>
+
+
+      <div class="form-group full-width">
+
+        <label for="recordDescription">
+          توضیحات
+        </label>
+
+        <textarea
+          id="recordDescription"
+          rows="4"
+          placeholder="توضیحات مربوط به رکورد..."></textarea>
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        id="cancelRecordBtn"
+        class="secondary-btn">
+
+        انصراف
+
+      </button>
+
+
+      <button
+        type="button"
+        id="saveRecordBtn"
+        class="primary-btn">
+
+        📈 ثبت رکورد
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
 
 
 <!-- =========================================================
      COACH JAVASCRIPT
 ========================================================= -->
 
-<script src="coach.js"></script>
-
+<script src="coach.js?v=20260830-02"></script>
 
 
 <!-- =========================================================
-     BASIC NAVIGATION
-     
-     این قسمت فقط برای جابه‌جایی بین صفحات پنل است.
+     BASIC UI NAVIGATION
 ========================================================= -->
 
 <script>
@@ -2513,83 +2754,73 @@ document.addEventListener(
   function () {
 
 
-    /* =======================================================
+    /* =====================================================
        MAIN NAVIGATION
-    ======================================================== */
+    ====================================================== */
 
     const navItems =
       document.querySelectorAll(".nav-item");
-
 
     const pages =
       document.querySelectorAll(".coach-page");
 
 
-    navItems.forEach(
-      function (item) {
+    navItems.forEach(function (item) {
+
+      item.addEventListener(
+        "click",
+        function () {
+
+          const pageName =
+            item.dataset.page;
 
 
-        item.addEventListener(
-          "click",
-          function () {
+          navItems.forEach(function (nav) {
 
-
-            const pageName =
-              item.dataset.page;
-
-
-            navItems.forEach(
-              function (nav) {
-
-                nav.classList.remove(
-                  "active"
-                );
-
-              }
-            );
-
-
-            item.classList.add(
+            nav.classList.remove(
               "active"
             );
 
+          });
 
-            pages.forEach(
-              function (page) {
 
-                page.classList.remove(
-                  "active"
-                );
+          item.classList.add(
+            "active"
+          );
 
-              }
+
+          pages.forEach(function (page) {
+
+            page.classList.remove(
+              "active"
+            );
+
+          });
+
+
+          const targetPage =
+            document.getElementById(
+              "page-" + pageName
             );
 
 
-            const targetPage =
-              document.getElementById(
-                "page-" + pageName
-              );
+          if (targetPage) {
 
-
-            if (targetPage) {
-
-              targetPage.classList.add(
-                "active"
-              );
-
-            }
+            targetPage.classList.add(
+              "active"
+            );
 
           }
-        );
 
-      }
-    );
+        }
+      );
+
+    });
 
 
-
-    /* =======================================================
+    /* =====================================================
        EVENTS TABS
-    ======================================================== */
+    ====================================================== */
 
     const eventTabs =
       document.querySelectorAll(
@@ -2609,87 +2840,80 @@ document.addEventListener(
       );
 
 
-    eventTabs.forEach(
-      function (tab) {
+    eventTabs.forEach(function (tab) {
+
+      tab.addEventListener(
+        "click",
+        function () {
+
+          const target =
+            tab.dataset.eventsTab;
 
 
-        tab.addEventListener(
-          "click",
-          function () {
+          eventTabs.forEach(function (t) {
 
-
-            const target =
-              tab.dataset.eventsTab;
-
-
-            eventTabs.forEach(
-              function (t) {
-
-                t.classList.remove(
-                  "active"
-                );
-
-              }
-            );
-
-
-            tab.classList.add(
+            t.classList.remove(
               "active"
             );
 
-
-            if (announcementPanel) {
-
-              announcementPanel.classList.remove(
-                "active"
-              );
-
-            }
+          });
 
 
-            if (competitionPanel) {
-
-              competitionPanel.classList.remove(
-                "active"
-              );
-
-            }
+          tab.classList.add(
+            "active"
+          );
 
 
-            if (
-              target === "announcements" &&
-              announcementPanel
-            ) {
+          if (announcementPanel) {
 
-              announcementPanel.classList.add(
-                "active"
-              );
-
-            }
-
-
-            if (
-              target === "competitions" &&
-              competitionPanel
-            ) {
-
-              competitionPanel.classList.add(
-                "active"
-              );
-
-            }
+            announcementPanel.classList.remove(
+              "active"
+            );
 
           }
-        );
-
-      }
-    );
 
 
+          if (competitionPanel) {
 
-    /* =======================================================
+            competitionPanel.classList.remove(
+              "active"
+            );
+
+          }
+
+
+          if (
+            target === "announcements" &&
+            announcementPanel
+          ) {
+
+            announcementPanel.classList.add(
+              "active"
+            );
+
+          }
+
+
+          if (
+            target === "competitions" &&
+            competitionPanel
+          ) {
+
+            competitionPanel.classList.add(
+              "active"
+            );
+
+          }
+
+        }
+      );
+
+    });
+
+
+    /* =====================================================
        ANNOUNCEMENT MODAL
-    ======================================================== */
+    ====================================================== */
 
     const announcementModal =
       document.getElementById(
@@ -2721,11 +2945,9 @@ document.addEventListener(
         return;
       }
 
-
       announcementModal.classList.remove(
         "hidden"
       );
-
 
       announcementModal.style.display =
         "flex";
@@ -2739,11 +2961,9 @@ document.addEventListener(
         return;
       }
 
-
       announcementModal.classList.add(
         "hidden"
       );
-
 
       announcementModal.style.display =
         "none";
@@ -2801,10 +3021,9 @@ document.addEventListener(
     }
 
 
-
-    /* =======================================================
+    /* =====================================================
        COMPETITION MODAL
-    ======================================================== */
+    ====================================================== */
 
     const competitionModal =
       document.getElementById(
@@ -2836,11 +3055,9 @@ document.addEventListener(
         return;
       }
 
-
       competitionModal.classList.remove(
         "hidden"
       );
-
 
       competitionModal.style.display =
         "flex";
@@ -2854,11 +3071,9 @@ document.addEventListener(
         return;
       }
 
-
       competitionModal.classList.add(
         "hidden"
       );
-
 
       competitionModal.style.display =
         "none";
@@ -2916,12 +3131,119 @@ document.addEventListener(
     }
 
 
-  }
-);
+    /* =====================================================
+       RECORD MODAL
+    ====================================================== */
+
+    const recordModal =
+      document.getElementById(
+        "recordModal"
+      );
+
+
+    const addRecordBtn =
+      document.getElementById(
+        "addRecordBtn"
+      );
+
+
+    const closeRecordModal =
+      document.getElementById(
+        "closeRecordModal"
+      );
+
+
+    const cancelRecordBtn =
+      document.getElementById(
+        "cancelRecordBtn"
+      );
+
+
+    function openRecordModal() {
+
+      if (!recordModal) {
+        return;
+      }
+
+      recordModal.classList.remove(
+        "hidden"
+      );
+
+      recordModal.style.display =
+        "flex";
+
+    }
+
+
+    function closeRecord() {
+
+      if (!recordModal) {
+        return;
+      }
+
+      recordModal.classList.add(
+        "hidden"
+      );
+
+      recordModal.style.display =
+        "none";
+
+    }
+
+
+    if (addRecordBtn) {
+
+      addRecordBtn.addEventListener(
+        "click",
+        openRecordModal
+      );
+
+    }
+
+
+    if (closeRecordModal) {
+
+      closeRecordModal.addEventListener(
+        "click",
+        closeRecord
+      );
+
+    }
+
+
+    if (cancelRecordBtn) {
+
+      cancelRecordBtn.addEventListener(
+        "click",
+        closeRecord
+      );
+
+    }
+
+
+    if (recordModal) {
+
+      recordModal.addEventListener(
+        "click",
+        function (event) {
+
+          if (
+            event.target === recordModal
+          ) {
+
+            closeRecord();
+
+          }
+
+        }
+      );
+
+    }
+
+  });
 
 </script>
 
 
 </body>
-
 </html>
