@@ -1,18 +1,16 @@
 /* =========================================================
    JUDO TABIAT - COACH PANEL
    coach.js
-   نسخه مستقل و اصلاح‌شده
-   بدون وابستگی به app.js
+   نسخه اصلاح‌شده اتصال مستقیم به Supabase
 ========================================================= */
 
 (() => {
 
   "use strict";
 
-
-  /* =========================================================
+  /* =======================================================
      SUPABASE CONFIG
-  ========================================================= */
+  ======================================================= */
 
   const SUPABASE_URL =
     "https://bkkdgywdptufjsaepehc.supabase.co";
@@ -21,43 +19,133 @@
     "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
 
 
-  /* =========================================================
-     SUPABASE CLIENT
-  ========================================================= */
+  /* =======================================================
+     GLOBAL VARIABLES
+  ======================================================= */
 
   let supabaseClient = null;
 
+  window.supabaseClient = null;
 
-  function createSupabaseClient() {
+
+  /* =======================================================
+     LOAD SUPABASE LIBRARY
+  ======================================================= */
+
+  function loadSupabaseLibrary() {
+
+    return new Promise((resolve, reject) => {
+
+      // اگر قبلاً لود شده
+      if (
+        window.supabase &&
+        typeof window.supabase.createClient === "function"
+      ) {
+
+        resolve();
+
+        return;
+      }
+
+
+      // اگر اسکریپت قبلاً در حال لود شدن است
+      const oldScript =
+        document.querySelector(
+          'script[data-supabase-library="true"]'
+        );
+
+      if (oldScript) {
+
+        oldScript.addEventListener(
+          "load",
+          () => resolve(),
+          { once: true }
+        );
+
+        oldScript.addEventListener(
+          "error",
+          () =>
+            reject(
+              new Error(
+                "کتابخانه Supabase بارگذاری نشد."
+              )
+            ),
+          { once: true }
+        );
+
+        return;
+      }
+
+
+      // ساخت اسکریپت Supabase
+      const script =
+        document.createElement("script");
+
+      script.src =
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
+      script.async = false;
+
+      script.dataset.supabaseLibrary =
+        "true";
+
+
+      script.onload = () => {
+
+        if (
+          window.supabase &&
+          typeof window.supabase.createClient === "function"
+        ) {
+
+          resolve();
+
+        } else {
+
+          reject(
+            new Error(
+              "کتابخانه Supabase لود شد اما createClient پیدا نشد."
+            )
+          );
+
+        }
+
+      };
+
+
+      script.onerror = () => {
+
+        reject(
+          new Error(
+            "اتصال به CDN کتابخانه Supabase برقرار نشد."
+          )
+        );
+
+      };
+
+
+      document.head.appendChild(script);
+
+    });
+
+  }
+
+
+  /* =======================================================
+     CREATE SUPABASE CLIENT
+  ======================================================= */
+
+  async function initializeSupabase() {
 
     try {
 
-      // اگر قبلاً ساخته شده
-      if (window.supabaseClient) {
-
-        supabaseClient =
-          window.supabaseClient;
-
-        console.log(
-          "✅ Supabase Client قبلی پیدا شد."
-        );
-
-        return true;
-      }
+      console.log(
+        "🔄 در حال آماده‌سازی Supabase..."
+      );
 
 
-      // بررسی کتابخانه Supabase
-      if (!window.supabase) {
-
-        console.error(
-          "❌ کتابخانه Supabase روی coach.html وجود ندارد."
-        );
-
-        return false;
-      }
+      await loadSupabaseLibrary();
 
 
-      // ساخت Client
       supabaseClient =
         window.supabase.createClient(
           SUPABASE_URL,
@@ -65,13 +153,12 @@
         );
 
 
-      // قرار دادن در window
       window.supabaseClient =
         supabaseClient;
 
 
       console.log(
-        "✅ Supabase Client با موفقیت ساخته شد."
+        "✅ Supabase Client ساخته شد."
       );
 
 
@@ -85,1304 +172,102 @@
       );
 
       return false;
+
     }
 
   }
 
 
-  /* =========================================================
-     LOAD SUPABASE LIBRARY IF NEEDED
-  ========================================================= */
+  /* =======================================================
+     REAL CONNECTION TEST
+     این تست دیگر به جدول Athletes وابسته نیست.
+  ======================================================= */
 
-  function loadSupabaseLibrary() {
+  async function testSupabaseConnection() {
 
-    return new Promise((resolve) => {
+    try {
 
-      // اگر کتابخانه از قبل وجود دارد
-      if (window.supabase) {
+      const response =
+        await fetch(
+          SUPABASE_URL + "/rest/v1/",
+          {
+            method: "GET",
 
-        resolve(true);
-
-        return;
-      }
+            headers: {
+              "apikey": SUPABASE_KEY,
+              "Authorization":
+                "Bearer " + SUPABASE_KEY
+            }
+          }
+        );
 
 
       console.log(
-        "⏳ در حال بارگذاری کتابخانه Supabase..."
+        "Supabase REST Status:",
+        response.status
       );
 
-
-      const script =
-        document.createElement("script");
-
-
-      script.src =
-        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-
-
-      script.async = true;
-
-
-      script.onload = () => {
-
-        console.log(
-          "✅ کتابخانه Supabase بارگذاری شد."
-        );
-
-        resolve(true);
-
-      };
-
-
-      script.onerror = () => {
-
-        console.error(
-          "❌ بارگذاری کتابخانه Supabase ناموفق بود."
-        );
-
-        resolve(false);
-
-      };
-
-
-      document.head.appendChild(script);
-
-    });
-
-  }
-
-
-  /* =========================================================
-     SUPABASE CONNECTION TEST
-  ========================================================= */
-
-  async function checkSupabase() {
-
-    console.log(
-      "🔎 در حال بررسی اتصال Supabase..."
-    );
-
-
-    if (!supabaseClient) {
-
-      console.error(
-        "❌ Supabase Client ساخته نشده است."
-      );
-
-      return false;
-    }
-
-
-    try {
 
       /*
-       * فقط برای تست اتصال.
-       * اگر RLS فعال باشد، ممکن است query خطا بدهد.
-       * بنابراین خطا را دقیق در Console نمایش می‌دهیم.
+       * هر پاسخ معتبر از سرور Supabase
+       * یعنی سرور قابل دسترسی است.
        */
 
-      const result =
-        await supabaseClient
-          .from("Athletes")
-          .select("id")
-          .limit(1);
+      if (
+        response.ok ||
+        response.status === 401 ||
+        response.status === 403
+      ) {
 
-
-      const data =
-        result.data;
-
-      const error =
-        result.error;
-
-
-      if (error) {
-
-        console.error(
-          "❌ Supabase Query Error:",
-          error
+        console.log(
+          "✅ ارتباط با سرور Supabase برقرار است."
         );
 
+        return true;
 
-        /*
-         * این خطا لزوماً به معنی قطع بودن اینترنت
-         * یا Supabase نیست.
-         */
-
-        showConnectionStatus(
-          false,
-          "Supabase در دسترس است اما دسترسی به جدول Athletes مشکل دارد."
-        );
-
-
-        return false;
       }
 
 
-      console.log(
-        "✅ اتصال به Supabase موفق است."
-      );
+      const text =
+        await response.text();
 
-
-      console.log(
-        "📦 Athletes:",
-        data
-      );
-
-
-      showConnectionStatus(
-        true,
-        "اتصال به Supabase برقرار است."
-      );
-
-
-      return true;
-
-    } catch (error) {
 
       console.error(
-        "❌ Supabase Connection Exception:",
-        error
-      );
-
-
-      showConnectionStatus(
-        false,
-        "خطا در ارتباط با Supabase."
+        "❌ Supabase REST Error:",
+        text
       );
 
 
       return false;
-    }
-
-  }
-
-
-  /* =========================================================
-     CONNECTION STATUS
-  ========================================================= */
-
-  function showConnectionStatus(
-    success,
-    message
-  ) {
-
-    let box =
-      document.getElementById(
-        "supabaseStatus"
-      );
-
-
-    if (!box) {
-
-      box =
-        document.createElement("div");
-
-
-      box.id =
-        "supabaseStatus";
-
-
-      box.style.position =
-        "fixed";
-
-      box.style.left =
-        "15px";
-
-      box.style.bottom =
-        "15px";
-
-      box.style.zIndex =
-        "99999";
-
-      box.style.padding =
-        "10px 15px";
-
-      box.style.borderRadius =
-        "10px";
-
-      box.style.fontFamily =
-        "Tahoma, Arial, sans-serif";
-
-      box.style.fontSize =
-        "12px";
-
-      box.style.fontWeight =
-        "700";
-
-      box.style.boxShadow =
-        "0 5px 20px rgba(0,0,0,.15)";
-
-
-      document.body.appendChild(box);
-
-    }
-
-
-    box.textContent =
-      success
-        ? "🟢 " + message
-        : "🔴 " + message;
-
-
-    box.style.background =
-      success
-        ? "#dcfce7"
-        : "#fee2e2";
-
-
-    box.style.color =
-      success
-        ? "#166534"
-        : "#991b1b";
-
-
-    // بعد از چند ثانیه مخفی شود
-    setTimeout(() => {
-
-      if (box) {
-
-        box.style.opacity =
-          "0";
-
-        box.style.transition =
-          "opacity .4s";
-
-      }
-
-    }, 5000);
-
-  }
-
-
-  /* =========================================================
-     LOAD ATHLETES
-  ========================================================= */
-
-  async function loadAthletes() {
-
-    const list =
-      document.getElementById(
-        "athletesList"
-      );
-
-
-    if (!list) {
-      return;
-    }
-
-
-    if (!supabaseClient) {
-
-      list.innerHTML = `
-        <div class="evaluation-empty">
-          <div class="evaluation-empty-icon">🔴</div>
-          <h2>اتصال به Supabase برقرار نیست</h2>
-          <p>
-            اتصال پایگاه داده برقرار نشد.
-          </p>
-        </div>
-      `;
-
-      return;
-    }
-
-
-    try {
-
-      console.log(
-        "⏳ در حال دریافت ورزشکاران..."
-      );
-
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("Athletes")
-          .select("*")
-          .order("created_at", {
-            ascending: false
-          });
-
-
-      if (error) {
-
-        console.error(
-          "❌ خطا در دریافت ورزشکاران:",
-          error
-        );
-
-
-        /*
-         * اگر created_at وجود نداشته باشد،
-         * یک بار بدون order امتحان می‌کنیم.
-         */
-
-        const retry =
-          await supabaseClient
-            .from("Athletes")
-            .select("*");
-
-
-        if (retry.error) {
-
-          list.innerHTML = `
-            <div class="evaluation-empty">
-
-              <div class="evaluation-empty-icon">
-                ⚠️
-              </div>
-
-              <h2>
-                خطا در دریافت ورزشکاران
-              </h2>
-
-              <p>
-                ${escapeHTML(
-                  retry.error.message ||
-                  "خطای نامشخص"
-                )}
-              </p>
-
-            </div>
-          `;
-
-          return;
-        }
-
-
-        renderAthletes(
-          retry.data || []
-        );
-
-        return;
-      }
-
-
-      renderAthletes(
-        data || []
-      );
-
 
     } catch (error) {
 
       console.error(
-        "❌ Exception:",
+        "❌ خطای واقعی ارتباط با Supabase:",
         error
       );
 
-    }
-
-  }
-
-
-  /* =========================================================
-     RENDER ATHLETES
-  ========================================================= */
-
-  function renderAthletes(
-    athletes
-  ) {
-
-    const list =
-      document.getElementById(
-        "athletesList"
-      );
-
-
-    if (!list) {
-      return;
-    }
-
-
-    if (!athletes.length) {
-
-      list.innerHTML = `
-        <div class="evaluation-empty">
-
-          <div class="evaluation-empty-icon">
-            👥
-          </div>
-
-          <h2>
-            ورزشکاری ثبت نشده است
-          </h2>
-
-          <p>
-            هنوز ورزشکاری در سیستم ثبت نشده است.
-          </p>
-
-        </div>
-      `;
-
-      updateDashboard(
-        athletes
-      );
-
-      return;
-    }
-
-
-    list.innerHTML =
-      athletes
-        .map(
-          athlete =>
-            createAthleteCard(
-              athlete
-            )
-        )
-        .join("");
-
-
-    updateDashboard(
-      athletes
-    );
-
-  }
-
-
-  /* =========================================================
-     ATHLETE CARD
-  ========================================================= */
-
-  function createAthleteCard(
-    athlete
-  ) {
-
-    const name =
-      athlete.name ||
-      athlete.full_name ||
-      athlete.first_name ||
-      "بدون نام";
-
-
-    const category =
-      athlete.category ||
-      athlete.age_group ||
-      athlete.ageGroup ||
-      "—";
-
-
-    const weight =
-      athlete.weight ||
-      athlete.weight_class ||
-      "—";
-
-
-    const belt =
-      athlete.belt ||
-      athlete.rank ||
-      "—";
-
-
-    return `
-
-      <div
-        class="athlete-card"
-        style="
-          background:#fff;
-          border:1px solid #e6e9ed;
-          border-radius:16px;
-          padding:18px;
-          margin-bottom:12px;
-        "
-      >
-
-        <div
-          style="
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:15px;
-          "
-        >
-
-          <div>
-
-            <h3
-              style="
-                margin:0 0 8px;
-                font-size:16px;
-              "
-            >
-              👤 ${escapeHTML(name)}
-            </h3>
-
-            <div
-              style="
-                color:#667085;
-                font-size:12px;
-                line-height:2;
-              "
-            >
-
-              رده سنی:
-              <strong>
-                ${escapeHTML(category)}
-              </strong>
-
-              <br>
-
-              وزن:
-              <strong>
-                ${escapeHTML(String(weight))}
-              </strong>
-
-              <br>
-
-              کمربند:
-              <strong>
-                ${escapeHTML(belt)}
-              </strong>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     DASHBOARD
-  ========================================================= */
-
-  async function updateDashboard(
-    athletes
-  ) {
-
-    const dashboardAthletes =
-      document.getElementById(
-        "dashboardAthletes"
-      );
-
-
-    if (dashboardAthletes) {
-
-      dashboardAthletes.textContent =
-        toPersianNumber(
-          athletes.length
-        );
-
-    }
-
-
-    // تعداد ارزیابی‌ها
-    try {
-
-      if (supabaseClient) {
-
-        const result =
-          await supabaseClient
-            .from("evaluations")
-            .select("id", {
-              count: "exact",
-              head: true
-            });
-
-
-        if (
-          !result.error &&
-          document.getElementById(
-            "dashboardEvaluations"
-          )
-        ) {
-
-          document.getElementById(
-            "dashboardEvaluations"
-          ).textContent =
-            toPersianNumber(
-              result.count || 0
-            );
-
-        }
-
-      }
-
-    } catch (error) {
-
-      console.warn(
-        "⚠️ شمارش ارزیابی‌ها انجام نشد:",
-        error
-      );
-
-    }
-
-
-    // افتخارات
-    try {
-
-      if (supabaseClient) {
-
-        const result =
-          await supabaseClient
-            .from("achievements")
-            .select("id", {
-              count: "exact",
-              head: true
-            });
-
-
-        if (
-          !result.error &&
-          document.getElementById(
-            "dashboardAchievements"
-          )
-        ) {
-
-          document.getElementById(
-            "dashboardAchievements"
-          ).textContent =
-            toPersianNumber(
-              result.count || 0
-            );
-
-        }
-
-      }
-
-    } catch (error) {
-
-      console.warn(
-        "⚠️ شمارش افتخارات انجام نشد:",
-        error
-      );
+      return false;
 
     }
 
   }
 
 
-  /* =========================================================
-     ADD ATHLETE
-  ========================================================= */
-
-  function setupAddAthlete() {
-
-    const button =
-      document.getElementById(
-        "addAthleteBtn"
-      );
-
-
-    if (!button) {
-      return;
-    }
-
-
-    button.addEventListener(
-      "click",
-      function () {
-
-        alert(
-          "بخش افزودن ورزشکار در مرحله بعد به سیستم اصلی متصل می‌شود."
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     ADD EVALUATION
-  ========================================================= */
-
-  function setupEvaluation() {
-
-    const button =
-      document.getElementById(
-        "addEvaluationBtn"
-      );
-
-
-    if (!button) {
-      return;
-    }
-
-
-    button.addEventListener(
-      "click",
-      function () {
-
-        alert(
-          "بخش ثبت ارزیابی در مرحله بعد فعال می‌شود."
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     ATTENDANCE
-  ========================================================= */
-
-  function setupAttendance() {
-
-    const button =
-      document.getElementById(
-        "addAttendanceBtn"
-      );
-
-
-    if (!button) {
-      return;
-    }
-
-
-    button.addEventListener(
-      "click",
-      function () {
-
-        alert(
-          "بخش حضور و غیاب در مرحله بعد فعال می‌شود."
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     ACHIEVEMENTS
-  ========================================================= */
-
-  function setupAchievements() {
-
-    const button =
-      document.getElementById(
-        "addAchievementBtn"
-      );
-
-
-    if (!button) {
-      return;
-    }
-
-
-    button.addEventListener(
-      "click",
-      function () {
-
-        alert(
-          "بخش ثبت افتخار در مرحله بعد به جدول افتخارات متصل می‌شود."
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     ANNOUNCEMENTS
-  ========================================================= */
-
-  function setupAnnouncements() {
-
-    const save =
-      document.getElementById(
-        "saveAnnouncementBtn"
-      );
-
-
-    if (!save) {
-      return;
-    }
-
-
-    save.addEventListener(
-      "click",
-      async function () {
-
-        const title =
-          document.getElementById(
-            "announcementTitle"
-          )?.value.trim();
-
-
-        const type =
-          document.getElementById(
-            "announcementType"
-          )?.value;
-
-
-        const date =
-          document.getElementById(
-            "announcementDate"
-          )?.value;
-
-
-        const location =
-          document.getElementById(
-            "announcementLocation"
-          )?.value.trim();
-
-
-        const startTime =
-          document.getElementById(
-            "announcementStartTime"
-          )?.value;
-
-
-        const endTime =
-          document.getElementById(
-            "announcementEndTime"
-          )?.value;
-
-
-        const content =
-          document.getElementById(
-            "announcementContent"
-          )?.value.trim();
-
-
-        if (!title) {
-
-          alert(
-            "لطفاً عنوان اطلاعیه را وارد کنید."
-          );
-
-          return;
-        }
-
-
-        if (!supabaseClient) {
-
-          alert(
-            "Supabase آماده نیست."
-          );
-
-          return;
-        }
-
-
-        save.disabled =
-          true;
-
-
-        const oldText =
-          save.innerHTML;
-
-
-        save.innerHTML =
-          "⏳ در حال ذخیره...";
-
-
-        try {
-
-          const payload = {
-
-            title:
-              title,
-
-            type:
-              type,
-
-            date:
-              date || null,
-
-            location:
-              location || null,
-
-            start_time:
-              startTime || null,
-
-            end_time:
-              endTime || null,
-
-            content:
-              content || null
-
-          };
-
-
-          const {
-            error
-          } =
-            await supabaseClient
-              .from("announcements")
-              .insert(payload);
-
-
-          if (error) {
-
-            console.error(
-              "❌ Announcement Error:",
-              error
-            );
-
-
-            alert(
-              "ذخیره اطلاعیه انجام نشد.\n\n" +
-              error.message
-            );
-
-            return;
-          }
-
-
-          alert(
-            "✅ اطلاعیه با موفقیت ثبت شد."
-          );
-
-
-          closeModalById(
-            "announcementModal"
-          );
-
-
-          clearAnnouncementForm();
-
-
-        } catch (error) {
-
-          console.error(
-            error
-          );
-
-
-          alert(
-            "خطا هنگام ذخیره اطلاعیه:\n\n" +
-            error.message
-          );
-
-
-        } finally {
-
-          save.disabled =
-            false;
-
-          save.innerHTML =
-            oldText;
-
-        }
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     COMPETITIONS
-  ========================================================= */
-
-  function setupCompetitions() {
-
-    const save =
-      document.getElementById(
-        "saveCompetitionBtn"
-      );
-
-
-    if (!save) {
-      return;
-    }
-
-
-    save.addEventListener(
-      "click",
-      async function () {
-
-        const title =
-          document.getElementById(
-            "competitionTitle"
-          )?.value.trim();
-
-
-        const date =
-          document.getElementById(
-            "competitionDate"
-          )?.value;
-
-
-        const location =
-          document.getElementById(
-            "competitionLocation"
-          )?.value.trim();
-
-
-        const startTime =
-          document.getElementById(
-            "competitionStartTime"
-          )?.value;
-
-
-        const endTime =
-          document.getElementById(
-            "competitionEndTime"
-          )?.value;
-
-
-        const ageGroup =
-          document.getElementById(
-            "competitionAgeGroup"
-          )?.value.trim();
-
-
-        const weights =
-          document.getElementById(
-            "competitionWeights"
-          )?.value.trim();
-
-
-        const description =
-          document.getElementById(
-            "competitionDescription"
-          )?.value.trim();
-
-
-        if (!title) {
-
-          alert(
-            "لطفاً نام مسابقه را وارد کنید."
-          );
-
-          return;
-        }
-
-
-        if (!supabaseClient) {
-
-          alert(
-            "Supabase آماده نیست."
-          );
-
-          return;
-        }
-
-
-        save.disabled =
-          true;
-
-
-        const oldText =
-          save.innerHTML;
-
-
-        save.innerHTML =
-          "⏳ در حال ذخیره...";
-
-
-        try {
-
-          const payload = {
-
-            title:
-              title,
-
-            date:
-              date || null,
-
-            location:
-              location || null,
-
-            start_time:
-              startTime || null,
-
-            end_time:
-              endTime || null,
-
-            age_group:
-              ageGroup || null,
-
-            weights:
-              weights || null,
-
-            description:
-              description || null
-
-          };
-
-
-          const {
-            error
-          } =
-            await supabaseClient
-              .from("competitions")
-              .insert(payload);
-
-
-          if (error) {
-
-            console.error(
-              "❌ Competition Error:",
-              error
-            );
-
-
-            alert(
-              "ثبت مسابقه انجام نشد.\n\n" +
-              error.message
-            );
-
-            return;
-          }
-
-
-          alert(
-            "✅ مسابقه با موفقیت ثبت شد."
-          );
-
-
-          closeModalById(
-            "competitionModal"
-          );
-
-
-          clearCompetitionForm();
-
-
-        } catch (error) {
-
-          console.error(
-            error
-          );
-
-
-          alert(
-            "خطا هنگام ثبت مسابقه:\n\n" +
-            error.message
-          );
-
-
-        } finally {
-
-          save.disabled =
-            false;
-
-          save.innerHTML =
-            oldText;
-
-        }
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     CLEAR FORMS
-  ========================================================= */
-
-  function clearAnnouncementForm() {
-
-    const ids = [
-
-      "announcementTitle",
-      "announcementDate",
-      "announcementLocation",
-      "announcementStartTime",
-      "announcementEndTime",
-      "announcementContent"
-
-    ];
-
-
-    ids.forEach(
-      id => {
-
-        const element =
-          document.getElementById(id);
-
-
-        if (element) {
-
-          element.value =
-            "";
-
-        }
-
-      }
-    );
-
-  }
-
-
-  function clearCompetitionForm() {
-
-    const ids = [
-
-      "competitionTitle",
-      "competitionDate",
-      "competitionLocation",
-      "competitionStartTime",
-      "competitionEndTime",
-      "competitionAgeGroup",
-      "competitionWeights",
-      "competitionDescription"
-
-    ];
-
-
-    ids.forEach(
-      id => {
-
-        const element =
-          document.getElementById(id);
-
-
-        if (element) {
-
-          element.value =
-            "";
-
-        }
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     MODAL HELPERS
-  ========================================================= */
-
-  function closeModalById(
-    id
-  ) {
-
-    const modal =
-      document.getElementById(id);
-
-
-    if (!modal) {
-      return;
-    }
-
-
-    modal.classList.add(
-      "hidden"
-    );
-
-
-    modal.style.display =
-      "none";
-
-  }
-
-
-  /* =========================================================
-     AUTH CHECK
-  ========================================================= */
-
-  async function checkAuth() {
+  /* =======================================================
+     CHECK AUTH SESSION
+  ======================================================= */
+
+  async function checkCoachSession() {
 
     if (!supabaseClient) {
 
-      return false;
+      console.error(
+        "❌ Supabase Client آماده نیست."
+      );
+
+      return null;
+
     }
 
 
@@ -1400,208 +285,597 @@
       if (error) {
 
         console.error(
-          "❌ Auth Session Error:",
+          "❌ خطای دریافت Session:",
           error
         );
 
-        return false;
+        return null;
+
       }
 
 
       if (
         data &&
-        data.session
+        data.session &&
+        data.session.user
       ) {
 
         console.log(
-          "✅ جلسه کاربر فعال است."
+          "✅ مربی وارد شده است:",
+          data.session.user.email
         );
 
-        return true;
+
+        return data.session;
+
       }
 
 
       console.warn(
-        "⚠️ جلسه ورود فعال نیست."
+        "⚠️ هیچ Session فعالی وجود ندارد."
       );
 
 
-      /*
-       * فعلاً redirect نمی‌کنیم تا
-       * مشکل اتصال را بتوانیم بررسی کنیم.
-       */
-
-
-      return false;
+      return null;
 
     } catch (error) {
 
       console.error(
-        "❌ Auth Exception:",
+        "❌ خطا در بررسی Session:",
         error
       );
 
-      return false;
+      return null;
+
     }
 
   }
 
 
-  /* =========================================================
-     UTILS
-  ========================================================= */
+  /* =======================================================
+     LOGOUT
+  ======================================================= */
 
-  function escapeHTML(
-    value
-  ) {
+  async function coachLogout() {
 
-    return String(
-      value ?? ""
-    )
-      .replace(
-        /&/g,
-        "&amp;"
-      )
-      .replace(
-        /</g,
-        "&lt;"
-      )
-      .replace(
-        />/g,
-        "&gt;"
-      )
-      .replace(
-        /"/g,
-        "&quot;"
-      )
-      .replace(
-        /'/g,
-        "&#039;"
+    try {
+
+      if (supabaseClient) {
+
+        await supabaseClient
+          .auth
+          .signOut();
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "خطا در خروج:",
+        error
       );
+
+    }
+
+
+    localStorage.removeItem(
+      "judoLoggedIn"
+    );
+
+
+    window.location.href =
+      "index.html";
 
   }
 
 
-  function toPersianNumber(
-    number
-  ) {
+  /* =======================================================
+     NAVIGATION
+  ======================================================= */
 
-    return String(
-      number ?? 0
-    ).replace(
-      /\d/g,
-      digit =>
-        "۰۱۲۳۴۵۶۷۸۹"[
-          digit
-        ]
+  function setupNavigation() {
+
+    const navItems =
+      document.querySelectorAll(
+        ".nav-item"
+      );
+
+    const pages =
+      document.querySelectorAll(
+        ".coach-page"
+      );
+
+
+    navItems.forEach(
+      function (item) {
+
+        item.addEventListener(
+          "click",
+          function () {
+
+            const pageName =
+              item.dataset.page;
+
+
+            navItems.forEach(
+              function (nav) {
+
+                nav.classList.remove(
+                  "active"
+                );
+
+              }
+            );
+
+
+            item.classList.add(
+              "active"
+            );
+
+
+            pages.forEach(
+              function (page) {
+
+                page.classList.remove(
+                  "active"
+                );
+
+              }
+            );
+
+
+            const targetPage =
+              document.getElementById(
+                "page-" + pageName
+              );
+
+
+            if (targetPage) {
+
+              targetPage.classList.add(
+                "active"
+              );
+
+            }
+
+          }
+        );
+
+      }
     );
 
   }
 
 
-  /* =========================================================
-     INITIALIZE
-  ========================================================= */
+  /* =======================================================
+     EVENTS TABS
+  ======================================================= */
 
-  async function initializeCoachPanel() {
+  function setupEventsTabs() {
+
+    const tabs =
+      document.querySelectorAll(
+        ".events-tab"
+      );
+
+
+    const announcementPanel =
+      document.getElementById(
+        "eventsPanelAnnouncements"
+      );
+
+
+    const competitionPanel =
+      document.getElementById(
+        "eventsPanelCompetitions"
+      );
+
+
+    tabs.forEach(
+      function (tab) {
+
+        tab.addEventListener(
+          "click",
+          function () {
+
+            const target =
+              tab.dataset.eventsTab;
+
+
+            tabs.forEach(
+              function (t) {
+
+                t.classList.remove(
+                  "active"
+                );
+
+              }
+            );
+
+
+            tab.classList.add(
+              "active"
+            );
+
+
+            if (announcementPanel) {
+
+              announcementPanel.classList.remove(
+                "active"
+              );
+
+            }
+
+
+            if (competitionPanel) {
+
+              competitionPanel.classList.remove(
+                "active"
+              );
+
+            }
+
+
+            if (
+              target === "announcements" &&
+              announcementPanel
+            ) {
+
+              announcementPanel.classList.add(
+                "active"
+              );
+
+            }
+
+
+            if (
+              target === "competitions" &&
+              competitionPanel
+            ) {
+
+              competitionPanel.classList.add(
+                "active"
+              );
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     MODAL HELPER
+  ======================================================= */
+
+  function setupModal(
+    modalId,
+    openButtonId,
+    closeButtonId,
+    cancelButtonId
+  ) {
+
+    const modal =
+      document.getElementById(
+        modalId
+      );
+
+
+    const openButton =
+      document.getElementById(
+        openButtonId
+      );
+
+
+    const closeButton =
+      document.getElementById(
+        closeButtonId
+      );
+
+
+    const cancelButton =
+      document.getElementById(
+        cancelButtonId
+      );
+
+
+    if (!modal) return;
+
+
+    function openModal() {
+
+      modal.classList.remove(
+        "hidden"
+      );
+
+      modal.style.display =
+        "flex";
+
+    }
+
+
+    function closeModal() {
+
+      modal.classList.add(
+        "hidden"
+      );
+
+      modal.style.display =
+        "none";
+
+    }
+
+
+    if (openButton) {
+
+      openButton.addEventListener(
+        "click",
+        openModal
+      );
+
+    }
+
+
+    if (closeButton) {
+
+      closeButton.addEventListener(
+        "click",
+        closeModal
+      );
+
+    }
+
+
+    if (cancelButton) {
+
+      cancelButton.addEventListener(
+        "click",
+        closeModal
+      );
+
+    }
+
+
+    modal.addEventListener(
+      "click",
+      function (event) {
+
+        if (
+          event.target === modal
+        ) {
+
+          closeModal();
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     MODALS
+  ======================================================= */
+
+  function setupModals() {
+
+    setupModal(
+      "announcementModal",
+      "addAnnouncementBtn",
+      "closeAnnouncementModal",
+      "cancelAnnouncementBtn"
+    );
+
+
+    setupModal(
+      "competitionModal",
+      "addCompetitionBtn",
+      "closeCompetitionModal",
+      "cancelCompetitionBtn"
+    );
+
+  }
+
+
+  /* =======================================================
+     DASHBOARD
+  ======================================================= */
+
+  async function loadDashboard() {
+
+    if (!supabaseClient) {
+
+      console.warn(
+        "Supabase هنوز آماده نیست."
+      );
+
+      return;
+
+    }
+
+
+    /*
+     * فعلاً فقط مقادیر موجود در HTML را
+     * صفر نگه می‌داریم.
+     *
+     * بعد از اینکه اتصال قطعی شد،
+     * آمار واقعی را از جداول می‌خوانیم.
+     */
+
+    const ids = [
+      "dashboardAthletes",
+      "dashboardEvaluations",
+      "dashboardAttendance",
+      "dashboardAchievements",
+      "goldAchievements",
+      "silverAchievements",
+      "bronzeAchievements",
+      "totalAnnouncements",
+      "activeAnnouncements",
+      "upcomingAnnouncements",
+      "totalCompetitions",
+      "upcomingCompetitions",
+      "completedCompetitions"
+    ];
+
+
+    ids.forEach(
+      function (id) {
+
+        const element =
+          document.getElementById(id);
+
+
+        if (
+          element &&
+          (
+            element.textContent === "۰" ||
+            element.textContent === "0"
+          )
+        ) {
+
+          element.textContent =
+            "۰";
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     GLOBAL FUNCTIONS
+  ======================================================= */
+
+  window.testSupabaseConnection =
+    testSupabaseConnection;
+
+  window.initializeSupabase =
+    initializeSupabase;
+
+  window.coachLogout =
+    coachLogout;
+
+
+  /* =======================================================
+     START
+  ======================================================= */
+
+  async function startCoachPanel() {
 
     console.log(
-      "🚀 Judo Tabia Coach Panel شروع شد."
+      "🚀 پنل مربی طبیعت جودو شروع شد."
     );
 
 
     /*
      * مرحله ۱:
-     * اطمینان از وجود Supabase
+     * ساخت مستقل Supabase Client
      */
 
-    const libraryLoaded =
-      await loadSupabaseLibrary();
+    const initialized =
+      await initializeSupabase();
 
 
-    if (!libraryLoaded) {
+    if (!initialized) {
 
-      showConnectionStatus(
-        false,
-        "کتابخانه Supabase بارگذاری نشد."
+      console.error(
+        "❌ Supabase Client ساخته نشد."
+      );
+
+      alert(
+        "کتابخانه Supabase بارگذاری نشد.\n\n" +
+        "لطفاً اینترنت و دسترسی سایت را بررسی کنید."
       );
 
       return;
+
     }
 
 
     /*
      * مرحله ۲:
-     * ساخت Client
+     * تست واقعی ارتباط با سرور
      */
 
-    const clientCreated =
-      createSupabaseClient();
+    const connected =
+      await testSupabaseConnection();
 
 
-    if (!clientCreated) {
+    if (!connected) {
 
-      showConnectionStatus(
-        false,
-        "Supabase Client ساخته نشد."
+      console.error(
+        "❌ ارتباط با سرور Supabase برقرار نیست."
+      );
+
+      alert(
+        "ارتباط با Supabase برقرار نیست."
       );
 
       return;
+
     }
 
 
     /*
      * مرحله ۳:
-     * تست واقعی جدول Athletes
+     * بررسی Session
+     *
+     * این قسمت دیگر اتصال را با Session
+     * اشتباه نمی‌گیرد.
      */
 
-    await checkSupabase();
+    const session =
+      await checkCoachSession();
+
+
+    if (session) {
+
+      console.log(
+        "👤 کاربر فعلی:",
+        session.user
+      );
+
+    } else {
+
+      console.warn(
+        "⚠️ Session فعال پیدا نشد."
+      );
+
+    }
 
 
     /*
      * مرحله ۴:
-     * Auth
+     * راه‌اندازی رابط
      */
 
-    await checkAuth();
+    setupNavigation();
 
+    setupEventsTabs();
 
-    /*
-     * مرحله ۵:
-     * بارگذاری ورزشکاران
-     */
+    setupModals();
 
-    await loadAthletes();
-
-
-    /*
-     * مرحله ۶:
-     * فعال کردن امکانات
-     */
-
-    setupAddAthlete();
-
-    setupEvaluation();
-
-    setupAttendance();
-
-    setupAchievements();
-
-    setupAnnouncements();
-
-    setupCompetitions();
+    await loadDashboard();
 
 
     console.log(
-      "✅ Coach Panel آماده است."
+      "✅ پنل مربی با موفقیت آماده شد."
     );
 
   }
 
 
-  /* =========================================================
-     START
-  ========================================================= */
+  /* =======================================================
+     DOM READY
+  ======================================================= */
 
   if (
     document.readyState ===
@@ -1610,28 +884,13 @@
 
     document.addEventListener(
       "DOMContentLoaded",
-      initializeCoachPanel
+      startCoachPanel
     );
 
   } else {
 
-    initializeCoachPanel();
+    startCoachPanel();
 
   }
-
-
-  /* =========================================================
-     GLOBAL
-  ========================================================= */
-
-  window.coachSupabase =
-    supabaseClient;
-
-  window.checkCoachSupabase =
-    checkSupabase;
-
-  window.loadCoachAthletes =
-    loadAthletes;
-
 
 })();
