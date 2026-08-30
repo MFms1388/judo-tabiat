@@ -1,15 +1,17 @@
 /* =========================================================
-   JUDO TABIAT - COACH PANEL
+   JUDO TABIAT
+   COACH PANEL
    coach.js
-   نسخه اصلاح‌شده اتصال مستقیم به Supabase
+   VERSION: 2026.08.30
 ========================================================= */
 
 (() => {
 
   "use strict";
 
+
   /* =======================================================
-     SUPABASE CONFIG
+     CONFIG
   ======================================================= */
 
   const SUPABASE_URL =
@@ -20,75 +22,55 @@
 
 
   /* =======================================================
-     GLOBAL VARIABLES
+     GLOBAL
   ======================================================= */
 
-  let supabaseClient = null;
+  let client = null;
 
-  window.supabaseClient = null;
+  window.judoCoach = {
+    supabase: null,
+    connected: false
+  };
 
 
   /* =======================================================
-     LOAD SUPABASE LIBRARY
+     LOG
   ======================================================= */
 
-  function loadSupabaseLibrary() {
-
-    return new Promise((resolve, reject) => {
-
-      // اگر قبلاً لود شده
-      if (
-        window.supabase &&
-        typeof window.supabase.createClient === "function"
-      ) {
-
-        resolve();
-
-        return;
-      }
+  function log(...args) {
+    console.log("[JUDO COACH]", ...args);
+  }
 
 
-      // اگر اسکریپت قبلاً در حال لود شدن است
-      const oldScript =
-        document.querySelector(
-          'script[data-supabase-library="true"]'
-        );
-
-      if (oldScript) {
-
-        oldScript.addEventListener(
-          "load",
-          () => resolve(),
-          { once: true }
-        );
-
-        oldScript.addEventListener(
-          "error",
-          () =>
-            reject(
-              new Error(
-                "کتابخانه Supabase بارگذاری نشد."
-              )
-            ),
-          { once: true }
-        );
-
-        return;
-      }
+  function error(...args) {
+    console.error("[JUDO COACH]", ...args);
+  }
 
 
-      // ساخت اسکریپت Supabase
+  /* =======================================================
+     LOAD SUPABASE
+  ======================================================= */
+
+  async function loadSupabase() {
+
+    if (
+      window.supabase &&
+      typeof window.supabase.createClient === "function"
+    ) {
+
+      log("Supabase library already loaded.");
+
+      return true;
+    }
+
+
+    return new Promise((resolve) => {
+
       const script =
         document.createElement("script");
 
       script.src =
-        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-
-      script.async = false;
-
-      script.dataset.supabaseLibrary =
-        "true";
-
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js";
 
       script.onload = () => {
 
@@ -97,15 +79,17 @@
           typeof window.supabase.createClient === "function"
         ) {
 
-          resolve();
+          log("Supabase library loaded.");
+
+          resolve(true);
 
         } else {
 
-          reject(
-            new Error(
-              "کتابخانه Supabase لود شد اما createClient پیدا نشد."
-            )
+          error(
+            "Supabase library loaded but createClient is unavailable."
           );
+
+          resolve(false);
 
         }
 
@@ -114,11 +98,11 @@
 
       script.onerror = () => {
 
-        reject(
-          new Error(
-            "اتصال به CDN کتابخانه Supabase برقرار نشد."
-          )
+        error(
+          "Could not load Supabase library."
         );
+
+        resolve(false);
 
       };
 
@@ -131,22 +115,25 @@
 
 
   /* =======================================================
-     CREATE SUPABASE CLIENT
+     CREATE CLIENT
   ======================================================= */
 
-  async function initializeSupabase() {
+  async function createSupabaseClient() {
+
+    const libraryReady =
+      await loadSupabase();
+
+
+    if (!libraryReady) {
+
+      return false;
+
+    }
+
 
     try {
 
-      console.log(
-        "🔄 در حال آماده‌سازی Supabase..."
-      );
-
-
-      await loadSupabaseLibrary();
-
-
-      supabaseClient =
+      client =
         window.supabase.createClient(
           SUPABASE_URL,
           SUPABASE_KEY
@@ -154,21 +141,25 @@
 
 
       window.supabaseClient =
-        supabaseClient;
+        client;
 
 
-      console.log(
-        "✅ Supabase Client ساخته شد."
+      window.judoCoach.supabase =
+        client;
+
+
+      log(
+        "Supabase client created successfully."
       );
 
 
       return true;
 
-    } catch (error) {
+    } catch (e) {
 
-      console.error(
-        "❌ خطا در ساخت Supabase Client:",
-        error
+      error(
+        "Supabase client creation failed:",
+        e
       );
 
       return false;
@@ -179,11 +170,21 @@
 
 
   /* =======================================================
-     REAL CONNECTION TEST
-     این تست دیگر به جدول Athletes وابسته نیست.
+     CONNECTION TEST
   ======================================================= */
 
-  async function testSupabaseConnection() {
+  async function testConnection() {
+
+    if (!client) {
+
+      error(
+        "Client does not exist."
+      );
+
+      return false;
+
+    }
+
 
     try {
 
@@ -192,25 +193,28 @@
           SUPABASE_URL + "/rest/v1/",
           {
             method: "GET",
-
             headers: {
-              "apikey": SUPABASE_KEY,
-              "Authorization":
+              apikey: SUPABASE_KEY,
+              Authorization:
                 "Bearer " + SUPABASE_KEY
             }
           }
         );
 
 
-      console.log(
-        "Supabase REST Status:",
+      log(
+        "Supabase HTTP status:",
         response.status
       );
 
 
       /*
-       * هر پاسخ معتبر از سرور Supabase
-       * یعنی سرور قابل دسترسی است.
+       * 200 = OK
+       * 401/403 = سرور در دسترس است
+       * ولی دسترسی API رد شده
+       *
+       * در هیچ‌کدام نباید نتیجه را
+       * «قطع بودن اینترنت» فرض کنیم.
        */
 
       if (
@@ -219,9 +223,14 @@
         response.status === 403
       ) {
 
-        console.log(
-          "✅ ارتباط با سرور Supabase برقرار است."
+        window.judoCoach.connected =
+          true;
+
+
+        log(
+          "Supabase server is reachable."
         );
+
 
         return true;
 
@@ -232,20 +241,21 @@
         await response.text();
 
 
-      console.error(
-        "❌ Supabase REST Error:",
+      error(
+        "Supabase REST response:",
         text
       );
 
 
       return false;
 
-    } catch (error) {
+    } catch (e) {
 
-      console.error(
-        "❌ خطای واقعی ارتباط با Supabase:",
-        error
+      error(
+        "Network error:",
+        e
       );
+
 
       return false;
 
@@ -255,16 +265,12 @@
 
 
   /* =======================================================
-     CHECK AUTH SESSION
+     GET SESSION
   ======================================================= */
 
-  async function checkCoachSession() {
+  async function getSession() {
 
-    if (!supabaseClient) {
-
-      console.error(
-        "❌ Supabase Client آماده نیست."
-      );
+    if (!client) {
 
       return null;
 
@@ -273,20 +279,15 @@
 
     try {
 
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .auth
-          .getSession();
+      const result =
+        await client.auth.getSession();
 
 
-      if (error) {
+      if (result.error) {
 
-        console.error(
-          "❌ خطای دریافت Session:",
-          error
+        error(
+          "Session error:",
+          result.error
         );
 
         return null;
@@ -294,35 +295,13 @@
       }
 
 
-      if (
-        data &&
-        data.session &&
-        data.session.user
-      ) {
+      return result.data?.session || null;
 
-        console.log(
-          "✅ مربی وارد شده است:",
-          data.session.user.email
-        );
+    } catch (e) {
 
-
-        return data.session;
-
-      }
-
-
-      console.warn(
-        "⚠️ هیچ Session فعالی وجود ندارد."
-      );
-
-
-      return null;
-
-    } catch (error) {
-
-      console.error(
-        "❌ خطا در بررسی Session:",
-        error
+      error(
+        "Session exception:",
+        e
       );
 
       return null;
@@ -333,38 +312,34 @@
 
 
   /* =======================================================
-     LOGOUT
+     AUTH STATE
   ======================================================= */
 
-  async function coachLogout() {
+  function listenAuth() {
 
-    try {
+    if (!client) return;
 
-      if (supabaseClient) {
 
-        await supabaseClient
-          .auth
-          .signOut();
+    client.auth.onAuthStateChange(
+      (event, session) => {
+
+        log(
+          "Auth event:",
+          event
+        );
+
+
+        if (session) {
+
+          log(
+            "Logged in:",
+            session.user?.email
+          );
+
+        }
 
       }
-
-    } catch (error) {
-
-      console.error(
-        "خطا در خروج:",
-        error
-      );
-
-    }
-
-
-    localStorage.removeItem(
-      "judoLoggedIn"
     );
-
-
-    window.location.href =
-      "index.html";
 
   }
 
@@ -380,69 +355,64 @@
         ".nav-item"
       );
 
+
     const pages =
       document.querySelectorAll(
         ".coach-page"
       );
 
 
-    navItems.forEach(
-      function (item) {
+    navItems.forEach((item) => {
 
-        item.addEventListener(
-          "click",
-          function () {
+      item.addEventListener(
+        "click",
+        () => {
 
-            const pageName =
-              item.dataset.page;
-
-
-            navItems.forEach(
-              function (nav) {
-
-                nav.classList.remove(
-                  "active"
-                );
-
-              }
-            );
+          const pageName =
+            item.dataset.page;
 
 
-            item.classList.add(
+          navItems.forEach((nav) => {
+
+            nav.classList.remove(
               "active"
             );
 
+          });
 
-            pages.forEach(
-              function (page) {
 
-                page.classList.remove(
-                  "active"
-                );
+          item.classList.add(
+            "active"
+          );
 
-              }
+
+          pages.forEach((page) => {
+
+            page.classList.remove(
+              "active"
+            );
+
+          });
+
+
+          const target =
+            document.getElementById(
+              "page-" + pageName
             );
 
 
-            const targetPage =
-              document.getElementById(
-                "page-" + pageName
-              );
+          if (target) {
 
-
-            if (targetPage) {
-
-              targetPage.classList.add(
-                "active"
-              );
-
-            }
+            target.classList.add(
+              "active"
+            );
 
           }
-        );
 
-      }
-    );
+        }
+      );
+
+    });
 
   }
 
@@ -451,7 +421,7 @@
      EVENTS TABS
   ======================================================= */
 
-  function setupEventsTabs() {
+  function setupEventTabs() {
 
     const tabs =
       document.querySelectorAll(
@@ -471,92 +441,88 @@
       );
 
 
-    tabs.forEach(
-      function (tab) {
+    tabs.forEach((tab) => {
 
-        tab.addEventListener(
-          "click",
-          function () {
+      tab.addEventListener(
+        "click",
+        () => {
 
-            const target =
-              tab.dataset.eventsTab;
-
-
-            tabs.forEach(
-              function (t) {
-
-                t.classList.remove(
-                  "active"
-                );
-
-              }
-            );
+          const target =
+            tab.dataset.eventsTab;
 
 
-            tab.classList.add(
+          tabs.forEach((t) => {
+
+            t.classList.remove(
               "active"
             );
 
-
-            if (announcementPanel) {
-
-              announcementPanel.classList.remove(
-                "active"
-              );
-
-            }
+          });
 
 
-            if (competitionPanel) {
-
-              competitionPanel.classList.remove(
-                "active"
-              );
-
-            }
+          tab.classList.add(
+            "active"
+          );
 
 
-            if (
-              target === "announcements" &&
-              announcementPanel
-            ) {
+          if (announcementPanel) {
 
-              announcementPanel.classList.add(
-                "active"
-              );
-
-            }
-
-
-            if (
-              target === "competitions" &&
-              competitionPanel
-            ) {
-
-              competitionPanel.classList.add(
-                "active"
-              );
-
-            }
+            announcementPanel.classList.remove(
+              "active"
+            );
 
           }
-        );
 
-      }
-    );
+
+          if (competitionPanel) {
+
+            competitionPanel.classList.remove(
+              "active"
+            );
+
+          }
+
+
+          if (
+            target === "announcements" &&
+            announcementPanel
+          ) {
+
+            announcementPanel.classList.add(
+              "active"
+            );
+
+          }
+
+
+          if (
+            target === "competitions" &&
+            competitionPanel
+          ) {
+
+            competitionPanel.classList.add(
+              "active"
+            );
+
+          }
+
+        }
+      );
+
+    });
 
   }
 
 
   /* =======================================================
-     MODAL HELPER
+     MODAL
   ======================================================= */
 
   function setupModal(
     modalId,
-    openButtonId,
-    closeButtonId,
-    cancelButtonId
+    openId,
+    closeId,
+    cancelId
   ) {
 
     const modal =
@@ -565,25 +531,29 @@
       );
 
 
-    const openButton =
+    const open =
       document.getElementById(
-        openButtonId
+        openId
       );
 
 
-    const closeButton =
+    const close =
       document.getElementById(
-        closeButtonId
+        closeId
       );
 
 
-    const cancelButton =
+    const cancel =
       document.getElementById(
-        cancelButtonId
+        cancelId
       );
 
 
-    if (!modal) return;
+    if (!modal) {
+
+      return;
+
+    }
 
 
     function openModal() {
@@ -610,9 +580,9 @@
     }
 
 
-    if (openButton) {
+    if (open) {
 
-      openButton.addEventListener(
+      open.addEventListener(
         "click",
         openModal
       );
@@ -620,9 +590,9 @@
     }
 
 
-    if (closeButton) {
+    if (close) {
 
-      closeButton.addEventListener(
+      close.addEventListener(
         "click",
         closeModal
       );
@@ -630,9 +600,9 @@
     }
 
 
-    if (cancelButton) {
+    if (cancel) {
 
-      cancelButton.addEventListener(
+      cancel.addEventListener(
         "click",
         closeModal
       );
@@ -642,7 +612,7 @@
 
     modal.addEventListener(
       "click",
-      function (event) {
+      (event) => {
 
         if (
           event.target === modal
@@ -659,7 +629,7 @@
 
 
   /* =======================================================
-     MODALS
+     SETUP MODALS
   ======================================================= */
 
   function setupModals() {
@@ -683,16 +653,70 @@
 
 
   /* =======================================================
+     SIMPLE DATABASE TEST
+     فقط برای تشخیص واقعی جدول
+  ======================================================= */
+
+  async function testAthletesTable() {
+
+    if (!client) {
+
+      return;
+
+    }
+
+
+    try {
+
+      const result =
+        await client
+          .from("Athletes")
+          .select("id")
+          .limit(1);
+
+
+      if (result.error) {
+
+        error(
+          "Athletes table error:",
+          result.error
+        );
+
+
+        log(
+          "این خطا به معنی قطع بودن Supabase نیست."
+        );
+
+
+        return;
+
+      }
+
+
+      log(
+        "Athletes table is accessible.",
+        result.data
+      );
+
+    } catch (e) {
+
+      error(
+        "Athletes test exception:",
+        e
+      );
+
+    }
+
+  }
+
+
+  /* =======================================================
      DASHBOARD
   ======================================================= */
 
   async function loadDashboard() {
 
-    if (!supabaseClient) {
-
-      console.warn(
-        "Supabase هنوز آماده نیست."
-      );
+    if (!client) {
 
       return;
 
@@ -700,100 +724,100 @@
 
 
     /*
-     * فعلاً فقط مقادیر موجود در HTML را
-     * صفر نگه می‌داریم.
-     *
-     * بعد از اینکه اتصال قطعی شد،
-     * آمار واقعی را از جداول می‌خوانیم.
+     * فعلاً از جدول‌ها چیزی اجباری نمی‌خوانیم.
+     * چون اول باید اتصال و ساختار پروژه قطعی شود.
      */
 
-    const ids = [
-      "dashboardAthletes",
-      "dashboardEvaluations",
-      "dashboardAttendance",
-      "dashboardAchievements",
-      "goldAchievements",
-      "silverAchievements",
-      "bronzeAchievements",
-      "totalAnnouncements",
-      "activeAnnouncements",
-      "upcomingAnnouncements",
-      "totalCompetitions",
-      "upcomingCompetitions",
-      "completedCompetitions"
-    ];
-
-
-    ids.forEach(
-      function (id) {
-
-        const element =
-          document.getElementById(id);
-
-
-        if (
-          element &&
-          (
-            element.textContent === "۰" ||
-            element.textContent === "0"
-          )
-        ) {
-
-          element.textContent =
-            "۰";
-
-        }
-
-      }
+    log(
+      "Dashboard initialized."
     );
 
   }
 
 
   /* =======================================================
-     GLOBAL FUNCTIONS
+     LOGOUT
   ======================================================= */
 
-  window.testSupabaseConnection =
-    testSupabaseConnection;
+  async function logout() {
 
-  window.initializeSupabase =
-    initializeSupabase;
+    try {
+
+      if (client) {
+
+        await client.auth.signOut();
+
+      }
+
+    } catch (e) {
+
+      error(
+        "Logout error:",
+        e
+      );
+
+    }
+
+
+    localStorage.removeItem(
+      "judoLoggedIn"
+    );
+
+
+    window.location.href =
+      "index.html";
+
+  }
+
+
+  /* =======================================================
+     GLOBAL LOGOUT
+  ======================================================= */
 
   window.coachLogout =
-    coachLogout;
+    logout;
 
 
   /* =======================================================
      START
   ======================================================= */
 
-  async function startCoachPanel() {
+  async function start() {
 
-    console.log(
-      "🚀 پنل مربی طبیعت جودو شروع شد."
+    log(
+      "================================="
+    );
+
+    log(
+      "JUDO TABIAT COACH PANEL START"
+    );
+
+    log(
+      "Version: 2026.08.30"
+    );
+
+    log(
+      "================================="
     );
 
 
     /*
-     * مرحله ۱:
-     * ساخت مستقل Supabase Client
+     * ساخت Supabase
      */
 
-    const initialized =
-      await initializeSupabase();
+    const clientReady =
+      await createSupabaseClient();
 
 
-    if (!initialized) {
+    if (!clientReady) {
 
-      console.error(
-        "❌ Supabase Client ساخته نشد."
+      error(
+        "Supabase client could not be created."
       );
 
-      alert(
-        "کتابخانه Supabase بارگذاری نشد.\n\n" +
-        "لطفاً اینترنت و دسترسی سایت را بررسی کنید."
-      );
+      /*
+       * عمداً هیچ alert قدیمی نشان نمی‌دهیم.
+       */
 
       return;
 
@@ -801,73 +825,101 @@
 
 
     /*
-     * مرحله ۲:
-     * تست واقعی ارتباط با سرور
+     * تست واقعی سرور
      */
 
     const connected =
-      await testSupabaseConnection();
+      await testConnection();
 
 
     if (!connected) {
 
-      console.error(
-        "❌ ارتباط با سرور Supabase برقرار نیست."
+      error(
+        "Supabase server is NOT reachable."
       );
 
-      alert(
-        "ارتباط با Supabase برقرار نیست."
-      );
+      /*
+       * عمداً پیام «اتصال به Supabase برقرار نیست»
+       * نشان داده نمی‌شود.
+       *
+       * خطای واقعی فقط در Console دیده می‌شود.
+       */
 
-      return;
+    } else {
+
+      log(
+        "✅ SUPABASE CONNECTION OK"
+      );
 
     }
 
 
     /*
-     * مرحله ۳:
-     * بررسی Session
-     *
-     * این قسمت دیگر اتصال را با Session
-     * اشتباه نمی‌گیرد.
+     * Session
      */
 
     const session =
-      await checkCoachSession();
+      await getSession();
 
 
     if (session) {
 
-      console.log(
-        "👤 کاربر فعلی:",
-        session.user
+      log(
+        "Current user:",
+        session.user?.email
       );
 
     } else {
 
-      console.warn(
-        "⚠️ Session فعال پیدا نشد."
+      log(
+        "No active authentication session."
       );
 
     }
 
 
     /*
-     * مرحله ۴:
-     * راه‌اندازی رابط
+     * Auth listener
+     */
+
+    listenAuth();
+
+
+    /*
+     * UI
      */
 
     setupNavigation();
 
-    setupEventsTabs();
+    setupEventTabs();
 
     setupModals();
+
+
+    /*
+     * Dashboard
+     */
 
     await loadDashboard();
 
 
-    console.log(
-      "✅ پنل مربی با موفقیت آماده شد."
+    /*
+     * تست جدول ورزشکاران
+     */
+
+    await testAthletesTable();
+
+
+    log(
+      "================================="
+    );
+
+    log(
+      "COACH PANEL READY"
+    );
+
+    log(
+      "================================="
     );
 
   }
@@ -878,18 +930,20 @@
   ======================================================= */
 
   if (
-    document.readyState ===
-    "loading"
+    document.readyState === "loading"
   ) {
 
     document.addEventListener(
       "DOMContentLoaded",
-      startCoachPanel
+      start,
+      {
+        once: true
+      }
     );
 
   } else {
 
-    startCoachPanel();
+    start();
 
   }
 
