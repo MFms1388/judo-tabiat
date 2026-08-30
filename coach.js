@@ -1,12 +1,13 @@
 /* =========================================================
    JUDO TABIAT - COACH PANEL
    coach.js
-   نسخه اصلاح شده
+   نسخه کامل + مقام‌ها و افتخارات
 ========================================================= */
 
 (() => {
 
   "use strict";
+
 
   /* =======================================================
      SUPABASE
@@ -33,9 +34,13 @@
 
   let attendanceData = {};
 
+  let achievements = [];
+
   let attendanceInitialized = false;
 
   let evaluationInitialized = false;
+
+  let achievementsInitialized = false;
 
 
   /* =======================================================
@@ -163,8 +168,7 @@
 
 
   /* =======================================================
-     LOAD ATHLETES
-     جدول واقعی پروژه: athletes
+     ATHLETES
   ======================================================= */
 
   async function loadAthletes() {
@@ -274,6 +278,8 @@
     fillEvaluationAthleteSelect();
 
     fillAttendanceAthletes();
+
+    fillAchievementAthleteSelect();
 
 
     if (!athletes.length) {
@@ -640,7 +646,6 @@
 
   /* =======================================================
      SAVE ATHLETE
-     جدول واقعی پروژه: athletes
   ======================================================= */
 
   async function saveAthlete() {
@@ -2448,6 +2453,1316 @@
 
 
   /* =======================================================
+     ACHIEVEMENTS
+     مقام‌ها و افتخارات
+  ======================================================= */
+
+  const achievementTypes = {
+
+    gold: {
+      title: "🥇 مقام اول / طلا",
+      short: "🥇 طلا"
+    },
+
+    silver: {
+      title: "🥈 مقام دوم / نقره",
+      short: "🥈 نقره"
+    },
+
+    bronze: {
+      title: "🥉 مقام سوم / برنز",
+      short: "🥉 برنز"
+    },
+
+    other: {
+      title: "🏆 افتخار / سایر",
+      short: "🏆 سایر"
+    }
+
+  };
+
+
+  function getAchievementTypeLabel(type) {
+
+    return (
+      achievementTypes[type]?.short ||
+      "🏆 سایر"
+    );
+
+  }
+
+
+  function getAchievementTypeTitle(type) {
+
+    return (
+      achievementTypes[type]?.title ||
+      "🏆 افتخار / سایر"
+    );
+
+  }
+
+
+  /* =======================================================
+     LOAD ACHIEVEMENTS
+  ======================================================= */
+
+  async function loadAchievements() {
+
+    if (!checkSupabase()) {
+      return [];
+    }
+
+
+    try {
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("achievements")
+          .select("*")
+          .order(
+            "achievement_date",
+            {
+              ascending: false,
+              nullsFirst: false
+            }
+          )
+          .order(
+            "created_at",
+            {
+              ascending: false
+            }
+          );
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      achievements =
+        data || [];
+
+
+      console.log(
+        "Achievements loaded:",
+        achievements
+      );
+
+
+      renderAchievements();
+
+      updateAchievementStats();
+
+
+      return achievements;
+
+
+    } catch (error) {
+
+      console.error(
+        "loadAchievements error:",
+        error
+      );
+
+
+      achievements =
+        [];
+
+
+      renderAchievements();
+
+      updateAchievementStats();
+
+
+      return [];
+
+    }
+
+  }
+
+
+  /* =======================================================
+     ACHIEVEMENT ATHLETE SELECT
+  ======================================================= */
+
+  function fillAchievementAthleteSelect() {
+
+    const select =
+      el("achievementAthleteSelect");
+
+    if (!select) {
+      return;
+    }
+
+
+    const current =
+      select.value;
+
+
+    select.innerHTML = `
+      <option value="">
+        انتخاب ورزشکار
+      </option>
+    `;
+
+
+    athletes.forEach(
+      athlete => {
+
+        const id =
+          getAthleteId(athlete);
+
+
+        if (!id) {
+          return;
+        }
+
+
+        const option =
+          document.createElement("option");
+
+
+        option.value =
+          id;
+
+
+        option.textContent =
+          getAthleteName(athlete);
+
+
+        select.appendChild(option);
+
+      }
+    );
+
+
+    if (current) {
+
+      select.value =
+        current;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     CLEAR ACHIEVEMENT FORM
+  ======================================================= */
+
+  function clearAchievementForm() {
+
+    [
+      "achievementAthleteSelect",
+      "achievementTitle",
+      "achievementCompetition",
+      "achievementType",
+      "achievementAgeGroup",
+      "achievementWeight",
+      "achievementDate",
+      "achievementDescription"
+    ]
+      .forEach(
+        id => {
+
+          const input =
+            el(id);
+
+
+          if (!input) {
+            return;
+          }
+
+
+          if (
+            input.tagName === "SELECT"
+          ) {
+
+            input.selectedIndex =
+              0;
+
+          }
+
+          else {
+
+            input.value =
+              "";
+
+          }
+
+        }
+      );
+
+
+    const dateInput =
+      el("achievementDate");
+
+
+    if (dateInput) {
+
+      dateInput.value =
+        getTodayISO();
+
+    }
+
+  }
+
+
+  /* =======================================================
+     OPEN ACHIEVEMENT MODAL
+  ======================================================= */
+
+  function openAchievementModal() {
+
+    const modal =
+      el("achievementModal");
+
+    if (!modal) {
+
+      showMessage(
+        "بخش فرم مقام‌ها در صفحه پیدا نشد."
+      );
+
+      return;
+
+    }
+
+
+    clearAchievementForm();
+
+
+    modal.classList.remove(
+      "hidden"
+    );
+
+
+    modal.style.display =
+      "flex";
+
+  }
+
+
+  /* =======================================================
+     CLOSE ACHIEVEMENT MODAL
+  ======================================================= */
+
+  function closeAchievementModal() {
+
+    const modal =
+      el("achievementModal");
+
+    if (!modal) {
+      return;
+    }
+
+
+    modal.classList.add(
+      "hidden"
+    );
+
+
+    modal.style.display =
+      "none";
+
+  }
+
+
+  /* =======================================================
+     SAVE ACHIEVEMENT
+  ======================================================= */
+
+  async function saveAchievement() {
+
+    if (!checkSupabase()) {
+      return;
+    }
+
+
+    const athleteId =
+      el("achievementAthleteSelect")
+        ?.value;
+
+
+    const title =
+      el("achievementTitle")
+        ?.value
+        .trim();
+
+
+    const competitionName =
+      el("achievementCompetition")
+        ?.value
+        .trim();
+
+
+    const achievementType =
+      el("achievementType")
+        ?.value ||
+      "other";
+
+
+    const ageGroup =
+      el("achievementAgeGroup")
+        ?.value
+        .trim();
+
+
+    const weightValue =
+      el("achievementWeight")
+        ?.value;
+
+
+    const achievementDate =
+      el("achievementDate")
+        ?.value;
+
+
+    const description =
+      el("achievementDescription")
+        ?.value
+        .trim();
+
+
+    /* اعتبارسنجی */
+
+    if (!athleteId) {
+
+      showMessage(
+        "لطفاً ورزشکار را انتخاب کنید."
+      );
+
+      return;
+
+    }
+
+
+    if (!title) {
+
+      showMessage(
+        "لطفاً عنوان مقام یا افتخار را وارد کنید."
+      );
+
+      return;
+
+    }
+
+
+    if (!achievementType) {
+
+      showMessage(
+        "نوع مقام را انتخاب کنید."
+      );
+
+      return;
+
+    }
+
+
+    const saveButton =
+      el("saveAchievementBtn");
+
+
+    if (saveButton) {
+
+      saveButton.disabled =
+        true;
+
+      saveButton.textContent =
+        "در حال ثبت...";
+
+    }
+
+
+    try {
+
+      const selectedAthlete =
+        athletes.find(
+          athlete =>
+            String(
+              getAthleteId(athlete)
+            ) ===
+            String(athleteId)
+        );
+
+
+      const payload = {
+
+        athlete_id:
+          athleteId,
+
+        title:
+          title,
+
+        competition_name:
+          competitionName ||
+          null,
+
+        achievement_type:
+          achievementType,
+
+        age_group:
+          ageGroup ||
+          selectedAthlete?.age_group ||
+          selectedAthlete?.ageGroup ||
+          selectedAthlete?.category ||
+          null,
+
+        weight:
+          weightValue
+            ? Number(weightValue)
+            : selectedAthlete?.weight ??
+              null,
+
+        achievement_date:
+          achievementDate ||
+          null,
+
+        description:
+          description ||
+          null
+
+      };
+
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("achievements")
+          .insert(payload)
+          .select()
+          .single();
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      console.log(
+        "Achievement created:",
+        data
+      );
+
+
+      showMessage(
+        "مقام با موفقیت ثبت شد 🏆✅"
+      );
+
+
+      closeAchievementModal();
+
+
+      await loadAchievements();
+
+      await loadDashboardStats();
+
+
+    } catch (error) {
+
+      console.error(
+        "saveAchievement error:",
+        error
+      );
+
+
+      showMessage(
+        "ثبت مقام انجام نشد.\n\n" +
+        (
+          error.message ||
+          error
+        )
+      );
+
+
+    } finally {
+
+      if (saveButton) {
+
+        saveButton.disabled =
+          false;
+
+        saveButton.textContent =
+          "ثبت مقام";
+
+      }
+
+    }
+
+  }
+
+
+  /* =======================================================
+     DELETE ACHIEVEMENT
+  ======================================================= */
+
+  async function deleteAchievement(
+    achievementId
+  ) {
+
+    if (!achievementId) {
+      return;
+    }
+
+
+    if (!checkSupabase()) {
+      return;
+    }
+
+
+    const achievement =
+      achievements.find(
+        item =>
+          String(item.id) ===
+          String(achievementId)
+      );
+
+
+    const title =
+      achievement?.title ||
+      "این مقام";
+
+
+    const confirmed =
+      confirm(
+        `آیا از حذف «${title}» مطمئن هستید؟`
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    try {
+
+      const {
+        error
+      } =
+        await supabaseClient
+          .from("achievements")
+          .delete()
+          .eq(
+            "id",
+            achievementId
+          );
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      showMessage(
+        "مقام با موفقیت حذف شد ✅"
+      );
+
+
+      await loadAchievements();
+
+      await loadDashboardStats();
+
+
+    } catch (error) {
+
+      console.error(
+        "deleteAchievement error:",
+        error
+      );
+
+
+      showMessage(
+        "حذف مقام انجام نشد.\n\n" +
+        (
+          error.message ||
+          error
+        )
+      );
+
+    }
+
+  }
+
+
+  /* =======================================================
+     RENDER ACHIEVEMENTS
+  ======================================================= */
+
+  function renderAchievements() {
+
+    const container =
+      el("achievementsList");
+
+
+    if (!container) {
+      return;
+    }
+
+
+    const search =
+      (
+        el("achievementSearch")
+          ?.value ||
+        ""
+      )
+        .trim()
+        .toLowerCase();
+
+
+    const filter =
+      el("achievementFilter")
+        ?.value ||
+        "all";
+
+
+    let list =
+      [...achievements];
+
+
+    if (search) {
+
+      list =
+        list.filter(
+          achievement => {
+
+            const athlete =
+              athletes.find(
+                a =>
+                  String(
+                    getAthleteId(a)
+                  ) ===
+                  String(
+                    achievement.athlete_id
+                  )
+              );
+
+
+            const athleteName =
+              getAthleteName(athlete)
+                .toLowerCase();
+
+
+            const title =
+              String(
+                achievement.title ||
+                ""
+              )
+                .toLowerCase();
+
+
+            const competition =
+              String(
+                achievement.competition_name ||
+                ""
+              )
+                .toLowerCase();
+
+
+            return (
+              athleteName.includes(search) ||
+              title.includes(search) ||
+              competition.includes(search)
+            );
+
+          }
+        );
+
+    }
+
+
+    if (filter !== "all") {
+
+      list =
+        list.filter(
+          achievement =>
+            String(
+              achievement.achievement_type ||
+              "other"
+            ) ===
+            String(filter)
+        );
+
+    }
+
+
+    if (!list.length) {
+
+      container.innerHTML = `
+        <div class="evaluation-empty">
+
+          <div class="evaluation-empty-icon">
+            🏆
+          </div>
+
+          <h2>
+            هنوز مقامی ثبت نشده است
+          </h2>
+
+          <p>
+            برای ثبت اولین مقام، روی «افزودن مقام» بزنید.
+          </p>
+
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+      list
+        .map(
+          achievement => {
+
+            const athlete =
+              athletes.find(
+                a =>
+                  String(
+                    getAthleteId(a)
+                  ) ===
+                  String(
+                    achievement.athlete_id
+                  )
+              );
+
+
+            const athleteName =
+              getAthleteName(athlete);
+
+
+            const type =
+              achievement.achievement_type ||
+              "other";
+
+
+            const typeLabel =
+              getAchievementTypeLabel(
+                type
+              );
+
+
+            const title =
+              achievement.title ||
+              "بدون عنوان";
+
+
+            const competition =
+              achievement.competition_name ||
+              "مسابقه ثبت نشده";
+
+
+            const date =
+              achievement.achievement_date ||
+              "";
+
+
+            const ageGroup =
+              achievement.age_group ||
+              athlete?.age_group ||
+              athlete?.ageGroup ||
+              athlete?.category ||
+              "—";
+
+
+            const weight =
+              achievement.weight ??
+              athlete?.weight ??
+              "—";
+
+
+            const description =
+              achievement.description ||
+              "";
+
+
+            return `
+              <div
+                class="achievement-card"
+                data-achievement-id="${escapeHtml(
+                  achievement.id
+                )}"
+              >
+
+                <div class="achievement-card-top">
+
+                  <div class="achievement-medal">
+                    ${escapeHtml(
+                      typeLabel.split(" ")[0] || "🏆"
+                    )}
+                  </div>
+
+                  <div class="achievement-main">
+
+                    <h3>
+                      ${escapeHtml(title)}
+                    </h3>
+
+                    <div class="achievement-athlete-name">
+                      🥋
+                      ${escapeHtml(athleteName)}
+                    </div>
+
+                  </div>
+
+                  <button
+                    type="button"
+                    class="achievement-delete-btn"
+                    data-delete-achievement="${escapeHtml(
+                      achievement.id
+                    )}"
+                    title="حذف مقام"
+                  >
+                    🗑️
+                  </button>
+
+                </div>
+
+
+                <div class="achievement-type-badge">
+                  ${escapeHtml(
+                    typeLabel
+                  )}
+                </div>
+
+
+                <div class="achievement-details">
+
+                  <div class="achievement-detail">
+
+                    <span>
+                      🏟️ مسابقه
+                    </span>
+
+                    <strong>
+                      ${escapeHtml(
+                        competition
+                      )}
+                    </strong>
+
+                  </div>
+
+
+                  <div class="achievement-detail">
+
+                    <span>
+                      🏅 رده
+                    </span>
+
+                    <strong>
+                      ${escapeHtml(
+                        ageGroup
+                      )}
+                    </strong>
+
+                  </div>
+
+
+                  <div class="achievement-detail">
+
+                    <span>
+                      ⚖️ وزن
+                    </span>
+
+                    <strong>
+                      ${
+                        escapeHtml(
+                          weight
+                        )
+                      }
+                      ${
+                        weight !== "—"
+                          ? " کیلو"
+                          : ""
+                      }
+                    </strong>
+
+                  </div>
+
+
+                  <div class="achievement-detail">
+
+                    <span>
+                      📅 تاریخ
+                    </span>
+
+                    <strong>
+                      ${escapeHtml(
+                        date || "—"
+                      )}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                ${
+                  description
+                    ?
+                  `
+                    <div class="achievement-description">
+                      ${escapeHtml(
+                        description
+                      )}
+                    </div>
+                  `
+                    :
+                  ""
+                }
+
+              </div>
+            `;
+
+          }
+        )
+        .join("");
+
+
+    bindAchievementDeleteButtons();
+
+  }
+
+
+  /* =======================================================
+     ACHIEVEMENT DELETE BUTTONS
+  ======================================================= */
+
+  function bindAchievementDeleteButtons() {
+
+    document
+      .querySelectorAll(
+        "[data-delete-achievement]"
+      )
+      .forEach(
+        button => {
+
+          if (
+            button.dataset.bound
+          ) {
+            return;
+          }
+
+
+          button.dataset.bound =
+            "true";
+
+
+          button.addEventListener(
+            "click",
+            () => {
+
+              deleteAchievement(
+                button.dataset.deleteAchievement
+              );
+
+            }
+          );
+
+        }
+      );
+
+  }
+
+
+  /* =======================================================
+     ACHIEVEMENT STATS
+  ======================================================= */
+
+  function updateAchievementStats() {
+
+    const total =
+      achievements.length;
+
+
+    const gold =
+      achievements.filter(
+        item =>
+          item.achievement_type ===
+          "gold"
+      ).length;
+
+
+    const silver =
+      achievements.filter(
+        item =>
+          item.achievement_type ===
+          "silver"
+      ).length;
+
+
+    const bronze =
+      achievements.filter(
+        item =>
+          item.achievement_type ===
+          "bronze"
+      ).length;
+
+
+    const elements = {
+
+      total:
+        [
+          "totalAchievements",
+          "achievementsTotal",
+          "totalAchievementCount"
+        ],
+
+      gold:
+        [
+          "goldAchievements",
+          "achievementGoldCount"
+        ],
+
+      silver:
+        [
+          "silverAchievements",
+          "achievementSilverCount"
+        ],
+
+      bronze:
+        [
+          "bronzeAchievements",
+          "achievementBronzeCount"
+        ]
+
+    };
+
+
+    elements.total.forEach(
+      id => {
+
+        if (el(id)) {
+
+          el(id).textContent =
+            toPersianNumber(
+              total
+            );
+
+        }
+
+      }
+    );
+
+
+    elements.gold.forEach(
+      id => {
+
+        if (el(id)) {
+
+          el(id).textContent =
+            toPersianNumber(
+              gold
+            );
+
+        }
+
+      }
+    );
+
+
+    elements.silver.forEach(
+      id => {
+
+        if (el(id)) {
+
+          el(id).textContent =
+            toPersianNumber(
+              silver
+            );
+
+        }
+
+      }
+    );
+
+
+    elements.bronze.forEach(
+      id => {
+
+        if (el(id)) {
+
+          el(id).textContent =
+            toPersianNumber(
+              bronze
+            );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     PREPARE ACHIEVEMENTS PAGE
+  ======================================================= */
+
+  async function prepareAchievementsPage() {
+
+    await loadAthletes();
+
+    fillAchievementAthleteSelect();
+
+    await loadAchievements();
+
+
+    achievementsInitialized =
+      true;
+
+  }
+
+
+  /* =======================================================
+     BIND ACHIEVEMENT BUTTONS
+  ======================================================= */
+
+  function bindAchievementButtons() {
+
+    const addButton =
+      el("addAchievementBtn");
+
+
+    if (
+      addButton &&
+      !addButton.dataset.bound
+    ) {
+
+      addButton.dataset.bound =
+        "true";
+
+
+      addButton.addEventListener(
+        "click",
+        openAchievementModal
+      );
+
+    }
+
+
+    const closeButton =
+      el("closeAchievementModal");
+
+
+    if (
+      closeButton &&
+      !closeButton.dataset.bound
+    ) {
+
+      closeButton.dataset.bound =
+        "true";
+
+
+      closeButton.addEventListener(
+        "click",
+        closeAchievementModal
+      );
+
+    }
+
+
+    const saveButton =
+      el("saveAchievementBtn");
+
+
+    if (
+      saveButton &&
+      !saveButton.dataset.bound
+    ) {
+
+      saveButton.dataset.bound =
+        "true";
+
+
+      saveButton.addEventListener(
+        "click",
+        saveAchievement
+      );
+
+    }
+
+
+    const search =
+      el("achievementSearch");
+
+
+    if (
+      search &&
+      !search.dataset.bound
+    ) {
+
+      search.dataset.bound =
+        "true";
+
+
+      search.addEventListener(
+        "input",
+        renderAchievements
+      );
+
+    }
+
+
+    const filter =
+      el("achievementFilter");
+
+
+    if (
+      filter &&
+      !filter.dataset.bound
+    ) {
+
+      filter.dataset.bound =
+        "true";
+
+
+      filter.addEventListener(
+        "change",
+        renderAchievements
+      );
+
+    }
+
+
+    const modal =
+      el("achievementModal");
+
+
+    if (
+      modal &&
+      !modal.dataset.bound
+    ) {
+
+      modal.dataset.bound =
+        "true";
+
+
+      modal.addEventListener(
+        "click",
+        function (event) {
+
+          if (
+            event.target === modal
+          ) {
+
+            closeAchievementModal();
+
+          }
+
+        }
+      );
+
+    }
+
+  }
+
+
+  /* =======================================================
      DASHBOARD
   ======================================================= */
 
@@ -2790,6 +4105,40 @@
     startNewEvaluation;
 
 
+  /* مقام‌ها */
+
+  window.loadAchievements =
+    loadAchievements;
+
+
+  window.renderAchievements =
+    renderAchievements;
+
+
+  window.prepareAchievementsPage =
+    prepareAchievementsPage;
+
+
+  window.openAchievementModal =
+    openAchievementModal;
+
+
+  window.closeAchievementModal =
+    closeAchievementModal;
+
+
+  window.saveAchievement =
+    saveAchievement;
+
+
+  window.deleteAchievement =
+    deleteAchievement;
+
+
+  window.fillAchievementAthleteSelect =
+    fillAchievementAthleteSelect;
+
+
   /* =======================================================
      DOM READY
   ======================================================= */
@@ -2799,16 +4148,20 @@
     async function () {
 
       console.log(
-        "Judo Tabiat coach.js loaded - FIXED VERSION"
+        "Judo Tabiat coach.js loaded - FULL VERSION"
       );
 
 
-      /* دکمه ورزشکار */
+      /* ---------------------------------------------------
+         ورزشکاران
+      --------------------------------------------------- */
 
       bindAthleteButtons();
 
 
-      /* دکمه ارزیابی جدید */
+      /* ---------------------------------------------------
+         ارزیابی جدید
+      --------------------------------------------------- */
 
       const newEvaluationBtn =
         el("newEvaluationBtn");
@@ -2831,7 +4184,9 @@
       }
 
 
-      /* بستن Modal با کلیک بیرون */
+      /* ---------------------------------------------------
+         Modal ورزشکار
+      --------------------------------------------------- */
 
       const modal =
         el("athleteModal");
@@ -2857,30 +4212,53 @@
       }
 
 
-      /* بارگذاری اولیه */
+      /* ---------------------------------------------------
+         مقام‌ها و افتخارات
+      --------------------------------------------------- */
+
+      bindAchievementButtons();
+
+
+      /* ---------------------------------------------------
+         بارگذاری اولیه
+      --------------------------------------------------- */
 
       await loadCoachUser();
 
+
       await loadAthletes();
+
 
       updateAthleteStats();
 
+
       fillAthleteFilter();
+
 
       fillEvaluationAthleteSelect();
 
 
+      fillAchievementAthleteSelect();
+
+
       await loadEvaluationPeriods();
+
 
       fillEvaluationPeriodSelect();
 
 
       await loadEvaluations();
 
+
+      await loadAchievements();
+
+
       await loadDashboardStats();
 
 
-      /* اگر صفحه حضور و غیاب از ابتدا active بود */
+      /* ---------------------------------------------------
+         اگر حضور و غیاب از ابتدا فعال بود
+      --------------------------------------------------- */
 
       const attendancePage =
         el("page-attendance");
@@ -2894,6 +4272,26 @@
       ) {
 
         await initializeAttendancePage();
+
+      }
+
+
+      /* ---------------------------------------------------
+         اگر صفحه افتخارات از ابتدا فعال بود
+      --------------------------------------------------- */
+
+      const achievementsPage =
+        el("page-achievements");
+
+
+      if (
+        achievementsPage &&
+        achievementsPage.classList.contains(
+          "active"
+        )
+      ) {
+
+        await prepareAchievementsPage();
 
       }
 
