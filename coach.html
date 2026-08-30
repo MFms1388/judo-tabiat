@@ -38,10 +38,6 @@
       cursor: pointer;
     }
 
-    /* =========================================================
-       APP
-    ========================================================= */
-
     .coach-app {
       min-height: 100vh;
       display: flex;
@@ -268,6 +264,10 @@
     .primary-btn {
       background: #111827;
       color: white;
+    }
+
+    .primary-btn:hover {
+      opacity: .9;
     }
 
     .secondary-btn {
@@ -859,42 +859,42 @@
 
     <nav class="sidebar-nav">
 
-      <button class="nav-item active" data-page="dashboard">
+      <button type="button" class="nav-item active" data-page="dashboard">
         <span class="nav-icon">📊</span>
         <span>داشبورد</span>
       </button>
 
-      <button class="nav-item" data-page="athletes">
+      <button type="button" class="nav-item" data-page="athletes">
         <span class="nav-icon">👥</span>
         <span>ورزشکاران</span>
       </button>
 
-      <button class="nav-item" data-page="evaluations">
+      <button type="button" class="nav-item" data-page="evaluations">
         <span class="nav-icon">📈</span>
         <span>ارزیابی</span>
       </button>
 
-      <button class="nav-item" data-page="attendance">
+      <button type="button" class="nav-item" data-page="attendance">
         <span class="nav-icon">🟢</span>
         <span>حضور و غیاب</span>
       </button>
 
-      <button class="nav-item" data-page="achievements">
+      <button type="button" class="nav-item" data-page="achievements">
         <span class="nav-icon">🏆</span>
         <span>مقام‌ها و افتخارات</span>
       </button>
 
-      <button class="nav-item" data-page="events">
+      <button type="button" class="nav-item" data-page="events">
         <span class="nav-icon">📅</span>
         <span>مسابقات و اطلاعیه‌ها</span>
       </button>
 
-      <button class="nav-item" data-page="records">
+      <button type="button" class="nav-item" data-page="records">
         <span class="nav-icon">📈</span>
         <span>آمار و رکوردها</span>
       </button>
 
-      <button class="nav-item" data-page="settings">
+      <button type="button" class="nav-item" data-page="settings">
         <span class="nav-icon">⚙️</span>
         <span>تنظیمات سایت</span>
       </button>
@@ -996,7 +996,12 @@
               <p>ورزشکاران ثبت‌شده در باشگاه</p>
             </div>
 
-            <button class="primary-btn">
+            <!-- FIXED -->
+            <button
+              type="button"
+              id="addAthleteBtn"
+              class="primary-btn"
+            >
               ➕ افزودن ورزشکار
             </button>
 
@@ -1050,7 +1055,12 @@
               <p>ثبت و مشاهده ارزیابی‌ها</p>
             </div>
 
-            <button class="primary-btn">
+            <!-- FIXED -->
+            <button
+              type="button"
+              id="addEvaluationBtn"
+              class="primary-btn"
+            >
               ➕ ارزیابی جدید
             </button>
 
@@ -1098,7 +1108,12 @@
               <p>ثبت حضور جلسات تمرینی</p>
             </div>
 
-            <button class="primary-btn">
+            <!-- FIXED -->
+            <button
+              type="button"
+              id="addAttendanceBtn"
+              class="primary-btn"
+            >
               ➕ ثبت حضور
             </button>
 
@@ -1148,7 +1163,12 @@
               </p>
             </div>
 
-            <button class="primary-btn">
+            <!-- FIXED -->
+            <button
+              type="button"
+              id="addAchievementBtn"
+              class="primary-btn"
+            >
               ➕ ثبت افتخار
             </button>
 
@@ -1158,17 +1178,17 @@
 
             <div class="simple-box">
               <h3>🥇 طلا</h3>
-              <strong>۰</strong>
+              <strong id="goldAchievements">۰</strong>
             </div>
 
             <div class="simple-box">
               <h3>🥈 نقره</h3>
-              <strong>۰</strong>
+              <strong id="silverAchievements">۰</strong>
             </div>
 
             <div class="simple-box">
               <h3>🥉 برنز</h3>
-              <strong>۰</strong>
+              <strong id="bronzeAchievements">۰</strong>
             </div>
 
           </div>
@@ -1301,19 +1321,12 @@
             <select id="announcementFilter">
 
               <option value="all">همه اطلاعیه‌ها</option>
-
               <option value="training">🥋 تمرین جودو</option>
-
               <option value="bodybuilding">🏋️ بدنسازی</option>
-
               <option value="track">🏃 پیست</option>
-
               <option value="camp">🚌 اردو</option>
-
               <option value="meeting">👥 جلسه</option>
-
               <option value="general">📢 عمومی</option>
-
               <option value="important">🚨 مهم</option>
 
             </select>
@@ -1619,17 +1632,11 @@
         <select id="announcementType">
 
           <option value="general">📢 عمومی</option>
-
           <option value="training">🥋 تمرین جودو</option>
-
           <option value="bodybuilding">🏋️ بدنسازی</option>
-
           <option value="track">🏃 تمرین پیست</option>
-
           <option value="camp">🚌 اردو</option>
-
           <option value="meeting">👥 جلسه</option>
-
           <option value="important">🚨 مهم</option>
 
         </select>
@@ -1923,240 +1930,257 @@
 
 <script>
 
-  document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-    const navItems = document.querySelectorAll(".nav-item");
-    const pages = document.querySelectorAll(".coach-page");
+  /* =======================================================
+     MAIN NAVIGATION
+  ======================================================== */
 
-    navItems.forEach(function (item) {
+  const navItems = document.querySelectorAll(".nav-item");
+  const pages = document.querySelectorAll(".coach-page");
 
-      item.addEventListener("click", function () {
+  navItems.forEach(function (item) {
 
-        const pageName = item.dataset.page;
+    item.addEventListener("click", function () {
 
-        navItems.forEach(function (nav) {
-          nav.classList.remove("active");
-        });
+      const pageName = item.dataset.page;
 
-        item.classList.add("active");
-
-        pages.forEach(function (page) {
-          page.classList.remove("active");
-        });
-
-        const targetPage =
-          document.getElementById("page-" + pageName);
-
-        if (targetPage) {
-          targetPage.classList.add("active");
-        }
-
+      navItems.forEach(function (nav) {
+        nav.classList.remove("active");
       });
 
-    });
+      item.classList.add("active");
 
-
-    /* =======================================================
-       EVENTS TABS
-    ======================================================== */
-
-    const eventTabs =
-      document.querySelectorAll(".events-tab");
-
-    const announcementPanel =
-      document.getElementById("eventsPanelAnnouncements");
-
-    const competitionPanel =
-      document.getElementById("eventsPanelCompetitions");
-
-
-    eventTabs.forEach(function (tab) {
-
-      tab.addEventListener("click", function () {
-
-        const target = tab.dataset.eventsTab;
-
-        eventTabs.forEach(function (t) {
-          t.classList.remove("active");
-        });
-
-        tab.classList.add("active");
-
-        announcementPanel.classList.remove("active");
-        competitionPanel.classList.remove("active");
-
-        if (target === "announcements") {
-          announcementPanel.classList.add("active");
-        }
-
-        if (target === "competitions") {
-          competitionPanel.classList.add("active");
-        }
-
+      pages.forEach(function (page) {
+        page.classList.remove("active");
       });
 
+      const targetPage =
+        document.getElementById("page-" + pageName);
+
+      if (targetPage) {
+        targetPage.classList.add("active");
+      }
+
     });
-
-
-    /* =======================================================
-       ANNOUNCEMENT MODAL
-    ======================================================== */
-
-    const announcementModal =
-      document.getElementById("announcementModal");
-
-    const addAnnouncementBtn =
-      document.getElementById("addAnnouncementBtn");
-
-    const closeAnnouncementModal =
-      document.getElementById("closeAnnouncementModal");
-
-    const cancelAnnouncementBtn =
-      document.getElementById("cancelAnnouncementBtn");
-
-
-    function openAnnouncementModal() {
-
-      announcementModal.classList.remove("hidden");
-      announcementModal.style.display = "flex";
-
-    }
-
-
-    function closeAnnouncement() {
-
-      announcementModal.classList.add("hidden");
-      announcementModal.style.display = "none";
-
-    }
-
-
-    if (addAnnouncementBtn) {
-      addAnnouncementBtn.addEventListener(
-        "click",
-        openAnnouncementModal
-      );
-    }
-
-
-    if (closeAnnouncementModal) {
-      closeAnnouncementModal.addEventListener(
-        "click",
-        closeAnnouncement
-      );
-    }
-
-
-    if (cancelAnnouncementBtn) {
-      cancelAnnouncementBtn.addEventListener(
-        "click",
-        closeAnnouncement
-      );
-    }
-
-
-    /* =======================================================
-       COMPETITION MODAL
-    ======================================================== */
-
-    const competitionModal =
-      document.getElementById("competitionModal");
-
-    const addCompetitionBtn =
-      document.getElementById("addCompetitionBtn");
-
-    const closeCompetitionModal =
-      document.getElementById("closeCompetitionModal");
-
-    const cancelCompetitionBtn =
-      document.getElementById("cancelCompetitionBtn");
-
-
-    function openCompetitionModal() {
-
-      competitionModal.classList.remove("hidden");
-      competitionModal.style.display = "flex";
-
-    }
-
-
-    function closeCompetition() {
-
-      competitionModal.classList.add("hidden");
-      competitionModal.style.display = "none";
-
-    }
-
-
-    if (addCompetitionBtn) {
-      addCompetitionBtn.addEventListener(
-        "click",
-        openCompetitionModal
-      );
-    }
-
-
-    if (closeCompetitionModal) {
-      closeCompetitionModal.addEventListener(
-        "click",
-        closeCompetition
-      );
-    }
-
-
-    if (cancelCompetitionBtn) {
-      cancelCompetitionBtn.addEventListener(
-        "click",
-        closeCompetition
-      );
-    }
-
-
-    /* =======================================================
-       CLOSE MODAL WITH BACKDROP
-    ======================================================== */
-
-    if (announcementModal) {
-
-      announcementModal.addEventListener(
-        "click",
-        function (event) {
-
-          if (event.target === announcementModal) {
-            closeAnnouncement();
-          }
-
-        }
-      );
-
-    }
-
-
-    if (competitionModal) {
-
-      competitionModal.addEventListener(
-        "click",
-        function (event) {
-
-          if (event.target === competitionModal) {
-            closeCompetition();
-          }
-
-        }
-      );
-
-    }
 
   });
+
+
+  /* =======================================================
+     EVENTS TABS
+  ======================================================== */
+
+  const eventTabs =
+    document.querySelectorAll(".events-tab");
+
+  const announcementPanel =
+    document.getElementById("eventsPanelAnnouncements");
+
+  const competitionPanel =
+    document.getElementById("eventsPanelCompetitions");
+
+
+  eventTabs.forEach(function (tab) {
+
+    tab.addEventListener("click", function () {
+
+      const target = tab.dataset.eventsTab;
+
+      eventTabs.forEach(function (t) {
+        t.classList.remove("active");
+      });
+
+      tab.classList.add("active");
+
+      if (announcementPanel) {
+        announcementPanel.classList.remove("active");
+      }
+
+      if (competitionPanel) {
+        competitionPanel.classList.remove("active");
+      }
+
+      if (target === "announcements" && announcementPanel) {
+        announcementPanel.classList.add("active");
+      }
+
+      if (target === "competitions" && competitionPanel) {
+        competitionPanel.classList.add("active");
+      }
+
+    });
+
+  });
+
+
+  /* =======================================================
+     ANNOUNCEMENT MODAL
+  ======================================================== */
+
+  const announcementModal =
+    document.getElementById("announcementModal");
+
+  const addAnnouncementBtn =
+    document.getElementById("addAnnouncementBtn");
+
+  const closeAnnouncementModal =
+    document.getElementById("closeAnnouncementModal");
+
+  const cancelAnnouncementBtn =
+    document.getElementById("cancelAnnouncementBtn");
+
+
+  function openAnnouncementModal() {
+
+    if (!announcementModal) return;
+
+    announcementModal.classList.remove("hidden");
+    announcementModal.style.display = "flex";
+
+  }
+
+
+  function closeAnnouncement() {
+
+    if (!announcementModal) return;
+
+    announcementModal.classList.add("hidden");
+    announcementModal.style.display = "none";
+
+  }
+
+
+  if (addAnnouncementBtn) {
+    addAnnouncementBtn.addEventListener(
+      "click",
+      openAnnouncementModal
+    );
+  }
+
+
+  if (closeAnnouncementModal) {
+    closeAnnouncementModal.addEventListener(
+      "click",
+      closeAnnouncement
+    );
+  }
+
+
+  if (cancelAnnouncementBtn) {
+    cancelAnnouncementBtn.addEventListener(
+      "click",
+      closeAnnouncement
+    );
+  }
+
+
+  /* =======================================================
+     COMPETITION MODAL
+  ======================================================== */
+
+  const competitionModal =
+    document.getElementById("competitionModal");
+
+  const addCompetitionBtn =
+    document.getElementById("addCompetitionBtn");
+
+  const closeCompetitionModal =
+    document.getElementById("closeCompetitionModal");
+
+  const cancelCompetitionBtn =
+    document.getElementById("cancelCompetitionBtn");
+
+
+  function openCompetitionModal() {
+
+    if (!competitionModal) return;
+
+    competitionModal.classList.remove("hidden");
+    competitionModal.style.display = "flex";
+
+  }
+
+
+  function closeCompetition() {
+
+    if (!competitionModal) return;
+
+    competitionModal.classList.add("hidden");
+    competitionModal.style.display = "none";
+
+  }
+
+
+  if (addCompetitionBtn) {
+    addCompetitionBtn.addEventListener(
+      "click",
+      openCompetitionModal
+    );
+  }
+
+
+  if (closeCompetitionModal) {
+    closeCompetitionModal.addEventListener(
+      "click",
+      closeCompetition
+    );
+  }
+
+
+  if (cancelCompetitionBtn) {
+    cancelCompetitionBtn.addEventListener(
+      "click",
+      closeCompetition
+    );
+  }
+
+
+  /* =======================================================
+     CLOSE MODALS WITH BACKDROP
+  ======================================================== */
+
+  if (announcementModal) {
+
+    announcementModal.addEventListener(
+      "click",
+      function (event) {
+
+        if (event.target === announcementModal) {
+          closeAnnouncement();
+        }
+
+      }
+    );
+
+  }
+
+
+  if (competitionModal) {
+
+    competitionModal.addEventListener(
+      "click",
+      function (event) {
+
+        if (event.target === competitionModal) {
+          closeCompetition();
+        }
+
+      }
+    );
+
+  }
+
+});
 
 </script>
 
 
 <!-- =========================================================
-     EXISTING COACH JAVASCRIPT
+     COACH JAVASCRIPT
 ========================================================= -->
 
 <script src="coach.js"></script>
 
 </body>
-  </html>
+          </html>
