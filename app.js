@@ -1,15 +1,14 @@
-// ======================================
-// JUDO TABIAT
-// app.js
-// نسخه کامل و اصلاح‌شده
-// ======================================
+/* =========================================================
+   JUDO TABIAT - APP.JS
+   SUPABASE + LOGIN
+========================================================= */
 
 "use strict";
 
 
-// ======================================
-// SUPABASE
-// ======================================
+/* =========================================================
+   SUPABASE CONFIG
+========================================================= */
 
 const SUPABASE_URL =
   "https://bkkdgywdptufjsaepehc.supabase.co";
@@ -18,110 +17,157 @@ const SUPABASE_KEY =
   "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
 
 
-// ======================================
-// CREATE SUPABASE CLIENT
-// ======================================
+/* =========================================================
+   SUPABASE CLIENT
+========================================================= */
 
 let supabaseClient = null;
 
-try {
 
-  if (
-    !window.supabase ||
-    typeof window.supabase.createClient !== "function"
-  ) {
-
-    throw new Error(
-      "کتابخانه Supabase بارگذاری نشده است."
-    );
-
-  }
-
-
-  supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-
-  // بسیار مهم:
-  // coach.js از این متغیر استفاده می‌کند
-  window.supabaseClient =
-    supabaseClient;
-
-
-  console.log(
-    "✅ Supabase Client ساخته شد."
-  );
-
-
-} catch (error) {
-
-  console.error(
-    "❌ خطا در ساخت Supabase Client:",
-    error
-  );
-
-}
-
-
-// ======================================
-// TEST SUPABASE CONNECTION
-// ======================================
-
-async function testSupabaseConnection() {
-
-  if (!window.supabaseClient) {
-
-    console.error(
-      "❌ Supabase Client وجود ندارد."
-    );
-
-    return false;
-
-  }
-
+function createSupabaseClient() {
 
   try {
 
-    const {
-      data,
-      error
-    } =
-      await window.supabaseClient
-        .from("athletes")
-        .select("id")
-        .limit(1);
-
-
-    if (error) {
+    if (!window.supabase) {
 
       console.error(
-        "❌ خطای Supabase:",
-        error
+        "❌ window.supabase وجود ندارد."
       );
 
       return false;
-
     }
 
 
+    supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+
+    window.supabaseClient =
+      supabaseClient;
+
+
     console.log(
-      "✅ اتصال به Supabase برقرار است."
+      "✅ Supabase Client ساخته شد."
     );
 
 
     return true;
 
+  } catch (error) {
+
+    console.error(
+      "❌ خطا هنگام ساخت Supabase Client:",
+      error
+    );
+
+    return false;
+  }
+
+}
+
+
+/* =========================================================
+   SUPABASE CONNECTION TEST
+========================================================= */
+
+async function testSupabaseConnection() {
+
+  console.log(
+    "🔎 در حال بررسی اتصال به Supabase..."
+  );
+
+
+  if (!supabaseClient) {
+
+    console.error(
+      "❌ Supabase Client ساخته نشده است."
+    );
+
+    return false;
+  }
+
+
+  try {
+
+    /*
+      فقط برای تست ارتباط.
+      اگر جدول Athletes مشکل داشته باشد،
+      خطای جدول را جداگانه نمایش می‌دهیم.
+    */
+
+    const result =
+      await supabaseClient
+        .from("Athletes")
+        .select("id")
+        .limit(1);
+
+
+    console.log(
+      "📡 نتیجه تست Supabase:",
+      result
+    );
+
+
+    if (result.error) {
+
+      console.error(
+        "❌ Supabase پاسخ خطا داد:",
+        result.error
+      );
+
+
+      /*
+        خطاهای احتمالی را واضح‌تر می‌کنیم.
+      */
+
+      if (
+        result.error.code === "42P01"
+      ) {
+
+        console.error(
+          "❌ جدول Athletes در دیتابیس پیدا نشد."
+        );
+
+      }
+
+
+      if (
+        result.error.code === "PGRST116"
+      ) {
+
+        console.error(
+          "⚠️ مشکل مربوط به نتیجه یا ساختار جدول است."
+        );
+
+      }
+
+
+      return false;
+    }
+
+
+    console.log(
+      "✅ اتصال به Supabase کاملاً برقرار است."
+    );
+
+
+    console.log(
+      "📊 داده تست:",
+      result.data
+    );
+
+
+    return true;
 
   } catch (error) {
 
     console.error(
-      "❌ خطای اتصال به Supabase:",
+      "❌ Exception در تست Supabase:",
       error
     );
-
 
     return false;
 
@@ -130,219 +176,239 @@ async function testSupabaseConnection() {
 }
 
 
-// ======================================
-// LOGIN MODAL
-// ======================================
+/* =========================================================
+   LOGIN MODAL
+========================================================= */
 
-document.addEventListener(
-  "DOMContentLoaded",
-  function () {
+function setupLogin() {
 
-    console.log(
-      "🚀 App شروع شد."
-    );
+  const loginBtn =
+    document.getElementById("loginBtn");
 
 
-    // ==================================
-    // ELEMENTS
-    // ==================================
-
-    const loginBtn =
-      document.getElementById(
-        "loginBtn"
-      );
+  const loginModal =
+    document.getElementById("loginModal");
 
 
-    const loginModal =
-      document.getElementById(
-        "loginModal"
-      );
+  const closeModal =
+    document.getElementById("closeModal");
 
 
-    const closeModal =
-      document.getElementById(
-        "closeModal"
-      );
+  const loginSubmit =
+    document.getElementById("loginSubmit");
 
 
-    const loginSubmit =
-      document.getElementById(
-        "loginSubmit"
-      );
+  const usernameInput =
+    document.getElementById("username");
 
 
-    const usernameInput =
-      document.getElementById(
-        "username"
-      );
+  const passwordInput =
+    document.getElementById("password");
 
 
-    const passwordInput =
-      document.getElementById(
-        "password"
-      );
+  /* =======================================================
+     OPEN MODAL
+  ======================================================== */
+
+  if (
+    loginBtn &&
+    loginModal
+  ) {
+
+    loginBtn.addEventListener(
+      "click",
+      function () {
+
+        loginModal.classList.remove(
+          "hidden"
+        );
 
 
-    // ==================================
-    // OPEN LOGIN
-    // ==================================
+        if (usernameInput) {
 
-    if (
-      loginBtn &&
-      loginModal
-    ) {
-
-      loginBtn.addEventListener(
-        "click",
-        function () {
-
-          loginModal.classList.remove(
-            "hidden"
-          );
-
-
-          loginModal.style.display =
-            "flex";
-
-
-          if (usernameInput) {
-
-            usernameInput.focus();
-
-          }
+          usernameInput.focus();
 
         }
-      );
 
-    }
+      }
+    );
+
+  }
 
 
-    // ==================================
-    // CLOSE LOGIN
-    // ==================================
+  /* =======================================================
+     CLOSE MODAL
+  ======================================================== */
 
-    if (
-      closeModal &&
-      loginModal
-    ) {
+  if (
+    closeModal &&
+    loginModal
+  ) {
 
-      closeModal.addEventListener(
-        "click",
-        function () {
+    closeModal.addEventListener(
+      "click",
+      function () {
+
+        loginModal.classList.add(
+          "hidden"
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     CLOSE OUTSIDE
+  ======================================================== */
+
+  if (loginModal) {
+
+    loginModal.addEventListener(
+      "click",
+      function (event) {
+
+        if (
+          event.target === loginModal
+        ) {
 
           loginModal.classList.add(
             "hidden"
           );
 
+        }
 
-          loginModal.style.display =
-            "none";
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     LOGIN
+  ======================================================== */
+
+  if (loginSubmit) {
+
+    loginSubmit.addEventListener(
+      "click",
+      async function () {
+
+        const username =
+          usernameInput?.value.trim();
+
+
+        const password =
+          passwordInput?.value;
+
+
+        /* -----------------------------------------------
+           INPUT
+        ------------------------------------------------ */
+
+        if (!username) {
+
+          alert(
+            "لطفاً نام کاربری را وارد کنید."
+          );
+
+          usernameInput?.focus();
+
+          return;
 
         }
-      );
-
-    }
 
 
-    // ==================================
-    // CLOSE BY CLICK OUTSIDE
-    // ==================================
+        if (!password) {
 
-    if (loginModal) {
+          alert(
+            "لطفاً رمز عبور را وارد کنید."
+          );
 
-      loginModal.addEventListener(
-        "click",
-        function (event) {
+          passwordInput?.focus();
 
-          if (
-            event.target === loginModal
-          ) {
-
-            loginModal.classList.add(
-              "hidden"
-            );
-
-
-            loginModal.style.display =
-              "none";
-
-          }
+          return;
 
         }
-      );
-
-    }
 
 
-    // ==================================
-    // LOGIN
-    // ==================================
+        /* -----------------------------------------------
+           SUPABASE
+        ------------------------------------------------ */
 
-    if (loginSubmit) {
+        if (!supabaseClient) {
 
-      loginSubmit.addEventListener(
-        "click",
-        async function () {
+          alert(
+            "Supabase Client ساخته نشده است."
+          );
 
-          const username =
-            usernameInput?.value.trim();
+          console.error(
+            "❌ supabaseClient = null"
+          );
 
+          return;
 
-          const password =
-            passwordInput?.value;
-
-
-          // ------------------------------
-          // CHECK USERNAME
-          // ------------------------------
-
-          if (!username) {
-
-            alert(
-              "لطفاً نام کاربری را وارد کنید."
-            );
+        }
 
 
-            usernameInput?.focus();
+        /* -----------------------------------------------
+           LOADING
+        ------------------------------------------------ */
+
+        const oldText =
+          loginSubmit.innerHTML;
 
 
-            return;
-
-          }
+        loginSubmit.disabled = true;
 
 
-          // ------------------------------
-          // CHECK PASSWORD
-          // ------------------------------
-
-          if (!password) {
-
-            alert(
-              "لطفاً رمز عبور را وارد کنید."
-            );
+        loginSubmit.innerHTML =
+          "⏳ در حال ورود...";
 
 
-            passwordInput?.focus();
+        try {
+
+          console.log(
+            "🔐 تلاش برای ورود:",
+            username
+          );
 
 
-            return;
+          /* ---------------------------------------------
+             AUTH
+          ---------------------------------------------- */
 
-          }
+          const {
+            data,
+            error
+          } =
+            await supabaseClient
+              .auth
+              .signInWithPassword({
+
+                email: username,
+
+                password: password
+
+              });
 
 
-          // ------------------------------
-          // CHECK SUPABASE
-          // ------------------------------
+          /* ---------------------------------------------
+             ERROR
+          ---------------------------------------------- */
 
-          if (!window.supabaseClient) {
-
-            alert(
-              "اتصال به Supabase برقرار نیست."
-            );
-
+          if (error) {
 
             console.error(
-              "❌ window.supabaseClient وجود ندارد."
+              "❌ Login Error:",
+              error
+            );
+
+
+            alert(
+              "ورود ناموفق بود.\n\n" +
+              error.message
             );
 
 
@@ -351,196 +417,175 @@ document.addEventListener(
           }
 
 
-          // ------------------------------
-          // BUTTON LOADING
-          // ------------------------------
+          /* ---------------------------------------------
+             SUCCESS
+          ---------------------------------------------- */
 
-          const oldText =
-            loginSubmit.innerHTML;
+          if (
+            data &&
+            data.session
+          ) {
 
+            console.log(
+              "✅ ورود موفق بود.",
+              data.user
+            );
+
+
+            localStorage.setItem(
+              "judoLoggedIn",
+              "true"
+            );
+
+
+            localStorage.setItem(
+              "judoUserId",
+              data.user.id
+            );
+
+
+            window.location.href =
+              "coach.html";
+
+
+          } else {
+
+            alert(
+              "ورود انجام نشد. دوباره تلاش کنید."
+            );
+
+          }
+
+
+        } catch (error) {
+
+          console.error(
+            "❌ Login Exception:",
+            error
+          );
+
+
+          alert(
+            "خطایی هنگام ورود رخ داد.\n\n" +
+            error.message
+          );
+
+
+        } finally {
 
           loginSubmit.disabled =
-            true;
+            false;
 
 
           loginSubmit.innerHTML =
-            "⏳ در حال ورود...";
-
-
-          try {
-
-            console.log(
-              "🔐 تلاش برای ورود:",
-              username
-            );
-
-
-            // ==================================
-            // SUPABASE AUTH
-            // ==================================
-
-            const {
-              data,
-              error
-            } =
-              await window.supabaseClient
-                .auth
-                .signInWithPassword({
-
-                  email:
-                    username,
-
-                  password:
-                    password
-
-                });
-
-
-            // ==================================
-            // LOGIN ERROR
-            // ==================================
-
-            if (error) {
-
-              console.error(
-                "❌ Login Error:",
-                error
-              );
-
-
-              alert(
-                "ورود ناموفق بود.\n\n" +
-                (
-                  error.message ||
-                  "خطای نامشخص"
-                )
-              );
-
-
-              return;
-
-            }
-
-
-            // ==================================
-            // SUCCESS
-            // ==================================
-
-            if (
-              data &&
-              data.session
-            ) {
-
-              console.log(
-                "✅ ورود موفق بود.",
-                data.user
-              );
-
-
-              // ذخیره وضعیت ورود
-              localStorage.setItem(
-                "judoLoggedIn",
-                "true"
-              );
-
-
-              // ذخیره زمان ورود
-              localStorage.setItem(
-                "judoLoginTime",
-                String(Date.now())
-              );
-
-
-              // انتقال به پنل مربی
-              window.location.href =
-                "coach.html";
-
-
-            } else {
-
-              alert(
-                "ورود انجام نشد. دوباره تلاش کنید."
-              );
-
-            }
-
-
-          } catch (error) {
-
-            console.error(
-              "❌ Login Exception:",
-              error
-            );
-
-
-            alert(
-              "خطایی هنگام ورود رخ داد.\n\n" +
-              (
-                error.message ||
-                error
-              )
-            );
-
-
-          } finally {
-
-            loginSubmit.disabled =
-              false;
-
-
-            loginSubmit.innerHTML =
-              oldText;
-
-          }
+            oldText;
 
         }
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     ENTER
+  ======================================================== */
+
+  if (passwordInput) {
+
+    passwordInput.addEventListener(
+      "keydown",
+      function (event) {
+
+        if (
+          event.key === "Enter"
+        ) {
+
+          loginSubmit?.click();
+
+        }
+
+      }
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   START APP
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async function () {
+
+    console.log(
+      "🚀 Judo Tabiat App شروع شد."
+    );
+
+
+    /* -----------------------------------------------
+       CREATE CLIENT
+    ------------------------------------------------ */
+
+    const clientCreated =
+      createSupabaseClient();
+
+
+    if (!clientCreated) {
+
+      console.error(
+        "❌ ساخت Supabase Client شکست خورد."
       );
+
+      return;
 
     }
 
 
-    // ==================================
-    // ENTER KEY
-    // ==================================
+    /* -----------------------------------------------
+       LOGIN
+    ------------------------------------------------ */
 
-    if (passwordInput) {
+    setupLogin();
 
-      passwordInput.addEventListener(
-        "keydown",
-        function (event) {
 
-          if (
-            event.key === "Enter"
-          ) {
+    /* -----------------------------------------------
+       CONNECTION TEST
+    ------------------------------------------------ */
 
-            loginSubmit?.click();
+    const connected =
+      await testSupabaseConnection();
 
-          }
 
-        }
+    if (connected) {
+
+      console.log(
+        "🟢 وضعیت Supabase: ONLINE"
+      );
+
+    } else {
+
+      console.error(
+        "🔴 وضعیت Supabase: ERROR"
       );
 
     }
-
-
-    // ==================================
-    // TEST CONNECTION
-    // ==================================
-
-    testSupabaseConnection();
 
   }
 );
 
 
-// ======================================
-// GLOBAL
-// ======================================
+/* =========================================================
+   GLOBAL
+========================================================= */
 
 window.testSupabaseConnection =
   testSupabaseConnection;
 
 
-console.log(
-  "✅ app.js آماده است."
-);
+window.createSupabaseClient =
+  createSupabaseClient;
