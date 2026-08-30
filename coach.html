@@ -46,7 +46,6 @@
       background: #f5f7fa;
     }
 
-
     /* =========================================================
        SIDEBAR
     ========================================================= */
@@ -137,7 +136,6 @@
       font-size: 18px;
     }
 
-
     /* =========================================================
        MAIN
     ========================================================= */
@@ -189,7 +187,6 @@
       padding: 28px;
     }
 
-
     /* =========================================================
        PAGES
     ========================================================= */
@@ -216,7 +213,6 @@
       color: #667085;
       font-size: 13px;
     }
-
 
     /* =========================================================
        CARDS
@@ -252,7 +248,6 @@
       font-size: 25px;
     }
 
-
     /* =========================================================
        BUTTONS
     ========================================================= */
@@ -287,7 +282,6 @@
       color: #dc2626;
     }
 
-
     /* =========================================================
        SECTION HEADER
     ========================================================= */
@@ -310,7 +304,6 @@
       color: #667085;
       font-size: 13px;
     }
-
 
     /* =========================================================
        EVENTS TABS
@@ -349,7 +342,6 @@
     .events-panel.active {
       display: block;
     }
-
 
     /* =========================================================
        EVENT STATS
@@ -396,7 +388,6 @@
       font-size: 23px;
     }
 
-
     /* =========================================================
        TOOLBAR
     ========================================================= */
@@ -425,7 +416,6 @@
     .events-toolbar select {
       min-width: 190px;
     }
-
 
     /* =========================================================
        EVENT LIST
@@ -555,7 +545,6 @@
       white-space: pre-wrap;
     }
 
-
     /* =========================================================
        EMPTY
     ========================================================= */
@@ -578,7 +567,6 @@
       color: #344054;
       font-size: 17px;
     }
-
 
     /* =========================================================
        RECORDS
@@ -670,7 +658,6 @@
       background: #fef2f2;
       color: #dc2626;
     }
-
 
     /* =========================================================
        MODAL
@@ -787,7 +774,6 @@
       border-top: 1px solid #eef0f2;
     }
 
-
     /* =========================================================
        GENERIC CONTENT
     ========================================================= */
@@ -810,6 +796,12 @@
       margin-top: 0;
     }
 
+    .simple-box small {
+      display: block;
+      margin-top: 8px;
+      color: #667085;
+      line-height: 1.8;
+    }
 
     /* =========================================================
        MOBILE
@@ -838,7 +830,6 @@
       }
 
     }
-
 
     @media (max-width: 700px) {
 
@@ -947,11 +938,9 @@
   </style>
 </head>
 
-
 <body>
 
 <div class="coach-app">
-
 
   <!-- =======================================================
        SIDEBAR
@@ -975,92 +964,67 @@
 
     </div>
 
-
     <nav class="sidebar-nav">
 
       <button type="button"
               class="nav-item active"
               data-page="dashboard">
-
         <span class="nav-icon">📊</span>
         <span>داشبورد</span>
-
       </button>
-
 
       <button type="button"
               class="nav-item"
               data-page="athletes">
-
         <span class="nav-icon">👥</span>
         <span>ورزشکاران</span>
-
       </button>
-
 
       <button type="button"
               class="nav-item"
               data-page="evaluations">
-
         <span class="nav-icon">📈</span>
         <span>ارزیابی</span>
-
       </button>
-
 
       <button type="button"
               class="nav-item"
               data-page="attendance">
-
         <span class="nav-icon">🟢</span>
         <span>حضور و غیاب</span>
-
       </button>
-
 
       <button type="button"
               class="nav-item"
               data-page="achievements">
-
         <span class="nav-icon">🏆</span>
         <span>مقام‌ها و افتخارات</span>
-
       </button>
-
 
       <button type="button"
               class="nav-item"
               data-page="events">
-
         <span class="nav-icon">📅</span>
         <span>مسابقات و اطلاعیه‌ها</span>
-
       </button>
-
 
       <button type="button"
               class="nav-item"
               data-page="records">
-
         <span class="nav-icon">📈</span>
         <span>آمار و رکوردها</span>
-
       </button>
-
 
       <button type="button"
               class="nav-item"
               data-page="settings">
-
         <span class="nav-icon">⚙️</span>
         <span>تنظیمات سایت</span>
-
       </button>
 
     </nav>
 
   </aside>
-
 
   <!-- =======================================================
        MAIN
@@ -1068,13 +1032,11 @@
 
   <main class="coach-main">
 
-
     <header class="coach-topbar">
 
       <div class="topbar-title">
         پنل مربی طبیعت جودو
       </div>
-
 
       <div class="coach-user">
 
@@ -1088,9 +1050,7 @@
 
     </header>
 
-
     <div class="coach-content">
-
 
       <!-- =====================================================
            DASHBOARD
@@ -1109,65 +1069,31 @@
 
         </div>
 
-
         <div class="dashboard-grid">
 
-
           <div class="dashboard-card">
-
-            <span>
-              👥 ورزشکاران
-            </span>
-
-            <strong id="dashboardAthletes">
-              ۰
-            </strong>
-
+            <span>👥 ورزشکاران</span>
+            <strong id="dashboardAthletes">۰</strong>
           </div>
 
-
           <div class="dashboard-card">
-
-            <span>
-              📊 ارزیابی‌ها
-            </span>
-
-            <strong id="dashboardEvaluations">
-              ۰
-            </strong>
-
+            <span>📊 ارزیابی‌ها</span>
+            <strong id="dashboardEvaluations">۰</strong>
           </div>
 
-
           <div class="dashboard-card">
-
-            <span>
-              🟢 حضور امروز
-            </span>
-
-            <strong id="dashboardAttendance">
-              ۰
-            </strong>
-
+            <span>🟢 حضور امروز</span>
+            <strong id="dashboardAttendance">۰</strong>
           </div>
 
-
           <div class="dashboard-card">
-
-            <span>
-              🏆 افتخارات
-            </span>
-
-            <strong id="dashboardAchievements">
-              ۰
-            </strong>
-
+            <span>🏆 افتخارات</span>
+            <strong id="dashboardAchievements">۰</strong>
           </div>
 
         </div>
 
       </section>
-
 
       <!-- =====================================================
            ATHLETES
@@ -1178,9 +1104,7 @@
 
         <div class="page-header">
 
-          <h1>
-            ورزشکاران
-          </h1>
+          <h1>ورزشکاران</h1>
 
           <p>
             مدیریت ورزشکاران باشگاه
@@ -1188,16 +1112,13 @@
 
         </div>
 
-
         <div class="content-card">
 
           <div class="section-header">
 
             <div>
 
-              <h2>
-                👥 فهرست ورزشکاران
-              </h2>
+              <h2>👥 فهرست ورزشکاران</h2>
 
               <p>
                 ورزشکاران ثبت‌شده در باشگاه
@@ -1205,18 +1126,14 @@
 
             </div>
 
-
             <button
               type="button"
               id="addAthleteBtn"
               class="primary-btn">
-
               ➕ افزودن ورزشکار
-
             </button>
 
           </div>
-
 
           <div id="athletesList">
 
@@ -1242,7 +1159,6 @@
 
       </section>
 
-
       <!-- =====================================================
            EVALUATIONS
       ====================================================== -->
@@ -1252,9 +1168,7 @@
 
         <div class="page-header">
 
-          <h1>
-            ارزیابی
-          </h1>
+          <h1>ارزیابی</h1>
 
           <p>
             مدیریت ارزیابی عملکرد ورزشکاران
@@ -1262,16 +1176,13 @@
 
         </div>
 
-
         <div class="content-card">
 
           <div class="section-header">
 
             <div>
 
-              <h2>
-                📊 ارزیابی ورزشکاران
-              </h2>
+              <h2>📊 ارزیابی ورزشکاران</h2>
 
               <p>
                 ثبت و مشاهده ارزیابی‌ها
@@ -1279,18 +1190,14 @@
 
             </div>
 
-
             <button
               type="button"
               id="addEvaluationBtn"
               class="primary-btn">
-
               ➕ ارزیابی جدید
-
             </button>
 
           </div>
-
 
           <div class="evaluation-empty">
 
@@ -1312,7 +1219,6 @@
 
       </section>
 
-
       <!-- =====================================================
            ATTENDANCE
       ====================================================== -->
@@ -1322,9 +1228,7 @@
 
         <div class="page-header">
 
-          <h1>
-            حضور و غیاب
-          </h1>
+          <h1>حضور و غیاب</h1>
 
           <p>
             ثبت و مدیریت حضور ورزشکاران
@@ -1332,16 +1236,13 @@
 
         </div>
 
-
         <div class="content-card">
 
           <div class="section-header">
 
             <div>
 
-              <h2>
-                🟢 حضور و غیاب
-              </h2>
+              <h2>🟢 حضور و غیاب</h2>
 
               <p>
                 ثبت حضور جلسات تمرینی
@@ -1349,18 +1250,14 @@
 
             </div>
 
-
             <button
               type="button"
               id="addAttendanceBtn"
               class="primary-btn">
-
               ➕ ثبت حضور
-
             </button>
 
           </div>
-
 
           <div class="evaluation-empty">
 
@@ -1382,7 +1279,6 @@
 
       </section>
 
-
       <!-- =====================================================
            ACHIEVEMENTS
       ====================================================== -->
@@ -1402,7 +1298,6 @@
 
         </div>
 
-
         <div class="content-card">
 
           <div class="section-header">
@@ -1419,27 +1314,20 @@
 
             </div>
 
-
             <button
               type="button"
               id="addAchievementBtn"
               class="primary-btn">
-
               ➕ ثبت افتخار
-
             </button>
 
           </div>
 
-
           <div class="simple-grid">
-
 
             <div class="simple-box">
 
-              <h3>
-                🥇 طلا
-              </h3>
+              <h3>🥇 طلا</h3>
 
               <strong id="goldAchievements">
                 ۰
@@ -1447,12 +1335,9 @@
 
             </div>
 
-
             <div class="simple-box">
 
-              <h3>
-                🥈 نقره
-              </h3>
+              <h3>🥈 نقره</h3>
 
               <strong id="silverAchievements">
                 ۰
@@ -1460,12 +1345,9 @@
 
             </div>
 
-
             <div class="simple-box">
 
-              <h3>
-                🥉 برنز
-              </h3>
+              <h3>🥉 برنز</h3>
 
               <strong id="bronzeAchievements">
                 ۰
@@ -1478,7 +1360,6 @@
         </div>
 
       </section>
-
 
       <!-- =====================================================
            EVENTS
@@ -1499,37 +1380,29 @@
 
         </div>
 
-
         <div class="events-tabs">
 
           <button
             type="button"
             class="events-tab active"
             data-events-tab="announcements">
-
             📢 اطلاعیه‌ها
-
           </button>
-
 
           <button
             type="button"
             class="events-tab"
             data-events-tab="competitions">
-
             📅 مسابقات
-
           </button>
 
         </div>
-
 
         <!-- ANNOUNCEMENTS -->
 
         <div
           id="eventsPanelAnnouncements"
           class="events-panel active">
-
 
           <div class="section-header">
 
@@ -1545,21 +1418,16 @@
 
             </div>
 
-
             <button
               type="button"
               id="addAnnouncementBtn"
               class="primary-btn">
-
               ➕ افزودن اطلاعیه
-
             </button>
 
           </div>
 
-
           <div class="events-stats">
-
 
             <div class="event-stat-card">
 
@@ -1569,9 +1437,7 @@
 
               <div>
 
-                <span>
-                  کل اطلاعیه‌ها
-                </span>
+                <span>کل اطلاعیه‌ها</span>
 
                 <strong id="totalAnnouncements">
                   ۰
@@ -1581,7 +1447,6 @@
 
             </div>
 
-
             <div class="event-stat-card">
 
               <div class="event-stat-icon">
@@ -1590,9 +1455,7 @@
 
               <div>
 
-                <span>
-                  فعال
-                </span>
+                <span>فعال</span>
 
                 <strong id="activeAnnouncements">
                   ۰
@@ -1602,7 +1465,6 @@
 
             </div>
 
-
             <div class="event-stat-card">
 
               <div class="event-stat-icon">
@@ -1611,9 +1473,7 @@
 
               <div>
 
-                <span>
-                  برنامه‌های پیش‌رو
-                </span>
+                <span>برنامه‌های پیش‌رو</span>
 
                 <strong id="upcomingAnnouncements">
                   ۰
@@ -1625,15 +1485,12 @@
 
           </div>
 
-
           <div class="events-toolbar">
 
             <input
               type="search"
               id="announcementSearch"
-              placeholder="🔎 جستجو در اطلاعیه‌ها..."
-            >
-
+              placeholder="🔎 جستجو در اطلاعیه‌ها...">
 
             <select id="announcementFilter">
 
@@ -1673,7 +1530,6 @@
 
           </div>
 
-
           <div
             id="announcementsList"
             class="announcements-list">
@@ -1698,13 +1554,11 @@
 
         </div>
 
-
         <!-- COMPETITIONS -->
 
         <div
           id="eventsPanelCompetitions"
           class="events-panel">
-
 
           <div class="section-header">
 
@@ -1720,21 +1574,16 @@
 
             </div>
 
-
             <button
               type="button"
               id="addCompetitionBtn"
               class="primary-btn">
-
               ➕ افزودن مسابقه
-
             </button>
 
           </div>
 
-
           <div class="events-stats">
-
 
             <div class="event-stat-card">
 
@@ -1744,9 +1593,7 @@
 
               <div>
 
-                <span>
-                  کل مسابقات
-                </span>
+                <span>کل مسابقات</span>
 
                 <strong id="totalCompetitions">
                   ۰
@@ -1756,7 +1603,6 @@
 
             </div>
 
-
             <div class="event-stat-card">
 
               <div class="event-stat-icon">
@@ -1765,9 +1611,7 @@
 
               <div>
 
-                <span>
-                  مسابقات پیش‌رو
-                </span>
+                <span>مسابقات پیش‌رو</span>
 
                 <strong id="upcomingCompetitions">
                   ۰
@@ -1777,7 +1621,6 @@
 
             </div>
 
-
             <div class="event-stat-card">
 
               <div class="event-stat-icon">
@@ -1786,9 +1629,7 @@
 
               <div>
 
-                <span>
-                  برگزارشده
-                </span>
+                <span>برگزارشده</span>
 
                 <strong id="completedCompetitions">
                   ۰
@@ -1800,15 +1641,12 @@
 
           </div>
 
-
           <div class="events-toolbar">
 
             <input
               type="search"
               id="competitionSearch"
-              placeholder="🔎 جستجو در مسابقات..."
-            >
-
+              placeholder="🔎 جستجو در مسابقات...">
 
             <select id="competitionFilter">
 
@@ -1831,7 +1669,6 @@
             </select>
 
           </div>
-
 
           <div
             id="competitionsList"
@@ -1859,14 +1696,12 @@
 
       </section>
 
-
       <!-- =====================================================
            RECORDS & STATISTICS
       ====================================================== -->
 
       <section id="page-records"
                class="coach-page">
-
 
         <div class="page-header">
 
@@ -1880,11 +1715,7 @@
 
         </div>
 
-
-        <!-- GENERAL STATISTICS -->
-
         <div class="stats-grid records-stats-grid">
-
 
           <div class="stat-card">
 
@@ -1898,7 +1729,6 @@
 
           </div>
 
-
           <div class="stat-card">
 
             <span>
@@ -1911,7 +1741,6 @@
 
           </div>
 
-
           <div class="stat-card">
 
             <span>
@@ -1923,7 +1752,6 @@
             </strong>
 
           </div>
-
 
           <div class="stat-card">
 
@@ -1938,9 +1766,6 @@
           </div>
 
         </div>
-
-
-        <!-- BEST PERFORMANCE -->
 
         <div
           class="content-card"
@@ -1962,9 +1787,7 @@
 
           </div>
 
-
           <div class="records-best-grid">
-
 
             <div class="record-best-box">
 
@@ -1978,7 +1801,6 @@
 
             </div>
 
-
             <div class="record-best-box">
 
               <h3>
@@ -1990,7 +1812,6 @@
               </p>
 
             </div>
-
 
             <div class="record-best-box">
 
@@ -2007,9 +1828,6 @@
           </div>
 
         </div>
-
-
-        <!-- RECORDS TABLE -->
 
         <div
           class="content-card"
@@ -2029,27 +1847,21 @@
 
             </div>
 
-
             <button
               type="button"
               id="addRecordBtn"
               class="primary-btn">
-
               ➕ ثبت رکورد
-
             </button>
 
           </div>
-
 
           <div class="events-toolbar">
 
             <input
               type="search"
               id="recordSearch"
-              placeholder="🔎 جستجو در رکوردها..."
-            >
-
+              placeholder="🔎 جستجو در رکوردها...">
 
             <select id="recordTypeFilter">
 
@@ -2077,7 +1889,6 @@
 
           </div>
 
-
           <div
             id="recordsList"
             class="records-table-wrapper">
@@ -2104,7 +1915,6 @@
 
       </section>
 
-
       <!-- =====================================================
            SETTINGS
       ====================================================== -->
@@ -2114,55 +1924,710 @@
 
         <div class="page-header">
 
-          <h1>
-            تنظیمات سایت
-          </h1>
+          <h1>⚙️ تنظیمات سایت</h1>
 
           <p>
-            مدیریت تنظیمات پنل و باشگاه
+            مدیریت اطلاعات باشگاه، مربیان، ارزیابی، نمایش سایت و امنیت
           </p>
 
         </div>
 
+        <!-- CLUB INFORMATION -->
 
-        <div class="simple-grid">
+        <div class="content-card">
 
+          <div class="section-header">
 
-          <div class="simple-box">
+            <div>
 
-            <h3>
-              ⚙️ تنظیمات عمومی
-            </h3>
+              <h2>🏢 اطلاعات باشگاه</h2>
 
-            <p>
-              تنظیمات عمومی باشگاه
-            </p>
+              <p>
+                اطلاعات اصلی باشگاه و سایت را مدیریت کنید.
+              </p>
 
-          </div>
-
-
-          <div class="simple-box">
-
-            <h3>
-              👤 حساب مربی
-            </h3>
-
-            <p>
-              مدیریت حساب مربی
-            </p>
+            </div>
 
           </div>
 
+          <div class="form-grid">
 
-          <div class="simple-box">
+            <div class="form-group">
 
-            <h3>
-              🔐 امنیت
-            </h3>
+              <label for="settingClubName">
+                نام باشگاه
+              </label>
 
-            <p>
-              تنظیمات دسترسی و امنیت
-            </p>
+              <input
+                type="text"
+                id="settingClubName"
+                placeholder="مثلاً طبیعت جودو">
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="settingSiteName">
+                نام نمایشی سایت
+              </label>
+
+              <input
+                type="text"
+                id="settingSiteName"
+                placeholder="مثلاً طبیعت جودو">
+
+            </div>
+
+            <div class="form-group full-width">
+
+              <label for="settingClubDescription">
+                توضیحات
+              </label>
+
+              <textarea
+                id="settingClubDescription"
+                placeholder="توضیحات مربوط به باشگاه..."></textarea>
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="settingClubPhone">
+                تلفن
+              </label>
+
+              <input
+                type="tel"
+                id="settingClubPhone"
+                placeholder="شماره تماس باشگاه">
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="settingClubAddress">
+                آدرس
+              </label>
+
+              <input
+                type="text"
+                id="settingClubAddress"
+                placeholder="آدرس باشگاه">
+
+            </div>
+
+          </div>
+
+          <div class="modal-actions">
+
+            <button
+              type="button"
+              id="saveClubSettingsBtn"
+              class="primary-btn">
+              💾 ذخیره اطلاعات باشگاه
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- FOUR COACHES -->
+
+        <div
+          class="content-card"
+          style="margin-top:20px;">
+
+          <div class="section-header">
+
+            <div>
+
+              <h2>👥 مربیان</h2>
+
+              <p>
+                چهار حساب مستقل برای مربیان باشگاه.
+              </p>
+
+            </div>
+
+          </div>
+
+          <div class="simple-grid">
+
+            <div class="simple-box">
+
+              <h3>👤 مربی اول</h3>
+
+              <div class="form-group">
+
+                <label for="coach1Name">
+                  نام مربی
+                </label>
+
+                <input
+                  type="text"
+                  id="coach1Name"
+                  placeholder="نام مربی">
+
+              </div>
+
+              <p>
+                وضعیت:
+                <strong id="coach1Status">فعال</strong>
+              </p>
+
+              <p>🔐 ورود مستقل</p>
+
+              <p>✅ دسترسی کامل</p>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>👤 مربی دوم</h3>
+
+              <div class="form-group">
+
+                <label for="coach2Name">
+                  نام مربی
+                </label>
+
+                <input
+                  type="text"
+                  id="coach2Name"
+                  placeholder="نام مربی">
+
+              </div>
+
+              <p>
+                وضعیت:
+                <strong id="coach2Status">فعال</strong>
+              </p>
+
+              <p>🔐 ورود مستقل</p>
+
+              <p>✅ دسترسی کامل</p>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>👤 مربی سوم</h3>
+
+              <div class="form-group">
+
+                <label for="coach3Name">
+                  نام مربی
+                </label>
+
+                <input
+                  type="text"
+                  id="coach3Name"
+                  placeholder="نام مربی">
+
+              </div>
+
+              <p>
+                وضعیت:
+                <strong id="coach3Status">فعال</strong>
+              </p>
+
+              <p>🔐 ورود مستقل</p>
+
+              <p>✅ دسترسی کامل</p>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>👤 مربی چهارم</h3>
+
+              <div class="form-group">
+
+                <label for="coach4Name">
+                  نام مربی
+                </label>
+
+                <input
+                  type="text"
+                  id="coach4Name"
+                  placeholder="نام مربی">
+
+              </div>
+
+              <p>
+                وضعیت:
+                <strong id="coach4Status">فعال</strong>
+              </p>
+
+              <p>🔐 ورود مستقل</p>
+
+              <p>✅ دسترسی کامل</p>
+
+            </div>
+
+          </div>
+
+          <div class="modal-actions">
+
+            <button
+              type="button"
+              id="saveCoachesSettingsBtn"
+              class="primary-btn">
+              💾 ذخیره مربیان
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- CURRENT COACH ACCOUNT -->
+
+        <div
+          class="content-card"
+          style="margin-top:20px;">
+
+          <div class="section-header">
+
+            <div>
+
+              <h2>👤 حساب مربی</h2>
+
+              <p>
+                اطلاعات حساب مربی واردشده.
+              </p>
+
+            </div>
+
+          </div>
+
+          <div class="form-grid">
+
+            <div class="form-group">
+
+              <label for="currentCoachName">
+                نام حساب فعلی
+              </label>
+
+              <input
+                type="text"
+                id="currentCoachName"
+                readonly>
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="currentCoachEmail">
+                ایمیل
+              </label>
+
+              <input
+                type="email"
+                id="currentCoachEmail"
+                readonly>
+
+            </div>
+
+          </div>
+
+          <div class="modal-actions">
+
+            <button
+              type="button"
+              id="changeCoachPasswordBtn"
+              class="secondary-btn">
+              🔑 تغییر رمز
+            </button>
+
+            <button
+              type="button"
+              id="coachLogoutBtn"
+              class="danger-btn">
+              🚪 خروج از حساب
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- ATHLETE INFORMATION VISIBILITY -->
+
+        <div
+          class="content-card"
+          style="margin-top:20px;">
+
+          <div class="section-header">
+
+            <div>
+
+              <h2>👥 نمایش اطلاعات ورزشکار</h2>
+
+              <p>
+                مشخص کنید چه اطلاعاتی در صفحه ورزشکار نمایش داده شود.
+              </p>
+
+            </div>
+
+          </div>
+
+          <div class="simple-grid">
+
+            <div class="simple-box">
+
+              <h3>⚖️ وزن</h3>
+
+              <label>
+                <input
+                  type="checkbox"
+                  id="showAthleteWeight"
+                  checked>
+                نمایش وزن
+              </label>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>🥋 کمربند</h3>
+
+              <label>
+                <input
+                  type="checkbox"
+                  id="showAthleteBelt"
+                  checked>
+                نمایش کمربند
+              </label>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>📊 ارزیابی</h3>
+
+              <label>
+                <input
+                  type="checkbox"
+                  id="showAthleteEvaluation"
+                  checked>
+                نمایش ارزیابی
+              </label>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>🏆 افتخارات</h3>
+
+              <label>
+                <input
+                  type="checkbox"
+                  id="showAthleteAchievements"
+                  checked>
+                نمایش افتخارات
+              </label>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>🟢 حضور و غیاب</h3>
+
+              <label>
+                <input
+                  type="checkbox"
+                  id="showAthleteAttendance"
+                  checked>
+                نمایش حضور و غیاب
+              </label>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>📈 رکوردها</h3>
+
+              <label>
+                <input
+                  type="checkbox"
+                  id="showAthleteRecords"
+                  checked>
+                نمایش رکوردها
+              </label>
+
+            </div>
+
+          </div>
+
+          <div class="modal-actions">
+
+            <button
+              type="button"
+              id="saveAthleteVisibilityBtn"
+              class="primary-btn">
+              💾 ذخیره تنظیمات نمایش
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- EVALUATION SETTINGS -->
+
+        <div
+          class="content-card"
+          style="margin-top:20px;">
+
+          <div class="section-header">
+
+            <div>
+
+              <h2>📊 ارزیابی</h2>
+
+              <p>
+                تنظیمات سیستم ارزیابی عملکرد ورزشکاران.
+              </p>
+
+            </div>
+
+          </div>
+
+          <div class="simple-grid">
+
+            <div class="simple-box">
+
+              <h3>🔢 مقیاس امتیاز</h3>
+
+              <p>
+                <strong>۰ تا ۱۰</strong>
+              </p>
+
+              <small>
+                امتیاز تمام معیارها بین ۰ تا ۱۰ خواهد بود.
+              </small>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>⚖️ معیارهای برابر</h3>
+
+              <p>
+                <strong>فعال</strong>
+              </p>
+
+              <small>
+                تمام معیارها وزن برابر دارند.
+              </small>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>🚫 ضریب</h3>
+
+              <p>
+                <strong>بدون ضریب</strong>
+              </p>
+
+              <small>
+                هیچ معیار دارای ضریب جداگانه نیست.
+              </small>
+
+            </div>
+
+          </div>
+
+          <div
+            class="form-grid"
+            style="margin-top:20px;">
+
+            <div class="form-group">
+
+              <label for="evaluationResultDisplay">
+                نحوه نمایش نتیجه
+              </label>
+
+              <select id="evaluationResultDisplay">
+
+                <option value="score">
+                  امتیاز نهایی
+                </option>
+
+                <option value="score_percent">
+                  امتیاز + درصد
+                </option>
+
+                <option value="both">
+                  امتیاز + وضعیت عملکرد
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+          <div class="modal-actions">
+
+            <button
+              type="button"
+              id="saveEvaluationSettingsBtn"
+              class="primary-btn">
+              💾 ذخیره تنظیمات ارزیابی
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- SITE APPEARANCE -->
+
+        <div
+          class="content-card"
+          style="margin-top:20px;">
+
+          <div class="section-header">
+
+            <div>
+
+              <h2>🎨 ظاهر سایت</h2>
+
+              <p>
+                اطلاعات ظاهری و برند سایت را مدیریت کنید.
+              </p>
+
+            </div>
+
+          </div>
+
+          <div class="form-grid">
+
+            <div class="form-group">
+
+              <label for="siteBrandName">
+                نام برند
+              </label>
+
+              <input
+                type="text"
+                id="siteBrandName"
+                placeholder="طبیعت جودو">
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="siteLogo">
+                لوگو
+              </label>
+
+              <input
+                type="text"
+                id="siteLogo"
+                placeholder="آدرس یا شناسه لوگو">
+
+            </div>
+
+            <div class="form-group full-width">
+
+              <label for="siteDisplayInfo">
+                اطلاعات نمایشی سایت
+              </label>
+
+              <textarea
+                id="siteDisplayInfo"
+                placeholder="اطلاعاتی که در بخش عمومی سایت نمایش داده می‌شود..."></textarea>
+
+            </div>
+
+          </div>
+
+          <div class="modal-actions">
+
+            <button
+              type="button"
+              id="saveAppearanceSettingsBtn"
+              class="primary-btn">
+              💾 ذخیره ظاهر سایت
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- SECURITY -->
+
+        <div
+          class="content-card"
+          style="margin-top:20px;">
+
+          <div class="section-header">
+
+            <div>
+
+              <h2>🔐 امنیت</h2>
+
+              <p>
+                وضعیت اتصال و مدیریت دسترسی حساب‌ها.
+              </p>
+
+            </div>
+
+          </div>
+
+          <div class="simple-grid">
+
+            <div class="simple-box">
+
+              <h3>☁️ اتصال Supabase</h3>
+
+              <p>
+
+                وضعیت:
+
+                <strong id="supabaseConnectionStatus">
+                  در حال بررسی...
+                </strong>
+
+              </p>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>👤 وضعیت حساب</h3>
+
+              <p>
+
+                وضعیت:
+
+                <strong id="coachAccountStatus">
+                  در حال بررسی...
+                </strong>
+
+              </p>
+
+            </div>
+
+            <div class="simple-box">
+
+              <h3>🔐 مدیریت ورود</h3>
+
+              <p>
+                ورود مربیان با حساب مستقل
+              </p>
+
+              <p>
+
+                دسترسی مربیان:
+
+                <strong>
+                  کامل
+                </strong>
+
+              </p>
+
+            </div>
 
           </div>
 
@@ -2175,7 +2640,6 @@
   </main>
 
 </div>
-
 
 <!-- =========================================================
      ANNOUNCEMENT MODAL
@@ -2202,21 +2666,16 @@
 
       </div>
 
-
       <button
         type="button"
         id="closeAnnouncementModal"
         class="modal-close">
-
         ✕
-
       </button>
 
     </div>
 
-
     <div class="form-grid">
-
 
       <div class="form-group">
 
@@ -2230,7 +2689,6 @@
           placeholder="مثلاً تمرین بدنسازی فردا">
 
       </div>
-
 
       <div class="form-group">
 
@@ -2272,7 +2730,6 @@
 
       </div>
 
-
       <div class="form-group">
 
         <label for="announcementDate">
@@ -2284,7 +2741,6 @@
           id="announcementDate">
 
       </div>
-
 
       <div class="form-group">
 
@@ -2299,7 +2755,6 @@
 
       </div>
 
-
       <div class="form-group">
 
         <label for="announcementStartTime">
@@ -2312,7 +2767,6 @@
 
       </div>
 
-
       <div class="form-group">
 
         <label for="announcementEndTime">
@@ -2324,7 +2778,6 @@
           id="announcementEndTime">
 
       </div>
-
 
       <div class="form-group full-width">
 
@@ -2341,26 +2794,20 @@
 
     </div>
 
-
     <div class="modal-actions">
 
       <button
         type="button"
         id="cancelAnnouncementBtn"
         class="secondary-btn">
-
         انصراف
-
       </button>
-
 
       <button
         type="button"
         id="saveAnnouncementBtn"
         class="primary-btn">
-
         📢 انتشار اطلاعیه
-
       </button>
 
     </div>
@@ -2368,7 +2815,6 @@
   </div>
 
 </div>
-
 
 <!-- =========================================================
      COMPETITION MODAL
@@ -2395,21 +2841,16 @@
 
       </div>
 
-
       <button
         type="button"
         id="closeCompetitionModal"
         class="modal-close">
-
         ✕
-
       </button>
 
     </div>
 
-
     <div class="form-grid">
-
 
       <div class="form-group full-width">
 
@@ -2424,7 +2865,6 @@
 
       </div>
 
-
       <div class="form-group">
 
         <label for="competitionDate">
@@ -2436,7 +2876,6 @@
           id="competitionDate">
 
       </div>
-
 
       <div class="form-group">
 
@@ -2451,7 +2890,6 @@
 
       </div>
 
-
       <div class="form-group">
 
         <label for="competitionStartTime">
@@ -2464,7 +2902,6 @@
 
       </div>
 
-
       <div class="form-group">
 
         <label for="competitionEndTime">
@@ -2476,7 +2913,6 @@
           id="competitionEndTime">
 
       </div>
-
 
       <div class="form-group">
 
@@ -2491,7 +2927,6 @@
 
       </div>
 
-
       <div class="form-group">
 
         <label for="competitionWeights">
@@ -2504,7 +2939,6 @@
           placeholder="مثلاً ۵۵، ۶۰، ۶۶ کیلو">
 
       </div>
-
 
       <div class="form-group full-width">
 
@@ -2521,26 +2955,20 @@
 
     </div>
 
-
     <div class="modal-actions">
 
       <button
         type="button"
         id="cancelCompetitionBtn"
         class="secondary-btn">
-
         انصراف
-
       </button>
-
 
       <button
         type="button"
         id="saveCompetitionBtn"
         class="primary-btn">
-
         📅 ثبت مسابقه
-
       </button>
 
     </div>
@@ -2548,7 +2976,6 @@
   </div>
 
 </div>
-
 
 <!-- =========================================================
      RECORD MODAL
@@ -2575,21 +3002,16 @@
 
       </div>
 
-
       <button
         type="button"
         id="closeRecordModal"
         class="modal-close">
-
         ✕
-
       </button>
 
     </div>
 
-
     <div class="form-grid">
-
 
       <div class="form-group full-width">
 
@@ -2606,7 +3028,6 @@
         </select>
 
       </div>
-
 
       <div class="form-group">
 
@@ -2636,7 +3057,6 @@
 
       </div>
 
-
       <div class="form-group">
 
         <label for="recordTitle">
@@ -2649,7 +3069,6 @@
           placeholder="مثلاً دوی ۴۰۰ متر">
 
       </div>
-
 
       <div class="form-group">
 
@@ -2664,7 +3083,6 @@
 
       </div>
 
-
       <div class="form-group">
 
         <label for="recordUnit">
@@ -2678,7 +3096,6 @@
 
       </div>
 
-
       <div class="form-group">
 
         <label for="recordDate">
@@ -2690,7 +3107,6 @@
           id="recordDate">
 
       </div>
-
 
       <div class="form-group full-width">
 
@@ -2707,26 +3123,20 @@
 
     </div>
 
-
     <div class="modal-actions">
 
       <button
         type="button"
         id="cancelRecordBtn"
         class="secondary-btn">
-
         انصراف
-
       </button>
-
 
       <button
         type="button"
         id="saveRecordBtn"
         class="primary-btn">
-
         📈 ثبت رکورد
-
       </button>
 
     </div>
@@ -2735,13 +3145,11 @@
 
 </div>
 
-
 <!-- =========================================================
      COACH JAVASCRIPT
 ========================================================= -->
 
 <script src="coach.js?v=20260830-02"></script>
-
 
 <!-- =========================================================
      BASIC UI NAVIGATION
@@ -2753,7 +3161,6 @@ document.addEventListener(
   "DOMContentLoaded",
   function () {
 
-
     /* =====================================================
        MAIN NAVIGATION
     ====================================================== */
@@ -2764,7 +3171,6 @@ document.addEventListener(
     const pages =
       document.querySelectorAll(".coach-page");
 
-
     navItems.forEach(function (item) {
 
       item.addEventListener(
@@ -2774,7 +3180,6 @@ document.addEventListener(
           const pageName =
             item.dataset.page;
 
-
           navItems.forEach(function (nav) {
 
             nav.classList.remove(
@@ -2783,11 +3188,9 @@ document.addEventListener(
 
           });
 
-
           item.classList.add(
             "active"
           );
-
 
           pages.forEach(function (page) {
 
@@ -2797,12 +3200,10 @@ document.addEventListener(
 
           });
 
-
           const targetPage =
             document.getElementById(
               "page-" + pageName
             );
-
 
           if (targetPage) {
 
@@ -2817,7 +3218,6 @@ document.addEventListener(
 
     });
 
-
     /* =====================================================
        EVENTS TABS
     ====================================================== */
@@ -2827,18 +3227,15 @@ document.addEventListener(
         ".events-tab"
       );
 
-
     const announcementPanel =
       document.getElementById(
         "eventsPanelAnnouncements"
       );
 
-
     const competitionPanel =
       document.getElementById(
         "eventsPanelCompetitions"
       );
-
 
     eventTabs.forEach(function (tab) {
 
@@ -2849,7 +3246,6 @@ document.addEventListener(
           const target =
             tab.dataset.eventsTab;
 
-
           eventTabs.forEach(function (t) {
 
             t.classList.remove(
@@ -2858,11 +3254,9 @@ document.addEventListener(
 
           });
 
-
           tab.classList.add(
             "active"
           );
-
 
           if (announcementPanel) {
 
@@ -2872,7 +3266,6 @@ document.addEventListener(
 
           }
 
-
           if (competitionPanel) {
 
             competitionPanel.classList.remove(
@@ -2880,7 +3273,6 @@ document.addEventListener(
             );
 
           }
-
 
           if (
             target === "announcements" &&
@@ -2892,7 +3284,6 @@ document.addEventListener(
             );
 
           }
-
 
           if (
             target === "competitions" &&
@@ -2910,7 +3301,6 @@ document.addEventListener(
 
     });
 
-
     /* =====================================================
        ANNOUNCEMENT MODAL
     ====================================================== */
@@ -2920,24 +3310,20 @@ document.addEventListener(
         "announcementModal"
       );
 
-
     const addAnnouncementBtn =
       document.getElementById(
         "addAnnouncementBtn"
       );
-
 
     const closeAnnouncementModal =
       document.getElementById(
         "closeAnnouncementModal"
       );
 
-
     const cancelAnnouncementBtn =
       document.getElementById(
         "cancelAnnouncementBtn"
       );
-
 
     function openAnnouncementModal() {
 
@@ -2954,7 +3340,6 @@ document.addEventListener(
 
     }
 
-
     function closeAnnouncement() {
 
       if (!announcementModal) {
@@ -2970,7 +3355,6 @@ document.addEventListener(
 
     }
 
-
     if (addAnnouncementBtn) {
 
       addAnnouncementBtn.addEventListener(
@@ -2979,7 +3363,6 @@ document.addEventListener(
       );
 
     }
-
 
     if (closeAnnouncementModal) {
 
@@ -2990,7 +3373,6 @@ document.addEventListener(
 
     }
 
-
     if (cancelAnnouncementBtn) {
 
       cancelAnnouncementBtn.addEventListener(
@@ -2999,7 +3381,6 @@ document.addEventListener(
       );
 
     }
-
 
     if (announcementModal) {
 
@@ -3020,7 +3401,6 @@ document.addEventListener(
 
     }
 
-
     /* =====================================================
        COMPETITION MODAL
     ====================================================== */
@@ -3030,24 +3410,20 @@ document.addEventListener(
         "competitionModal"
       );
 
-
     const addCompetitionBtn =
       document.getElementById(
         "addCompetitionBtn"
       );
-
 
     const closeCompetitionModal =
       document.getElementById(
         "closeCompetitionModal"
       );
 
-
     const cancelCompetitionBtn =
       document.getElementById(
         "cancelCompetitionBtn"
       );
-
 
     function openCompetitionModal() {
 
@@ -3064,7 +3440,6 @@ document.addEventListener(
 
     }
 
-
     function closeCompetition() {
 
       if (!competitionModal) {
@@ -3080,7 +3455,6 @@ document.addEventListener(
 
     }
 
-
     if (addCompetitionBtn) {
 
       addCompetitionBtn.addEventListener(
@@ -3089,7 +3463,6 @@ document.addEventListener(
       );
 
     }
-
 
     if (closeCompetitionModal) {
 
@@ -3100,7 +3473,6 @@ document.addEventListener(
 
     }
 
-
     if (cancelCompetitionBtn) {
 
       cancelCompetitionBtn.addEventListener(
@@ -3109,7 +3481,6 @@ document.addEventListener(
       );
 
     }
-
 
     if (competitionModal) {
 
@@ -3130,7 +3501,6 @@ document.addEventListener(
 
     }
 
-
     /* =====================================================
        RECORD MODAL
     ====================================================== */
@@ -3140,24 +3510,20 @@ document.addEventListener(
         "recordModal"
       );
 
-
     const addRecordBtn =
       document.getElementById(
         "addRecordBtn"
       );
-
 
     const closeRecordModal =
       document.getElementById(
         "closeRecordModal"
       );
 
-
     const cancelRecordBtn =
       document.getElementById(
         "cancelRecordBtn"
       );
-
 
     function openRecordModal() {
 
@@ -3174,7 +3540,6 @@ document.addEventListener(
 
     }
 
-
     function closeRecord() {
 
       if (!recordModal) {
@@ -3190,7 +3555,6 @@ document.addEventListener(
 
     }
 
-
     if (addRecordBtn) {
 
       addRecordBtn.addEventListener(
@@ -3199,7 +3563,6 @@ document.addEventListener(
       );
 
     }
-
 
     if (closeRecordModal) {
 
@@ -3210,7 +3573,6 @@ document.addEventListener(
 
     }
 
-
     if (cancelRecordBtn) {
 
       cancelRecordBtn.addEventListener(
@@ -3219,7 +3581,6 @@ document.addEventListener(
       );
 
     }
-
 
     if (recordModal) {
 
@@ -3244,6 +3605,5 @@ document.addEventListener(
 
 </script>
 
-
 </body>
-</html>
+    </html>
