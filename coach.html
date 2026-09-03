@@ -12,7 +12,7 @@
     /* =========================================================
        JUDO TABIAT - COACH PANEL
        COMPLETE COACH.HTML
-       VERSION: 2026.08.31
+       VERSION: 2026.09.04
     ========================================================= */
 
     * {
@@ -45,6 +45,7 @@
       display: flex;
       background: #f5f7fa;
     }
+
 
     /* =========================================================
        SIDEBAR
@@ -136,6 +137,7 @@
       font-size: 18px;
     }
 
+
     /* =========================================================
        MAIN
     ========================================================= */
@@ -187,6 +189,7 @@
       padding: 28px;
     }
 
+
     /* =========================================================
        PAGES
     ========================================================= */
@@ -213,6 +216,7 @@
       color: #667085;
       font-size: 13px;
     }
+
 
     /* =========================================================
        CARDS
@@ -248,6 +252,7 @@
       font-size: 25px;
     }
 
+
     /* =========================================================
        BUTTONS
     ========================================================= */
@@ -282,6 +287,7 @@
       color: #dc2626;
     }
 
+
     /* =========================================================
        SECTION HEADER
     ========================================================= */
@@ -305,8 +311,9 @@
       font-size: 13px;
     }
 
+
     /* =========================================================
-       EVENTS TABS
+       EVENTS
     ========================================================= */
 
     .events-tabs {
@@ -342,10 +349,6 @@
     .events-panel.active {
       display: block;
     }
-
-    /* =========================================================
-       EVENT STATS
-    ========================================================= */
 
     .events-stats {
       display: grid;
@@ -388,6 +391,7 @@
       font-size: 23px;
     }
 
+
     /* =========================================================
        TOOLBAR
     ========================================================= */
@@ -425,6 +429,7 @@
     .events-toolbar select {
       min-width: 190px;
     }
+
 
     /* =========================================================
        EVENT LIST
@@ -554,6 +559,7 @@
       white-space: pre-wrap;
     }
 
+
     /* =========================================================
        EMPTY
     ========================================================= */
@@ -576,6 +582,7 @@
       color: #344054;
       font-size: 17px;
     }
+
 
     /* =========================================================
        ATHLETE LIST
@@ -621,6 +628,135 @@
     .athlete-meta-item strong {
       font-size: 12px;
     }
+
+
+    /* =========================================================
+       RANKING
+    ========================================================= */
+
+    .ranking-top-three {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .ranking-podium-card {
+      background: white;
+      border: 1px solid #e6e9ed;
+      border-radius: 18px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,.035);
+    }
+
+    .ranking-podium-card .ranking-medal {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .ranking-podium-card .ranking-position {
+      color: #667085;
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+
+    .ranking-podium-card h3 {
+      margin: 0 0 12px;
+      font-size: 17px;
+    }
+
+    .ranking-score {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 95px;
+      padding: 9px 14px;
+      border-radius: 10px;
+      background: #f3f4f6;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .ranking-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .ranking-row {
+      display: grid;
+      grid-template-columns: 70px 1fr repeat(5,100px);
+      align-items: center;
+      gap: 12px;
+      padding: 15px;
+      background: white;
+      border: 1px solid #e6e9ed;
+      border-radius: 14px;
+    }
+
+    .ranking-row-header {
+      background: #f8fafc;
+      font-weight: 800;
+      color: #475467;
+    }
+
+    .ranking-position-number {
+      font-size: 18px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .ranking-athlete-name {
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .ranking-stat {
+      text-align: center;
+    }
+
+    .ranking-stat span {
+      display: block;
+      color: #667085;
+      font-size: 10px;
+      margin-bottom: 4px;
+    }
+
+    .ranking-stat strong {
+      font-size: 13px;
+    }
+
+    .ranking-toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .ranking-toolbar select,
+    .ranking-toolbar input {
+      height: 44px;
+      border: 1px solid #dfe3e8;
+      border-radius: 11px;
+      background: white;
+      padding: 0 13px;
+      outline: none;
+      font-size: 13px;
+    }
+
+    .ranking-toolbar input {
+      flex: 1;
+    }
+
+    .ranking-info {
+      margin-top: 18px;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 14px;
+      color: #667085;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
 
     /* =========================================================
        RECORDS
@@ -713,6 +849,7 @@
       color: #dc2626;
     }
 
+
     /* =========================================================
        ACHIEVEMENTS
     ========================================================= */
@@ -741,6 +878,7 @@
       display: block;
       font-size: 26px;
     }
+
 
     /* =========================================================
        MODAL
@@ -857,6 +995,7 @@
       border-top: 1px solid #eef0f2;
     }
 
+
     /* =========================================================
        GENERIC CONTENT
     ========================================================= */
@@ -886,6 +1025,7 @@
       line-height: 1.8;
     }
 
+
     /* =========================================================
        STATUS
     ========================================================= */
@@ -898,11 +1038,12 @@
       color: #dc2626;
     }
 
+
     /* =========================================================
        MOBILE
     ========================================================= */
 
-    @media (max-width: 1100px) {
+    @media (max-width:1100px) {
 
       .athletes-grid {
         grid-template-columns: repeat(2,1fr);
@@ -910,7 +1051,8 @@
 
     }
 
-    @media (max-width: 900px) {
+
+    @media (max-width:900px) {
 
       .coach-sidebar {
         width: 220px;
@@ -932,9 +1074,22 @@
         grid-template-columns: 1fr;
       }
 
+      .ranking-top-three {
+        grid-template-columns: 1fr;
+      }
+
+      .ranking-row {
+        min-width: 750px;
+      }
+
+      .ranking-toolbar {
+        flex-direction: column;
+      }
+
     }
 
-    @media (max-width: 700px) {
+
+    @media (max-width:700px) {
 
       .coach-sidebar {
         position: fixed;
@@ -1038,14 +1193,20 @@
         width: 100%;
       }
 
+      .ranking-row {
+        min-width: 750px;
+      }
+
     }
 
   </style>
 </head>
 
+
 <body>
 
 <div class="coach-app">
+
 
   <!-- =======================================================
        SIDEBAR
@@ -1069,62 +1230,100 @@
 
     </div>
 
+
     <nav class="sidebar-nav">
 
       <button type="button"
               class="nav-item active"
               data-page="dashboard">
+
         <span class="nav-icon">📊</span>
         <span>داشبورد</span>
+
       </button>
+
 
       <button type="button"
               class="nav-item"
               data-page="athletes">
+
         <span class="nav-icon">👥</span>
         <span>ورزشکاران</span>
+
       </button>
+
 
       <button type="button"
               class="nav-item"
               data-page="evaluations">
+
         <span class="nav-icon">📈</span>
         <span>ارزیابی</span>
+
       </button>
+
+
+      <!-- ===================================================
+           RANKING
+      ==================================================== -->
+
+      <button type="button"
+              class="nav-item"
+              data-page="ranking">
+
+        <span class="nav-icon">🏅</span>
+        <span>رنکینگ ورزشکاران</span>
+
+      </button>
+
 
       <button type="button"
               class="nav-item"
               data-page="attendance">
+
         <span class="nav-icon">🟢</span>
         <span>حضور و غیاب</span>
+
       </button>
+
 
       <button type="button"
               class="nav-item"
               data-page="achievements">
+
         <span class="nav-icon">🏆</span>
         <span>مقام‌ها و افتخارات</span>
+
       </button>
+
 
       <button type="button"
               class="nav-item"
               data-page="events">
+
         <span class="nav-icon">📅</span>
         <span>مسابقات و اطلاعیه‌ها</span>
+
       </button>
+
 
       <button type="button"
               class="nav-item"
               data-page="records">
+
         <span class="nav-icon">📈</span>
         <span>آمار و رکوردها</span>
+
       </button>
+
 
       <button type="button"
               class="nav-item"
               data-page="settings">
+
         <span class="nav-icon">⚙️</span>
         <span>تنظیمات سایت</span>
+
       </button>
 
     </nav>
@@ -1138,11 +1337,13 @@
 
   <main class="coach-main">
 
+
     <header class="coach-topbar">
 
       <div class="topbar-title">
         پنل مربی طبیعت جودو
       </div>
+
 
       <div class="coach-user">
 
@@ -1169,7 +1370,9 @@
 
         <div class="page-header">
 
-          <h1>داشبورد</h1>
+          <h1>
+            داشبورد
+          </h1>
 
           <p>
             نمای کلی عملکرد و وضعیت باشگاه
@@ -1177,26 +1380,58 @@
 
         </div>
 
+
         <div class="dashboard-grid">
 
           <div class="dashboard-card">
-            <span>👥 ورزشکاران</span>
-            <strong id="dashboardAthletes">۰</strong>
+
+            <span>
+              👥 ورزشکاران
+            </span>
+
+            <strong id="dashboardAthletes">
+              ۰
+            </strong>
+
           </div>
 
-          <div class="dashboard-card">
-            <span>📊 ارزیابی‌ها</span>
-            <strong id="dashboardEvaluations">۰</strong>
-          </div>
 
           <div class="dashboard-card">
-            <span>🟢 حضور امروز</span>
-            <strong id="dashboardAttendance">۰</strong>
+
+            <span>
+              📊 ارزیابی‌ها
+            </span>
+
+            <strong id="dashboardEvaluations">
+              ۰
+            </strong>
+
           </div>
 
+
           <div class="dashboard-card">
-            <span>🏆 افتخارات</span>
-            <strong id="dashboardAchievements">۰</strong>
+
+            <span>
+              🟢 حضور امروز
+            </span>
+
+            <strong id="dashboardAttendance">
+              ۰
+            </strong>
+
+          </div>
+
+
+          <div class="dashboard-card">
+
+            <span>
+              🏆 افتخارات
+            </span>
+
+            <strong id="dashboardAchievements">
+              ۰
+            </strong>
+
           </div>
 
         </div>
@@ -1213,7 +1448,9 @@
 
         <div class="page-header">
 
-          <h1>ورزشکاران</h1>
+          <h1>
+            ورزشکاران
+          </h1>
 
           <p>
             مدیریت ورزشکاران باشگاه
@@ -1221,13 +1458,16 @@
 
         </div>
 
+
         <div class="content-card">
 
           <div class="section-header">
 
             <div>
 
-              <h2>👥 فهرست ورزشکاران</h2>
+              <h2>
+                👥 فهرست ورزشکاران
+              </h2>
 
               <p>
                 ورزشکاران ثبت‌شده در باشگاه
@@ -1235,14 +1475,18 @@
 
             </div>
 
+
             <button
               type="button"
               id="addAthleteBtn"
               class="primary-btn">
+
               ➕ افزودن ورزشکار
+
             </button>
 
           </div>
+
 
           <div id="athletesList">
 
@@ -1278,7 +1522,9 @@
 
         <div class="page-header">
 
-          <h1>ارزیابی</h1>
+          <h1>
+            ارزیابی
+          </h1>
 
           <p>
             مدیریت ارزیابی عملکرد ورزشکاران
@@ -1286,13 +1532,16 @@
 
         </div>
 
+
         <div class="content-card">
 
           <div class="section-header">
 
             <div>
 
-              <h2>📊 ارزیابی ورزشکاران</h2>
+              <h2>
+                📊 ارزیابی ورزشکاران
+              </h2>
 
               <p>
                 ثبت و مشاهده ارزیابی‌ها
@@ -1300,14 +1549,18 @@
 
             </div>
 
+
             <button
               type="button"
               id="addEvaluationBtn"
               class="primary-btn">
+
               ➕ ارزیابی جدید
+
             </button>
 
           </div>
+
 
           <div class="evaluation-empty">
 
@@ -1331,6 +1584,141 @@
 
 
       <!-- =====================================================
+           ATHLETE RANKING
+      ====================================================== -->
+
+      <section id="page-ranking"
+               class="coach-page">
+
+        <div class="page-header">
+
+          <h1>
+            🏅 رنکینگ ورزشکاران
+          </h1>
+
+          <p>
+            رتبه‌بندی ورزشکاران بر اساس عملکرد ثبت‌شده در باشگاه
+          </p>
+
+        </div>
+
+
+        <div class="content-card">
+
+          <div class="section-header">
+
+            <div>
+
+              <h2>
+                🏅 جدول رنکینگ
+              </h2>
+
+              <p>
+                رتبه ورزشکاران به‌صورت خودکار توسط سیستم محاسبه می‌شود.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <!-- RANKING FILTER -->
+
+          <div class="ranking-toolbar">
+
+            <input
+              type="search"
+              id="rankingSearch"
+              placeholder="🔎 جستجوی ورزشکار...">
+
+
+            <select id="rankingSort">
+
+              <option value="score">
+                ⭐ امتیاز کلی
+              </option>
+
+              <option value="evaluation">
+                📊 میانگین ارزیابی
+              </option>
+
+              <option value="achievements">
+                🏆 افتخارات
+              </option>
+
+              <option value="attendance">
+                🟢 حضور
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <!-- TOP THREE -->
+
+          <div
+            id="rankingTopThree"
+            class="ranking-top-three">
+
+            <div class="evaluation-empty">
+
+              <div class="evaluation-empty-icon">
+                🏅
+              </div>
+
+              <h2>
+                در حال بارگذاری رنکینگ...
+              </h2>
+
+              <p>
+                اطلاعات ورزشکاران در حال دریافت است.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <!-- FULL RANKING -->
+
+          <div
+            id="rankingList"
+            class="ranking-list">
+
+            <div class="evaluation-empty">
+
+              <div class="evaluation-empty-icon">
+                🏅
+              </div>
+
+              <h2>
+                هنوز رنکینگی محاسبه نشده است
+              </h2>
+
+              <p>
+                پس از دریافت اطلاعات ورزشکاران، جدول رنکینگ نمایش داده می‌شود.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="ranking-info">
+
+            ℹ️ رتبه‌بندی بر اساس اطلاعات واقعی ثبت‌شده در سیستم محاسبه می‌شود.
+            امتیاز نهایی، ارزیابی، افتخارات و سایر شاخص‌های فعال سیستم می‌توانند
+            در تعیین رتبه مورد استفاده قرار گیرند.
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================================
            ATTENDANCE
       ====================================================== -->
 
@@ -1339,7 +1727,9 @@
 
         <div class="page-header">
 
-          <h1>حضور و غیاب</h1>
+          <h1>
+            حضور و غیاب
+          </h1>
 
           <p>
             ثبت و مدیریت حضور ورزشکاران
@@ -1347,13 +1737,16 @@
 
         </div>
 
+
         <div class="content-card">
 
           <div class="section-header">
 
             <div>
 
-              <h2>🟢 حضور و غیاب</h2>
+              <h2>
+                🟢 حضور و غیاب
+              </h2>
 
               <p>
                 ثبت حضور جلسات تمرینی
@@ -1361,14 +1754,18 @@
 
             </div>
 
+
             <button
               type="button"
               id="addAttendanceBtn"
               class="primary-btn">
+
               ➕ ثبت حضور
+
             </button>
 
           </div>
+
 
           <div class="evaluation-empty">
 
@@ -1410,6 +1807,7 @@
 
         </div>
 
+
         <div class="content-card">
 
           <div class="section-header">
@@ -1426,22 +1824,30 @@
 
             </div>
 
+
             <button
               type="button"
               id="addAchievementBtn"
               class="primary-btn">
+
               ➕ ثبت افتخار
+
             </button>
 
           </div>
+
 
           <div class="achievement-stats">
 
             <div class="achievement-stat">
 
-              <div class="medal">🥇</div>
+              <div class="medal">
+                🥇
+              </div>
 
-              <span>طلا</span>
+              <span>
+                طلا
+              </span>
 
               <strong id="goldAchievements">
                 ۰
@@ -1449,11 +1855,16 @@
 
             </div>
 
+
             <div class="achievement-stat">
 
-              <div class="medal">🥈</div>
+              <div class="medal">
+                🥈
+              </div>
 
-              <span>نقره</span>
+              <span>
+                نقره
+              </span>
 
               <strong id="silverAchievements">
                 ۰
@@ -1461,11 +1872,16 @@
 
             </div>
 
+
             <div class="achievement-stat">
 
-              <div class="medal">🥉</div>
+              <div class="medal">
+                🥉
+              </div>
 
-              <span>برنز</span>
+              <span>
+                برنز
+              </span>
 
               <strong id="bronzeAchievements">
                 ۰
@@ -1474,6 +1890,7 @@
             </div>
 
           </div>
+
 
           <div id="achievementsList">
 
@@ -1526,14 +1943,19 @@
             type="button"
             class="events-tab active"
             data-events-tab="announcements">
+
             📢 اطلاعیه‌ها
+
           </button>
+
 
           <button
             type="button"
             class="events-tab"
             data-events-tab="competitions">
+
             📅 مسابقات
+
           </button>
 
         </div>
@@ -1559,11 +1981,14 @@
 
             </div>
 
+
             <button
               type="button"
               id="addAnnouncementBtn"
               class="primary-btn">
+
               ➕ افزودن اطلاعیه
+
             </button>
 
           </div>
@@ -1579,7 +2004,9 @@
 
               <div>
 
-                <span>کل اطلاعیه‌ها</span>
+                <span>
+                  کل اطلاعیه‌ها
+                </span>
 
                 <strong id="totalAnnouncements">
                   ۰
@@ -1598,7 +2025,9 @@
 
               <div>
 
-                <span>فعال</span>
+                <span>
+                  فعال
+                </span>
 
                 <strong id="activeAnnouncements">
                   ۰
@@ -1617,7 +2046,9 @@
 
               <div>
 
-                <span>برنامه‌های پیش‌رو</span>
+                <span>
+                  برنامه‌های پیش‌رو
+                </span>
 
                 <strong id="upcomingAnnouncements">
                   ۰
@@ -1636,6 +2067,7 @@
               type="search"
               id="announcementSearch"
               placeholder="🔎 جستجو در اطلاعیه‌ها...">
+
 
             <select id="announcementFilter">
 
@@ -1721,11 +2153,14 @@
 
             </div>
 
+
             <button
               type="button"
               id="addCompetitionBtn"
               class="primary-btn">
+
               ➕ افزودن مسابقه
+
             </button>
 
           </div>
@@ -1741,7 +2176,9 @@
 
               <div>
 
-                <span>کل مسابقات</span>
+                <span>
+                  کل مسابقات
+                </span>
 
                 <strong id="totalCompetitions">
                   ۰
@@ -1760,7 +2197,9 @@
 
               <div>
 
-                <span>مسابقات پیش‌رو</span>
+                <span>
+                  مسابقات پیش‌رو
+                </span>
 
                 <strong id="upcomingCompetitions">
                   ۰
@@ -1779,7 +2218,9 @@
 
               <div>
 
-                <span>برگزارشده</span>
+                <span>
+                  برگزارشده
+                </span>
 
                 <strong id="completedCompetitions">
                   ۰
@@ -1798,6 +2239,7 @@
               type="search"
               id="competitionSearch"
               placeholder="🔎 جستجو در مسابقات...">
+
 
             <select id="competitionFilter">
 
@@ -1850,7 +2292,7 @@
 
 
       <!-- =====================================================
-           RECORDS & STATISTICS
+           RECORDS
       ====================================================== -->
 
       <section id="page-records"
@@ -2009,11 +2451,14 @@
 
             </div>
 
+
             <button
               type="button"
               id="addRecordBtn"
               class="primary-btn">
+
               ➕ ثبت رکورد
+
             </button>
 
           </div>
@@ -2025,6 +2470,7 @@
               type="search"
               id="recordSearch"
               placeholder="🔎 جستجو در رکوردها...">
+
 
             <select id="recordTypeFilter">
 
@@ -2089,7 +2535,9 @@
 
         <div class="page-header">
 
-          <h1>⚙️ تنظیمات سایت</h1>
+          <h1>
+            ⚙️ تنظیمات سایت
+          </h1>
 
           <p>
             مدیریت اطلاعات باشگاه، مربیان، ارزیابی، نمایش سایت و امنیت
@@ -2106,7 +2554,9 @@
 
             <div>
 
-              <h2>🏢 اطلاعات باشگاه</h2>
+              <h2>
+                🏢 اطلاعات باشگاه
+              </h2>
 
               <p>
                 اطلاعات اصلی باشگاه و سایت را مدیریت کنید.
@@ -2196,7 +2646,9 @@
               type="button"
               id="saveClubSettingsBtn"
               class="primary-btn">
+
               💾 ذخیره اطلاعات باشگاه
+
             </button>
 
           </div>
@@ -2214,7 +2666,9 @@
 
             <div>
 
-              <h2>👥 مربیان</h2>
+              <h2>
+                👥 مربیان
+              </h2>
 
               <p>
                 چهار حساب مستقل برای مربیان باشگاه.
@@ -2229,7 +2683,9 @@
 
             <div class="simple-box">
 
-              <h3>👤 مربی اول</h3>
+              <h3>
+                👤 مربی اول
+              </h3>
 
               <div class="form-group">
 
@@ -2246,19 +2702,27 @@
 
               <p>
                 وضعیت:
-                <strong id="coach1Status">فعال</strong>
+                <strong id="coach1Status">
+                  فعال
+                </strong>
               </p>
 
-              <p>🔐 ورود مستقل</p>
+              <p>
+                🔐 ورود مستقل
+              </p>
 
-              <p>✅ دسترسی کامل</p>
+              <p>
+                ✅ دسترسی کامل
+              </p>
 
             </div>
 
 
             <div class="simple-box">
 
-              <h3>👤 مربی دوم</h3>
+              <h3>
+                👤 مربی دوم
+              </h3>
 
               <div class="form-group">
 
@@ -2275,19 +2739,27 @@
 
               <p>
                 وضعیت:
-                <strong id="coach2Status">فعال</strong>
+                <strong id="coach2Status">
+                  فعال
+                </strong>
               </p>
 
-              <p>🔐 ورود مستقل</p>
+              <p>
+                🔐 ورود مستقل
+              </p>
 
-              <p>✅ دسترسی کامل</p>
+              <p>
+                ✅ دسترسی کامل
+              </p>
 
             </div>
 
 
             <div class="simple-box">
 
-              <h3>👤 مربی سوم</h3>
+              <h3>
+                👤 مربی سوم
+              </h3>
 
               <div class="form-group">
 
@@ -2304,19 +2776,27 @@
 
               <p>
                 وضعیت:
-                <strong id="coach3Status">فعال</strong>
+                <strong id="coach3Status">
+                  فعال
+                </strong>
               </p>
 
-              <p>🔐 ورود مستقل</p>
+              <p>
+                🔐 ورود مستقل
+              </p>
 
-              <p>✅ دسترسی کامل</p>
+              <p>
+                ✅ دسترسی کامل
+              </p>
 
             </div>
 
 
             <div class="simple-box">
 
-              <h3>👤 مربی چهارم</h3>
+              <h3>
+                👤 مربی چهارم
+              </h3>
 
               <div class="form-group">
 
@@ -2333,12 +2813,18 @@
 
               <p>
                 وضعیت:
-                <strong id="coach4Status">فعال</strong>
+                <strong id="coach4Status">
+                  فعال
+                </strong>
               </p>
 
-              <p>🔐 ورود مستقل</p>
+              <p>
+                🔐 ورود مستقل
+              </p>
 
-              <p>✅ دسترسی کامل</p>
+              <p>
+                ✅ دسترسی کامل
+              </p>
 
             </div>
 
@@ -2351,7 +2837,9 @@
               type="button"
               id="saveCoachesSettingsBtn"
               class="primary-btn">
+
               💾 ذخیره مربیان
+
             </button>
 
           </div>
@@ -2369,7 +2857,9 @@
 
             <div>
 
-              <h2>👤 حساب مربی</h2>
+              <h2>
+                👤 حساب مربی
+              </h2>
 
               <p>
                 اطلاعات حساب مربی واردشده.
@@ -2418,14 +2908,19 @@
               type="button"
               id="changeCoachPasswordBtn"
               class="secondary-btn">
+
               🔑 تغییر رمز
+
             </button>
+
 
             <button
               type="button"
               id="coachLogoutBtn"
               class="danger-btn">
+
               🚪 خروج از حساب
+
             </button>
 
           </div>
@@ -2443,7 +2938,9 @@
 
             <div>
 
-              <h2>👥 نمایش اطلاعات ورزشکار</h2>
+              <h2>
+                👥 نمایش اطلاعات ورزشکار
+              </h2>
 
               <p>
                 مشخص کنید چه اطلاعاتی در صفحه ورزشکار نمایش داده شود.
@@ -2458,17 +2955,17 @@
 
             <div class="simple-box">
 
-              <h3>⚖️ وزن</h3>
+              <h3>
+                ⚖️ وزن
+              </h3>
 
               <label>
-
                 <input
                   type="checkbox"
                   id="showAthleteWeight"
                   checked>
 
                 نمایش وزن
-
               </label>
 
             </div>
@@ -2476,7 +2973,9 @@
 
             <div class="simple-box">
 
-              <h3>🥋 کمربند</h3>
+              <h3>
+                🥋 کمربند
+              </h3>
 
               <label>
 
@@ -2494,7 +2993,9 @@
 
             <div class="simple-box">
 
-              <h3>📊 ارزیابی</h3>
+              <h3>
+                📊 ارزیابی
+              </h3>
 
               <label>
 
@@ -2512,7 +3013,9 @@
 
             <div class="simple-box">
 
-              <h3>🏆 افتخارات</h3>
+              <h3>
+                🏆 افتخارات
+              </h3>
 
               <label>
 
@@ -2530,7 +3033,9 @@
 
             <div class="simple-box">
 
-              <h3>🟢 حضور و غیاب</h3>
+              <h3>
+                🟢 حضور و غیاب
+              </h3>
 
               <label>
 
@@ -2548,7 +3053,9 @@
 
             <div class="simple-box">
 
-              <h3>📈 رکوردها</h3>
+              <h3>
+                📈 رکوردها
+              </h3>
 
               <label>
 
@@ -2572,7 +3079,9 @@
               type="button"
               id="saveAthleteVisibilityBtn"
               class="primary-btn">
+
               💾 ذخیره تنظیمات نمایش
+
             </button>
 
           </div>
@@ -2590,7 +3099,9 @@
 
             <div>
 
-              <h2>📊 ارزیابی</h2>
+              <h2>
+                📊 ارزیابی
+              </h2>
 
               <p>
                 تنظیمات سیستم ارزیابی عملکرد ورزشکاران.
@@ -2605,10 +3116,14 @@
 
             <div class="simple-box">
 
-              <h3>🔢 مقیاس امتیاز</h3>
+              <h3>
+                🔢 مقیاس امتیاز
+              </h3>
 
               <p>
-                <strong>۰ تا ۱۰</strong>
+                <strong>
+                  ۰ تا ۱۰
+                </strong>
               </p>
 
               <small>
@@ -2620,10 +3135,14 @@
 
             <div class="simple-box">
 
-              <h3>⚖️ معیارهای برابر</h3>
+              <h3>
+                ⚖️ معیارهای برابر
+              </h3>
 
               <p>
-                <strong>فعال</strong>
+                <strong>
+                  فعال
+                </strong>
               </p>
 
               <small>
@@ -2635,10 +3154,14 @@
 
             <div class="simple-box">
 
-              <h3>🚫 ضریب</h3>
+              <h3>
+                🚫 ضریب
+              </h3>
 
               <p>
-                <strong>بدون ضریب</strong>
+                <strong>
+                  بدون ضریب
+                </strong>
               </p>
 
               <small>
@@ -2687,7 +3210,9 @@
               type="button"
               id="saveEvaluationSettingsBtn"
               class="primary-btn">
+
               💾 ذخیره تنظیمات ارزیابی
+
             </button>
 
           </div>
@@ -2705,7 +3230,9 @@
 
             <div>
 
-              <h2>🎨 ظاهر سایت</h2>
+              <h2>
+                🎨 ظاهر سایت
+              </h2>
 
               <p>
                 اطلاعات ظاهری و برند سایت را مدیریت کنید.
@@ -2767,7 +3294,9 @@
               type="button"
               id="saveAppearanceSettingsBtn"
               class="primary-btn">
+
               💾 ذخیره ظاهر سایت
+
             </button>
 
           </div>
@@ -2785,7 +3314,9 @@
 
             <div>
 
-              <h2>🔐 امنیت</h2>
+              <h2>
+                🔐 امنیت
+              </h2>
 
               <p>
                 وضعیت اتصال و مدیریت دسترسی حساب‌ها.
@@ -2800,7 +3331,9 @@
 
             <div class="simple-box">
 
-              <h3>☁️ اتصال Supabase</h3>
+              <h3>
+                ☁️ اتصال Supabase
+              </h3>
 
               <p>
 
@@ -2817,7 +3350,9 @@
 
             <div class="simple-box">
 
-              <h3>👤 وضعیت حساب</h3>
+              <h3>
+                👤 وضعیت حساب
+              </h3>
 
               <p>
 
@@ -2834,7 +3369,9 @@
 
             <div class="simple-box">
 
-              <h3>🔐 مدیریت ورود</h3>
+              <h3>
+                🔐 مدیریت ورود
+              </h3>
 
               <p>
                 ورود مربیان با حساب مستقل
@@ -2857,6 +3394,7 @@
         </div>
 
       </section>
+
 
     </div>
 
@@ -2890,11 +3428,14 @@
 
       </div>
 
+
       <button
         type="button"
         id="closeAnnouncementModal"
         class="modal-close">
+
         ✕
+
       </button>
 
     </div>
@@ -3032,14 +3573,19 @@
         type="button"
         id="cancelAnnouncementBtn"
         class="secondary-btn">
+
         انصراف
+
       </button>
+
 
       <button
         type="button"
         id="saveAnnouncementBtn"
         class="primary-btn">
+
         📢 انتشار اطلاعیه
+
       </button>
 
     </div>
@@ -3074,11 +3620,14 @@
 
       </div>
 
+
       <button
         type="button"
         id="closeCompetitionModal"
         class="modal-close">
+
         ✕
+
       </button>
 
     </div>
@@ -3203,14 +3752,19 @@
         type="button"
         id="cancelCompetitionBtn"
         class="secondary-btn">
+
         انصراف
+
       </button>
+
 
       <button
         type="button"
         id="saveCompetitionBtn"
         class="primary-btn">
+
         📅 ثبت مسابقه
+
       </button>
 
     </div>
@@ -3245,11 +3799,14 @@
 
       </div>
 
+
       <button
         type="button"
         id="closeRecordModal"
         class="modal-close">
+
         ✕
+
       </button>
 
     </div>
@@ -3380,14 +3937,19 @@
         type="button"
         id="cancelRecordBtn"
         class="secondary-btn">
+
         انصراف
+
       </button>
+
 
       <button
         type="button"
         id="saveRecordBtn"
         class="primary-btn">
+
         📈 ثبت رکورد
+
       </button>
 
     </div>
@@ -3399,9 +3961,6 @@
 
 <!-- =========================================================
      SUPABASE
-     IMPORTANT:
-     Publishable / Anon key only
-     NEVER put service_role key here.
 ========================================================= -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3421,7 +3980,7 @@
      COACH JAVASCRIPT
 ========================================================= -->
 
-<script src="coach.js?v=20260831-01"></script>
+<script src="coach.js?v=20260904-01"></script>
 
 
 <!-- =========================================================
@@ -3626,11 +4185,9 @@ document.addEventListener(
         return;
       }
 
-
       announcementModal.classList.remove(
         "hidden"
       );
-
 
       announcementModal.style.display =
         "flex";
@@ -3644,11 +4201,9 @@ document.addEventListener(
         return;
       }
 
-
       announcementModal.classList.add(
         "hidden"
       );
-
 
       announcementModal.style.display =
         "none";
@@ -3728,4 +4283,272 @@ document.addEventListener(
       );
 
 
-    const cancelCompetition
+    const cancelCompetitionBtn =
+      document.getElementById(
+        "cancelCompetitionBtn"
+      );
+
+
+    function openCompetitionModal() {
+
+      if (!competitionModal) {
+        return;
+      }
+
+      competitionModal.classList.remove(
+        "hidden"
+      );
+
+      competitionModal.style.display =
+        "flex";
+
+    }
+
+
+    function closeCompetition() {
+
+      if (!competitionModal) {
+        return;
+      }
+
+      competitionModal.classList.add(
+        "hidden"
+      );
+
+      competitionModal.style.display =
+        "none";
+
+    }
+
+
+    if (addCompetitionBtn) {
+
+      addCompetitionBtn.addEventListener(
+        "click",
+        openCompetitionModal
+      );
+
+    }
+
+
+    if (closeCompetitionModal) {
+
+      closeCompetitionModal.addEventListener(
+        "click",
+        closeCompetition
+      );
+
+    }
+
+
+    if (cancelCompetitionBtn) {
+
+      cancelCompetitionBtn.addEventListener(
+        "click",
+        closeCompetition
+      );
+
+    }
+
+
+    if (competitionModal) {
+
+      competitionModal.addEventListener(
+        "click",
+        function (event) {
+
+          if (
+            event.target === competitionModal
+          ) {
+
+            closeCompetition();
+
+          }
+
+        }
+      );
+
+    }
+
+
+    /* =====================================================
+       RECORD MODAL
+    ====================================================== */
+
+    const recordModal =
+      document.getElementById(
+        "recordModal"
+      );
+
+
+    const addRecordBtn =
+      document.getElementById(
+        "addRecordBtn"
+      );
+
+
+    const closeRecordModal =
+      document.getElementById(
+        "closeRecordModal"
+      );
+
+
+    const cancelRecordBtn =
+      document.getElementById(
+        "cancelRecordBtn"
+      );
+
+
+    function openRecordModal() {
+
+      if (!recordModal) {
+        return;
+      }
+
+      recordModal.classList.remove(
+        "hidden"
+      );
+
+      recordModal.style.display =
+        "flex";
+
+    }
+
+
+    function closeRecord() {
+
+      if (!recordModal) {
+        return;
+      }
+
+      recordModal.classList.add(
+        "hidden"
+      );
+
+      recordModal.style.display =
+        "none";
+
+    }
+
+
+    if (addRecordBtn) {
+
+      addRecordBtn.addEventListener(
+        "click",
+        openRecordModal
+      );
+
+    }
+
+
+    if (closeRecordModal) {
+
+      closeRecordModal.addEventListener(
+        "click",
+        closeRecord
+      );
+
+    }
+
+
+    if (cancelRecordBtn) {
+
+      cancelRecordBtn.addEventListener(
+        "click",
+        closeRecord
+      );
+
+    }
+
+
+    if (recordModal) {
+
+      recordModal.addEventListener(
+        "click",
+        function (event) {
+
+          if (
+            event.target === recordModal
+          ) {
+
+            closeRecord();
+
+          }
+
+        }
+      );
+
+    }
+
+
+    /* =====================================================
+       RANKING SEARCH / SORT UI
+    ====================================================== */
+
+    const rankingSearch =
+      document.getElementById(
+        "rankingSearch"
+      );
+
+
+    const rankingSort =
+      document.getElementById(
+        "rankingSort"
+      );
+
+
+    if (rankingSearch) {
+
+      rankingSearch.addEventListener(
+        "input",
+        function () {
+
+          document.dispatchEvent(
+            new CustomEvent(
+              "rankingSearchChanged",
+              {
+                detail: {
+                  value:
+                    rankingSearch.value
+                }
+              }
+            )
+          );
+
+        }
+      );
+
+    }
+
+
+    if (rankingSort) {
+
+      rankingSort.addEventListener(
+        "change",
+        function () {
+
+          document.dispatchEvent(
+            new CustomEvent(
+              "rankingSortChanged",
+              {
+                detail: {
+                  value:
+                    rankingSort.value
+                }
+              }
+            )
+          );
+
+        }
+      );
+
+    }
+
+  }
+
+);
+
+</script>
+
+</body>
+            </html>
