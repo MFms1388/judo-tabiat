@@ -1,8 +1,13 @@
 /* =========================================================
-   JUDO TABIAT - PUBLIC WEBSITE
+   JUDO TABIAT - PUBLIC HOME
    app.js
-   PUBLIC ATHLETES
-========================================================= */
+
+   صفحه اصلی:
+   فقط ورود به سامانه
+
+   توجه:
+   بخش ورزشکاران در این فایل نمایش داده نمی‌شود.
+   ========================================================= */
 
 (() => {
 
@@ -17,9 +22,10 @@
     "https://bkkdgywdptufjsaepehc.supabase.co";
 
   /*
-     کلید عمومی Supabase را اینجا قرار بده.
-     اگر قبلاً در پروژه‌ات window.SUPABASE_KEY
-     تعریف شده باشد، همان استفاده می‌شود.
+     کلید عمومی پروژه را اگر قبلاً در پروژه
+     تعریف کرده‌ای از window.SUPABASE_KEY می‌خوانیم.
+
+     هرگز service_role / secret key را اینجا قرار نده.
   */
 
   const SUPABASE_KEY =
@@ -31,7 +37,8 @@
 
   if (
     window.supabase &&
-    typeof window.supabase.createClient === "function" &&
+    typeof window.supabase.createClient ===
+      "function" &&
     SUPABASE_KEY
   ) {
 
@@ -52,574 +59,33 @@
     document.getElementById(id);
 
 
-  function escapeHTML(value) {
+  function showModal() {
 
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+    const modal =
+      $("loginModal");
 
-  }
-
-
-  function getAthleteName(athlete) {
-
-    if (!athlete) {
-      return "ورزشکار";
+    if (!modal) {
+      return;
     }
 
-    return (
-      athlete.name ||
-      athlete.full_name ||
-      athlete.fullName ||
-      [
-        athlete.first_name,
-        athlete.last_name
-      ]
-        .filter(Boolean)
-        .join(" ") ||
-      "ورزشکار"
+    modal.classList.remove(
+      "hidden"
     );
 
   }
 
 
-  /* =======================================================
-     FALLBACK ATHLETE
-     محمد احمدی
-  ======================================================= */
+  function hideModal() {
 
-  function getFallbackAthlete() {
+    const modal =
+      $("loginModal");
 
-    return {
-
-      id:
-        "mohammad-ahmadi",
-
-      name:
-        "محمد احمدی",
-
-      full_name:
-        "محمد احمدی",
-
-      belt:
-        "جودو",
-
-      category:
-        "ورزشکار",
-
-      age_group:
-        "",
-
-      weight:
-        "",
-
-      photo:
-        "",
-
-      is_demo:
-        true
-
-    };
-
-  }
-
-
-  /* =======================================================
-     LOAD ATHLETES
-  ======================================================= */
-
-  async function loadAthletes() {
-
-    const container =
-      $("athletesGrid");
-
-
-    if (!container) {
-
-      console.error(
-        "athletesGrid در index.html پیدا نشد."
-      );
-
-      return;
-
-    }
-
-
-    let athletes = [];
-
-
-    /* -------------------------------------------------------
-       دریافت اطلاعات واقعی از Supabase
-    ------------------------------------------------------- */
-
-    if (supabaseClient) {
-
-      try {
-
-        const result =
-          await supabaseClient
-            .from("athletes")
-            .select("*");
-
-
-        if (result.error) {
-
-          console.warn(
-            "Supabase athletes:",
-            result.error
-          );
-
-        } else {
-
-          athletes =
-            Array.isArray(
-              result.data
-            )
-              ? result.data
-              : [];
-
-        }
-
-      }
-
-      catch (error) {
-
-        console.error(
-          "Athletes request failed:",
-          error
-        );
-
-      }
-
-    }
-
-
-    /* -------------------------------------------------------
-       اطمینان از وجود محمد احمدی
-    ------------------------------------------------------- */
-
-    const mohammadExists =
-      athletes.some(
-        athlete =>
-          getAthleteName(
-            athlete
-          )
-            .trim()
-            .replace(
-              /\s+/g,
-              " "
-            ) ===
-          "محمد احمدی"
-      );
-
-
-    if (!mohammadExists) {
-
-      athletes.unshift(
-        getFallbackAthlete()
-      );
-
-    }
-
-
-    renderAthletes(
-      athletes
-    );
-
-
-    setupAthleteSearch(
-      athletes
-    );
-
-  }
-
-
-  /* =======================================================
-     RENDER ATHLETES
-  ======================================================= */
-
-  function renderAthletes(
-    athletes
-  ) {
-
-    const container =
-      $("athletesGrid");
-
-
-    if (!container) {
+    if (!modal) {
       return;
     }
 
-
-    if (!athletes.length) {
-
-      container.innerHTML = `
-
-        <div class="public-empty">
-
-          <div>
-            🥋
-          </div>
-
-          <h3>
-            هنوز ورزشکاری ثبت نشده است
-          </h3>
-
-          <p>
-            ورزشکاران باشگاه در این بخش نمایش داده می‌شوند.
-          </p>
-
-        </div>
-
-      `;
-
-      return;
-
-    }
-
-
-    container.innerHTML =
-      athletes
-        .map(
-          athlete => {
-
-            const name =
-              getAthleteName(
-                athlete
-              );
-
-
-            const photo =
-              athlete.photo ||
-              athlete.avatar_url ||
-              athlete.image_url ||
-              "";
-
-
-            return `
-
-              <article
-                class="athlete-card"
-                data-athlete-id="${escapeHTML(
-                  athlete.id
-                )}"
-              >
-
-                <div class="athlete-card-image">
-
-                  ${
-                    photo
-
-                      ? `
-
-                        <img
-                          src="${escapeHTML(
-                            photo
-                          )}"
-                          alt="${escapeHTML(
-                            name
-                          )}"
-                          loading="lazy"
-                        >
-
-                      `
-
-                      : `
-
-                        <div
-                          class="athlete-placeholder"
-                        >
-                          🥋
-                        </div>
-
-                      `
-                  }
-
-                </div>
-
-
-                <div
-                  class="athlete-card-content"
-                >
-
-                  <span
-                    class="athlete-card-label"
-                  >
-                    JUDO TABIAT
-                  </span>
-
-
-                  <h3>
-                    ${escapeHTML(
-                      name
-                    )}
-                  </h3>
-
-
-                  ${
-                    athlete.belt
-
-                      ? `
-
-                        <div
-                          class="athlete-info"
-                        >
-                          🥋
-                          کمربند:
-                          ${escapeHTML(
-                            athlete.belt
-                          )}
-                        </div>
-
-                      `
-
-                      : ""
-                  }
-
-
-                  ${
-                    athlete.weight
-
-                      ? `
-
-                        <div
-                          class="athlete-info"
-                        >
-                          ⚖️
-                          وزن:
-                          ${escapeHTML(
-                            athlete.weight
-                          )}
-                        </div>
-
-                      `
-
-                      : ""
-                  }
-
-
-                  ${
-                    athlete.age_group
-
-                      ? `
-
-                        <div
-                          class="athlete-info"
-                        >
-                          👤
-                          رده:
-                          ${escapeHTML(
-                            athlete.age_group
-                          )}
-                        </div>
-
-                      `
-
-                      : ""
-                  }
-
-
-                  <button
-                    type="button"
-                    class="athlete-view-btn"
-                    data-profile-id="${escapeHTML(
-                      athlete.id
-                    )}"
-                  >
-                    مشاهده پروفایل
-                  </button>
-
-                </div>
-
-              </article>
-
-            `;
-
-          }
-        )
-        .join("");
-
-
-    bindAthleteButtons(
-      athletes
-    );
-
-  }
-
-
-  /* =======================================================
-     SEARCH
-  ======================================================= */
-
-  function setupAthleteSearch(
-    athletes
-  ) {
-
-    const search =
-      $("athleteSearch");
-
-
-    if (!search) {
-      return;
-    }
-
-
-    if (
-      search.dataset
-        .initialized ===
-      "true"
-    ) {
-      return;
-    }
-
-
-    search.dataset
-      .initialized =
-      "true";
-
-
-    search.addEventListener(
-      "input",
-      () => {
-
-        const value =
-          search.value
-            .trim()
-            .toLowerCase();
-
-
-        if (!value) {
-
-          renderAthletes(
-            athletes
-          );
-
-          return;
-
-        }
-
-
-        const filtered =
-          athletes.filter(
-            athlete => {
-
-              const text =
-                [
-                  getAthleteName(
-                    athlete
-                  ),
-
-                  athlete.belt,
-
-                  athlete.category,
-
-                  athlete.age_group,
-
-                  athlete.weight
-
-                ]
-                  .filter(Boolean)
-                  .join(" ")
-                  .toLowerCase();
-
-
-              return text.includes(
-                value
-              );
-
-            }
-          );
-
-
-        renderAthletes(
-          filtered
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =======================================================
-     PROFILE BUTTONS
-  ======================================================= */
-
-  function bindAthleteButtons(
-    athletes
-  ) {
-
-    document
-      .querySelectorAll(
-        "[data-profile-id]"
-      )
-      .forEach(
-        button => {
-
-          button.addEventListener(
-            "click",
-            () => {
-
-              const id =
-                button.dataset
-                  .profileId;
-
-
-              const athlete =
-                athletes.find(
-                  item =>
-                    String(
-                      item.id
-                    ) ===
-                    String(id)
-                );
-
-
-              if (!athlete) {
-                return;
-              }
-
-
-              showAthleteProfile(
-                athlete
-              );
-
-            }
-          );
-
-        }
-      );
-
-  }
-
-
-  /* =======================================================
-     PROFILE
-  ======================================================= */
-
-  function showAthleteProfile(
-    athlete
-  ) {
-
-    const name =
-      getAthleteName(
-        athlete
-      );
-
-
-    /*
-       فعلاً برای اطمینان از عملکرد،
-       پروفایل را به شکل پیام نشان می‌دهیم.
-       مرحله بعد می‌توانیم صفحه کامل پروفایل
-       محمد احمدی را وصل کنیم.
-    */
-
-    alert(
-      "پروفایل ورزشکار\n\n" +
-      name
+    modal.classList.add(
+      "hidden"
     );
 
   }
@@ -634,25 +100,38 @@
     const loginBtn =
       $("loginBtn");
 
-    const loginModal =
-      $("loginModal");
-
     const closeModal =
       $("closeModal");
 
+    const loginSubmit =
+      $("loginSubmit");
 
-    if (
-      loginBtn &&
-      loginModal
-    ) {
+
+    /* -----------------------------------------------
+       OPEN LOGIN
+    ----------------------------------------------- */
+
+    if (loginBtn) {
 
       loginBtn.addEventListener(
         "click",
         () => {
 
-          loginModal.classList.remove(
-            "hidden"
-          );
+          showModal();
+
+          const username =
+            $("username");
+
+          if (username) {
+
+            setTimeout(
+              () => {
+                username.focus();
+              },
+              100
+            );
+
+          }
 
         }
       );
@@ -660,39 +139,102 @@
     }
 
 
-    if (
-      closeModal &&
-      loginModal
-    ) {
+    /* -----------------------------------------------
+       CLOSE LOGIN
+    ----------------------------------------------- */
+
+    if (closeModal) {
 
       closeModal.addEventListener(
         "click",
-        () => {
-
-          loginModal.classList.add(
-            "hidden"
-          );
-
-        }
+        hideModal
       );
 
     }
 
 
-    if (loginModal) {
+    /* -----------------------------------------------
+       CLICK OUTSIDE
+    ----------------------------------------------- */
 
-      loginModal.addEventListener(
+    const modal =
+      $("loginModal");
+
+    if (modal) {
+
+      modal.addEventListener(
         "click",
         event => {
 
           if (
             event.target ===
-            loginModal
+            modal
           ) {
 
-            loginModal.classList.add(
-              "hidden"
-            );
+            hideModal();
+
+          }
+
+        }
+      );
+
+    }
+
+
+    /* -----------------------------------------------
+       ESC
+    ----------------------------------------------- */
+
+    document.addEventListener(
+      "keydown",
+      event => {
+
+        if (
+          event.key ===
+          "Escape"
+        ) {
+
+          hideModal();
+
+        }
+
+      }
+    );
+
+
+    /* -----------------------------------------------
+       LOGIN SUBMIT
+    ----------------------------------------------- */
+
+    if (loginSubmit) {
+
+      loginSubmit.addEventListener(
+        "click",
+        handleLogin
+      );
+
+    }
+
+
+    /* -----------------------------------------------
+       ENTER KEY
+    ----------------------------------------------- */
+
+    const password =
+      $("password");
+
+    if (password) {
+
+      password.addEventListener(
+        "keydown",
+        event => {
+
+          if (
+            event.key ===
+            "Enter"
+          ) {
+
+            handleLogin();
 
           }
 
@@ -705,17 +247,124 @@
 
 
   /* =======================================================
-     INIT
+     HANDLE LOGIN
   ======================================================= */
 
-  async function init() {
+  async function handleLogin() {
 
-    setupLogin();
+    const username =
+      (
+        $("username")
+          ?.value || ""
+      ).trim();
 
-    await loadAthletes();
+
+    const password =
+      (
+        $("password")
+          ?.value || ""
+      ).trim();
+
+
+    if (!username) {
+
+      alert(
+        "لطفاً نام کاربری را وارد کنید."
+      );
+
+      $("username")
+        ?.focus();
+
+      return;
+
+    }
+
+
+    if (!password) {
+
+      alert(
+        "لطفاً رمز عبور را وارد کنید."
+      );
+
+      $("password")
+        ?.focus();
+
+      return;
+
+    }
+
+
+    /*
+       -----------------------------------------------------
+       فعلاً منطق احراز هویت اصلی سامانه را تغییر نمی‌دهیم.
+       این قسمت فقط نقطه ورود است.
+
+       اگر منطق ورود قبلی پروژه شما در فایل دیگری
+       قرار داشته باشد، باید همان منطق را اینجا متصل کنیم.
+       -----------------------------------------------------
+    */
+
+
+    if (!supabaseClient) {
+
+      alert(
+        "اتصال سامانه برقرار نیست. لطفاً کلید عمومی Supabase را بررسی کنید."
+      );
+
+      return;
+
+    }
+
+
+    /*
+       -----------------------------------------------------
+       در این مرحله اطلاعات ورود را به صورت آزمایشی
+       بررسی نمی‌کنیم تا منطق قبلی احراز هویت شما
+       خراب نشود.
+
+       این بخش عمداً بدون تغییر مسیر خودکار است.
+       -----------------------------------------------------
+    */
+
+    console.log(
+      "Login requested:",
+      username
+    );
+
+
+    /*
+       -----------------------------------------------------
+       اگر سیستم ورود فعلی شما در app.js قبلی
+       منطق خاصی داشته، آن منطق باید اینجا قرار بگیرد.
+       -----------------------------------------------------
+    */
 
   }
 
+
+  /* =======================================================
+     INITIALIZATION
+  ======================================================= */
+
+  function init() {
+
+    /*
+       مهم:
+       هیچ athlete container،
+       هیچ search،
+       هیچ ranking،
+       و هیچ athlete card
+       در صفحه اصلی ایجاد نمی‌کنیم.
+    */
+
+    setupLogin();
+
+  }
+
+
+  /* =======================================================
+     DOM READY
+  ======================================================= */
 
   if (
     document.readyState ===
@@ -735,15 +384,22 @@
 
 
   /* =======================================================
-     GLOBAL API
+     PUBLIC API
   ======================================================= */
 
-  window.JudoTabiatPublic = {
+  window.JudoTabiatApp = {
 
-    refresh:
-      loadAthletes
+    openLogin:
+      showModal,
+
+    closeLogin:
+      hideModal
 
   };
 
+
+  /* =======================================================
+     END
+  ======================================================= */
 
 })();
