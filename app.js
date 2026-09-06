@@ -2,7 +2,7 @@
    JUDO TABIAT - PUBLIC ATHLETES
    app.js
    نمایش ورزشکاران در صفحه اصلی
-   نسخه اصلاح شده
+   نسخه پایدار
 ========================================================= */
 
 (() => {
@@ -29,11 +29,22 @@
     typeof window.supabase.createClient === "function"
   ) {
 
-    supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
+    try {
+
+      supabaseClient =
+        window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+    } catch (error) {
+
+      console.error(
+        "Supabase client error:",
+        error
       );
+
+    }
 
   }
 
@@ -54,6 +65,18 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+
+  }
+
+
+  function normalizeName(name) {
+
+    return String(name || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .replace(/ي/g, "ی")
+      .replace(/ى/g, "ی")
+      .replace(/ك/g, "ک");
 
   }
 
@@ -85,13 +108,51 @@
   }
 
 
-  function normalizeName(name) {
+  /* =======================================================
+     DEMO ATHLETE
+  ======================================================= */
 
-    return String(name || "")
-      .trim()
-      .replace(/\s+/g, " ")
-      .replace(/ي/g, "ی")
-      .replace(/ك/g, "ک");
+  function createMohammadDemo() {
+
+    return {
+
+      id:
+        "mohammad-ahmadi-demo",
+
+      first_name:
+        "محمد",
+
+      last_name:
+        "احمدی",
+
+      name:
+        "محمد احمدی",
+
+      full_name:
+        "محمد احمدی",
+
+      age_group:
+        "نوجوانان",
+
+      weight:
+        66,
+
+      category:
+        "جودوکار",
+
+      belt:
+        "",
+
+      photo_url:
+        "",
+
+      bio:
+        "ورزشکار جودو طبیعت",
+
+      is_demo:
+        true
+
+    };
 
   }
 
@@ -111,7 +172,7 @@
     if (!container) {
 
       console.warn(
-        "❌ athletes container not found"
+        "محل نمایش ورزشکاران پیدا نشد."
       );
 
       return;
@@ -123,7 +184,7 @@
 
 
     /* =====================================================
-       دریافت ورزشکاران از SUPABASE
+       دریافت از SUPABASE
     ===================================================== */
 
     if (supabaseClient) {
@@ -142,23 +203,20 @@
         if (error) {
 
           console.error(
-            "❌ Supabase athletes error:",
+            "خطای دریافت athletes:",
             error
           );
 
-        } else {
+        } else if (Array.isArray(data)) {
 
-          athletes =
-            Array.isArray(data)
-              ? data
-              : [];
+          athletes = data;
 
         }
 
       } catch (error) {
 
         console.error(
-          "❌ Athletes request failed:",
+          "خطای ارتباط با Supabase:",
           error
         );
 
@@ -182,58 +240,47 @@
 
 
     /* =====================================================
-       اگر محمد در دیتابیس نیست
-       رکورد نمایشی ایجاد می‌کنیم
+       اگر محمد در دیتابیس وجود ندارد
+       نسخه آزمایشی اضافه شود
     ===================================================== */
 
     if (mohammadIndex === -1) {
 
-      athletes.unshift({
-
-        id:
-          "mohammad-ahmadi",
-
-        name:
-          "محمد احمدی",
-
-        full_name:
-          "محمد احمدی",
-
-        first_name:
-          "محمد",
-
-        last_name:
-          "احمدی",
-
-        belt:
-          "",
-
-        category:
-          "ورزشکار جودو طبیعت",
-
-        age_group:
-          "",
-
-        weight:
-          "",
-
-        photo_url:
-          "",
-
-        bio:
-          "ورزشکار جودو طبیعت",
-
-        is_demo:
-          true
-
-      });
+      athletes.unshift(
+        createMohammadDemo()
+      );
 
     }
 
 
     /* =====================================================
-       RENDER
+       محمد همیشه اول لیست باشد
     ===================================================== */
+
+    const finalMohammadIndex =
+      athletes.findIndex(
+        athlete =>
+          normalizeName(
+            getAthleteName(athlete)
+          ) ===
+          "محمد احمدی"
+      );
+
+
+    if (finalMohammadIndex > 0) {
+
+      const mohammad =
+        athletes.splice(
+          finalMohammadIndex,
+          1
+        )[0];
+
+      athletes.unshift(
+        mohammad
+      );
+
+    }
+
 
     renderAthletes(
       athletes,
@@ -244,7 +291,7 @@
 
 
   /* =======================================================
-     RENDER ATHLETES
+     RENDER
   ======================================================= */
 
   function renderAthletes(
@@ -306,7 +353,7 @@
               athlete.id;
 
 
-            const demo =
+            const isDemo =
               athlete.is_demo === true;
 
 
@@ -357,21 +404,24 @@
                 <div class="athlete-card-content">
 
                   <h3>
-                    ${escapeHTML(
-                      name
-                    )}
+                    ${escapeHTML(name)}
                   </h3>
 
 
+                  <div class="athlete-info">
+                    🥋 جودو طبیعت
+                  </div>
+
+
                   ${
-                    athlete.category
+                    athlete.age_group
 
                       ? `
 
                         <div class="athlete-info">
-                          🥋
+                          👤 رده:
                           ${escapeHTML(
-                            athlete.category
+                            athlete.age_group
                           )}
                         </div>
 
@@ -382,7 +432,9 @@
 
 
                   ${
-                    athlete.weight
+                    athlete.weight !== null &&
+                    athlete.weight !== undefined &&
+                    athlete.weight !== ""
 
                       ? `
 
@@ -391,6 +443,7 @@
                           ${escapeHTML(
                             athlete.weight
                           )}
+                          کیلوگرم
                         </div>
 
                       `
@@ -417,24 +470,6 @@
                   }
 
 
-                  ${
-                    athlete.age_group
-
-                      ? `
-
-                        <div class="athlete-info">
-                          👤 رده:
-                          ${escapeHTML(
-                            athlete.age_group
-                          )}
-                        </div>
-
-                      `
-
-                      : ""
-                  }
-
-
                   <button
                     type="button"
                     class="athlete-view-btn"
@@ -442,14 +477,12 @@
                       athleteId
                     )}"
                   >
-
                     مشاهده پروفایل
-
                   </button>
 
 
                   ${
-                    demo
+                    isDemo
 
                       ? `
 
@@ -460,7 +493,7 @@
                             color:#888;
                           "
                         >
-                          پروفایل اولیه
+                          پروفایل آزمایشی
                         </div>
 
                       `
@@ -487,7 +520,7 @@
 
 
   /* =======================================================
-     PROFILE BUTTONS
+     BUTTONS
   ======================================================= */
 
   function bindAthleteButtons(
@@ -518,9 +551,7 @@
 
 
               if (!athlete) {
-
                 return;
-
               }
 
 
@@ -538,18 +569,43 @@
 
 
   /* =======================================================
-     OPEN PROFILE
+     OPEN ATHLETE
   ======================================================= */
 
   function openAthleteProfile(
     athlete
   ) {
 
-    const id =
-      athlete.id;
+    if (!athlete) {
+      return;
+    }
 
 
-    if (!id) {
+    /* ---------------------------------------------
+       پروفایل آزمایشی
+    --------------------------------------------- */
+
+    if (
+      athlete.is_demo === true
+    ) {
+
+      window.location.href =
+        "athlete.html?demo=mohammad";
+
+      return;
+
+    }
+
+
+    /* ---------------------------------------------
+       پروفایل واقعی
+    --------------------------------------------- */
+
+    if (!athlete.id) {
+
+      console.error(
+        "Athlete ID not found."
+      );
 
       return;
 
@@ -558,7 +614,9 @@
 
     window.location.href =
       "athlete.html?id=" +
-      encodeURIComponent(id);
+      encodeURIComponent(
+        athlete.id
+      );
 
   }
 
@@ -578,7 +636,7 @@
 
 
     console.log(
-      "✅ ورزشکاران صفحه اصلی آماده شدند."
+      "✅ صفحه ورزشکاران آماده شد."
     );
 
   }
