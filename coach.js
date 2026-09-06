@@ -1,11 +1,12 @@
 /* =========================================================
    JUDO TABIAT - COACH PANEL
    coach.js
-   FINAL - COMPLETE / FIXED / RANKING
-   2026.09.04
+   FINAL - COMPLETE & FIXED
+   2026.09
 ========================================================= */
 
 (() => {
+
   "use strict";
 
   /* =======================================================
@@ -23,586 +24,848 @@
   if (
     window.supabase &&
     typeof window.supabase.createClient === "function" &&
+    SUPABASE_URL &&
     SUPABASE_KEY
   ) {
+
     supabaseClient =
       window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_KEY
       );
+
   }
 
-  /* =======================================================
-     STATE
-  ======================================================= */
-
-  const state = {
-    athletes: [],
-    evaluations: [],
-    evaluationPeriods: [],
-    evaluationCriteria: [],
-    evaluationScores: [],
-    achievements: [],
-    attendance: [],
-    announcements: [],
-    competitions: [],
-    tests: [],
-    progressHistory: [],
-    settings: {},
-
-    editingAnnouncementId: null,
-    editingCompetitionId: null,
-    editingAchievementId: null,
-    editingAthleteId: null,
-    editingEvaluationId: null
-  };
 
   /* =======================================================
-     HELPERS
+     DOM HELPERS
   ======================================================= */
 
   const $ = id =>
     document.getElementById(id);
 
   const $$ = selector =>
-    document.querySelectorAll(selector);
+    Array.from(
+      document.querySelectorAll(selector)
+    );
 
-  function faNumber(value) {
-    if (
-      value === null ||
-      value === undefined
-    ) {
-      return "۰";
-    }
 
-    return String(value)
-      .replace(/0/g, "۰")
-      .replace(/1/g, "۱")
-      .replace(/2/g, "۲")
-      .replace(/3/g, "۳")
-      .replace(/4/g, "۴")
-      .replace(/5/g, "۵")
-      .replace(/6/g, "۶")
-      .replace(/7/g, "۷")
-      .replace(/8/g, "۸")
-      .replace(/9/g, "۹");
+  function setText(
+    id,
+    value
+  ) {
+
+    const element = $(id);
+
+    if (!element) return;
+
+    element.textContent =
+      value ?? "";
+
   }
+
+
+  function setValue(
+    id,
+    value
+  ) {
+
+    const element = $(id);
+
+    if (!element) return;
+
+    element.value =
+      value ?? "";
+
+  }
+
+
+  function escapeHTML(
+    value
+  ) {
+
+    return String(
+      value ?? ""
+    )
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
+      );
+
+  }
+
+
+  function faNumber(
+    value
+  ) {
+
+    return String(
+      value ?? ""
+    ).replace(
+      /\d/g,
+      digit =>
+        "۰۱۲۳۴۵۶۷۸۹"[
+          Number(digit)
+        ]
+    );
+
+  }
+
 
   function today() {
-    const d = new Date();
 
-    return `${d.getFullYear()}-${String(
-      d.getMonth() + 1
-    ).padStart(2, "0")}-${String(
-      d.getDate()
-    ).padStart(2, "0")}`;
+    const date =
+      new Date();
+
+    const year =
+      date.getFullYear();
+
+    const month =
+      String(
+        date.getMonth() + 1
+      ).padStart(
+        2,
+        "0"
+      );
+
+    const day =
+      String(
+        date.getDate()
+      ).padStart(
+        2,
+        "0"
+      );
+
+    return `${year}-${month}-${day}`;
+
   }
 
-  function escapeHTML(value) {
-    if (
-      value === null ||
-      value === undefined
-    ) {
-      return "";
-    }
 
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
+  /* =======================================================
+     STATE
+  ======================================================= */
 
-  function setText(id, value) {
-    const el = $(id);
+  const state = {
 
-    if (el) {
-      el.textContent =
-        value ?? "";
-    }
-  }
+    athletes: [],
 
-  function setValue(id, value) {
-    const el = $(id);
+    evaluationPeriods: [],
 
-    if (
-      el &&
-      value !== null &&
-      value !== undefined
-    ) {
-      el.value = value;
-    }
-  }
+    evaluationCriteria: [],
+
+    evaluationScores: [],
+
+    evaluations: [],
+
+    attendance: [],
+
+    achievements: [],
+
+    announcements: [],
+
+    competitions: [],
+
+    tests: [],
+
+    progressHistory: [],
+
+    settings: {},
+
+    editingAthleteId:
+      null,
+
+    editingEvaluationId:
+      null,
+
+    editingAchievementId:
+      null,
+
+    editingAnnouncementId:
+      null,
+
+    editingCompetitionId:
+      null
+
+  };
+
+
+  /* =======================================================
+     MESSAGE
+  ======================================================= */
 
   function showMessage(
     message,
     type = "success"
   ) {
-    let box =
+
+    let container =
       $("coachMessage");
 
-    if (!box) {
-      box =
+    if (!container) {
+
+      container =
         document.createElement(
           "div"
         );
 
-      box.id =
+      container.id =
         "coachMessage";
 
-      Object.assign(
-        box.style,
-        {
-          position: "fixed",
-          left: "20px",
-          bottom: "20px",
-          zIndex: "999999",
-          padding: "13px 18px",
-          borderRadius: "12px",
-          fontSize: "13px",
-          fontWeight: "700",
-          boxShadow:
-            "0 10px 30px rgba(0,0,0,.15)",
-          direction: "rtl"
+      container.className =
+        "coach-message";
+
+      document.body.appendChild(
+        container
+      );
+
+    }
+
+    container.textContent =
+      message;
+
+    container.className =
+      `coach-message ${type}`;
+
+    container.classList.add(
+      "show"
+    );
+
+    clearTimeout(
+      showMessage.timer
+    );
+
+    showMessage.timer =
+      setTimeout(
+        () => {
+
+          container.classList.remove(
+            "show"
+          );
+
+        },
+        3500
+      );
+
+  }
+
+
+  /* =======================================================
+     MODALS
+  ======================================================= */
+
+  function openModal(
+    id
+  ) {
+
+    const modal =
+      $(id);
+
+    if (!modal) return;
+
+    modal.classList.add(
+      "active"
+    );
+
+    modal.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    document.body.classList.add(
+      "modal-open"
+    );
+
+  }
+
+
+  function closeModal(
+    id
+  ) {
+
+    const modal =
+      $(id);
+
+    if (!modal) return;
+
+    modal.classList.remove(
+      "active"
+    );
+
+    modal.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    if (
+      !$$(
+        ".modal.active"
+      ).length
+    ) {
+
+      document.body.classList.remove(
+        "modal-open"
+      );
+
+    }
+
+  }
+
+
+  function closeAllModals() {
+
+    $$(".modal.active")
+      .forEach(
+        modal => {
+
+          modal.classList.remove(
+            "active"
+          );
+
+          modal.setAttribute(
+            "aria-hidden",
+            "true"
+          );
+
         }
       );
 
-      document.body.appendChild(
-        box
-      );
-    }
-
-    box.textContent =
-      message;
-
-    box.style.background =
-      type === "error"
-        ? "#fef2f2"
-        : "#ecfdf3";
-
-    box.style.color =
-      type === "error"
-        ? "#dc2626"
-        : "#027a48";
-
-    clearTimeout(
-      box._timer
+    document.body.classList.remove(
+      "modal-open"
     );
 
-    box._timer =
-      setTimeout(() => {
-        box.remove();
-      }, 3000);
   }
+
+
+  function setupModals() {
+
+    $$(".modal")
+      .forEach(
+        modal => {
+
+          modal.addEventListener(
+            "click",
+            event => {
+
+              if (
+                event.target ===
+                modal
+              ) {
+
+                closeModal(
+                  modal.id
+                );
+
+              }
+
+            }
+          );
+
+        }
+      );
+
+    $$(
+      "[data-close-modal]"
+    )
+      .forEach(
+        button => {
+
+          button.addEventListener(
+            "click",
+            () => {
+
+              const modalId =
+                button.dataset
+                  .closeModal;
+
+              closeModal(
+                modalId
+              );
+
+            }
+          );
+
+        }
+      );
+
+  }
+
+
+  /* =======================================================
+     SUPABASE QUERY HELPER
+  ======================================================= */
 
   async function queryTable(
     table,
     options = {}
   ) {
+
     if (!supabaseClient) {
+
       return {
         data: [],
-        error: new Error(
-          "Supabase connection is not available."
-        )
+        error:
+          new Error(
+            "Supabase client is not initialized."
+          )
       };
+
     }
 
-    try {
-      let query =
-        supabaseClient
-          .from(table)
-          .select(
-            options.select || "*"
-          );
+    let query =
+      supabaseClient
+        .from(table)
+        .select(
+          options.select ||
+          "*"
+        );
 
-      if (options.order) {
-        query =
-          query.order(
-            options.order.column,
-            {
-              ascending:
-                options.order
-                  .ascending ??
-                false
-            }
-          );
-      }
+    if (
+      options.eq &&
+      typeof options.eq ===
+      "object"
+    ) {
 
-      if (options.limit) {
-        query =
-          query.limit(
-            options.limit
-          );
-      }
+      Object.entries(
+        options.eq
+      ).forEach(
+        ([column, value]) => {
 
-      return await query;
-    } catch (error) {
-      return {
-        data: [],
-        error
-      };
+          query =
+            query.eq(
+              column,
+              value
+            );
+
+        }
+      );
+
     }
+
+    if (
+      options.order &&
+      options.order.column
+    ) {
+
+      query =
+        query.order(
+          options.order.column,
+          {
+            ascending:
+              options.order
+                .ascending !==
+              false
+          }
+        );
+
+    }
+
+    if (
+      Number.isInteger(
+        options.limit
+      )
+    ) {
+
+      query =
+        query.limit(
+          options.limit
+        );
+
+    }
+
+    return await query;
+
   }
+
+
+  /* =======================================================
+     ATHLETE HELPERS
+  ======================================================= */
 
   function getAthleteName(
     athlete
   ) {
+
     if (!athlete) {
       return "بدون نام";
+    }
+
+    const fullName =
+      [
+        athlete.first_name,
+        athlete.last_name
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+
+    if (fullName) {
+      return fullName;
     }
 
     return (
       athlete.name ||
       athlete.full_name ||
-      athlete.athlete_name ||
       "بدون نام"
     );
+
   }
 
-  function getAthlete(id) {
-    return state.athletes.find(
-      athlete =>
-        String(athlete.id) ===
-        String(id)
+
+  function getAthleteInitials(
+    athlete
+  ) {
+
+    const name =
+      getAthleteName(
+        athlete
+      );
+
+    const parts =
+      name
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (!parts.length) {
+      return "؟";
+    }
+
+    return parts
+      .slice(0, 2)
+      .map(
+        part =>
+          part.charAt(0)
+      )
+      .join("");
+
+  }
+
+
+  /* =======================================================
+     MEDAL HELPERS
+  ======================================================= */
+
+  function medalType(
+    achievement
+  ) {
+
+    if (!achievement) {
+      return "other";
+    }
+
+    const value =
+      String(
+        achievement.medal ||
+        achievement.medal_type ||
+        achievement.medalType ||
+        achievement.position ||
+        achievement.rank ||
+        ""
+      )
+        .trim()
+        .toLowerCase();
+
+    if (
+      [
+        "gold",
+        "طلا",
+        "اول",
+        "1",
+        "۱",
+        "🥇"
+      ].includes(value)
+    ) {
+
+      return "gold";
+
+    }
+
+    if (
+      [
+        "silver",
+        "نقره",
+        "دوم",
+        "2",
+        "۲",
+        "🥈"
+      ].includes(value)
+    ) {
+
+      return "silver";
+
+    }
+
+    if (
+      [
+        "bronze",
+        "برنز",
+        "سوم",
+        "3",
+        "۳",
+        "🥉"
+      ].includes(value)
+    ) {
+
+      return "bronze";
+
+    }
+
+    return "other";
+
+  }
+
+
+  function medalLabel(
+    achievement
+  ) {
+
+    const medal =
+      medalType(
+        achievement
+      );
+
+    if (
+      medal === "gold"
+    ) {
+      return "🥇 طلا";
+    }
+
+    if (
+      medal === "silver"
+    ) {
+      return "🥈 نقره";
+    }
+
+    if (
+      medal === "bronze"
+    ) {
+      return "🥉 برنز";
+    }
+
+    return "🏅 افتخار";
+
+  }
+
+
+  /* =======================================================
+     ATTENDANCE HELPERS
+  ======================================================= */
+
+  function isPresent(
+    item
+  ) {
+
+    if (!item) {
+      return false;
+    }
+
+    if (
+      item.present === true
+    ) {
+      return true;
+    }
+
+    if (
+      item.attended === true
+    ) {
+      return true;
+    }
+
+    if (
+      item.is_present === true
+    ) {
+      return true;
+    }
+
+    const status =
+      String(
+        item.status ||
+        ""
+      )
+        .trim()
+        .toLowerCase();
+
+    return [
+      "present",
+      "حاضر",
+      "yes",
+      "true",
+      "1",
+      "حضور"
+    ].includes(
+      status
     );
+
   }
 
-  function isPresent(item) {
-    return (
-      item?.present === true ||
-      item?.status === "present" ||
-      item?.status === "حاضر"
-    );
-  }
-
-  function closeAllModals() {
-    [
-      "announcementModal",
-      "competitionModal",
-      "achievementModal",
-      "athleteModal",
-      "evaluationModal",
-      "attendanceModal"
-    ].forEach(closeModal);
-  }
 
   /* =======================================================
      NAVIGATION
   ======================================================= */
 
   function setupNavigation() {
-    $$(".nav-item").forEach(
+
+    const navItems =
+      $$(
+        "[data-page]"
+      );
+
+    navItems.forEach(
       item => {
+
         item.addEventListener(
           "click",
-          () => {
+          event => {
 
-            const pageName =
+            event.preventDefault();
+
+            const page =
               item.dataset.page;
 
-            $$(".nav-item").forEach(
-              nav =>
+            if (!page) return;
+
+            navItems.forEach(
+              nav => {
+
                 nav.classList.remove(
                   "active"
-                )
+                );
+
+              }
             );
 
             item.classList.add(
               "active"
             );
 
-            $$(".coach-page").forEach(
-              page =>
-                page.classList.remove(
-                  "active"
-                )
-            );
+            $$(".coach-page")
+              .forEach(
+                section => {
 
-            const page =
-              $(`page-${pageName}`);
+                  section.classList.remove(
+                    "active"
+                  );
 
-            if (page) {
-              page.classList.add(
+                }
+              );
+
+            const target =
+              $(
+                `${page}Page`
+              ) ||
+              $(
+                `page-${page}`
+              );
+
+            if (target) {
+
+              target.classList.add(
                 "active"
               );
+
             }
 
-            if (
-              pageName ===
-              "ranking"
-            ) {
-              renderRanking();
-            }
+            document.body
+              .dataset.currentPage =
+              page;
+
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth"
+            });
+
           }
         );
+
       }
     );
+
   }
 
+
   /* =======================================================
-     EVENTS TABS
+     EVENT TABS
   ======================================================= */
 
   function setupEventTabs() {
-    $$(".events-tab").forEach(
-      tab => {
-        tab.addEventListener(
-          "click",
-          () => {
 
-            $$(".events-tab").forEach(
-              t =>
-                t.classList.remove(
+    $$(
+      "[data-event-tab]"
+    )
+      .forEach(
+        tab => {
+
+          tab.addEventListener(
+            "click",
+            () => {
+
+              const target =
+                tab.dataset
+                  .eventTab;
+
+              $$(
+                "[data-event-tab]"
+              )
+                .forEach(
+                  item =>
+                    item.classList.remove(
+                      "active"
+                    )
+                );
+
+              tab.classList.add(
+                "active"
+              );
+
+              $$(
+                "[data-event-panel]"
+              )
+                .forEach(
+                  panel => {
+
+                    panel.classList.remove(
+                      "active"
+                    );
+
+                  }
+                );
+
+              const panel =
+                $$(
+                  `[data-event-panel="${target}"]`
+                )[0];
+
+              if (panel) {
+
+                panel.classList.add(
                   "active"
-                )
-            );
+                );
 
-            tab.classList.add(
-              "active"
-            );
+              }
 
-            $(
-              "#eventsPanelAnnouncements"
-            )?.classList.remove(
-              "active"
-            );
-
-            $(
-              "#eventsPanelCompetitions"
-            )?.classList.remove(
-              "active"
-            );
-
-            if (
-              tab.dataset
-                .eventsTab ===
-              "announcements"
-            ) {
-              $(
-                "#eventsPanelAnnouncements"
-              )?.classList.add(
-                "active"
-              );
             }
-
-            if (
-              tab.dataset
-                .eventsTab ===
-              "competitions"
-            ) {
-              $(
-                "#eventsPanelCompetitions"
-              )?.classList.add(
-                "active"
-              );
-            }
-          }
-        );
-      }
-    );
-  }
-
-  /* =======================================================
-     MODALS
-  ======================================================= */
-
-  function openModal(id) {
-    const modal = $(id);
-
-    if (!modal) return;
-
-    modal.classList.remove(
-      "hidden"
-    );
-
-    modal.style.display =
-      "flex";
-  }
-
-  function closeModal(id) {
-    const modal = $(id);
-
-    if (!modal) return;
-
-    modal.classList.add(
-      "hidden"
-    );
-
-    modal.style.display =
-      "none";
-  }
-
-  function setupModals() {
-
-    const openers = {
-      addAnnouncementBtn:
-        "announcementModal",
-
-      addCompetitionBtn:
-        "competitionModal",
-
-      addAchievementBtn:
-        "achievementModal",
-
-      addAthleteBtn:
-        "athleteModal",
-
-      addEvaluationBtn:
-        "evaluationModal",
-
-      addAttendanceBtn:
-        "attendanceModal"
-    };
-
-    Object.entries(
-      openers
-    ).forEach(
-      ([buttonId, modalId]) => {
-
-        $(buttonId)?.addEventListener(
-          "click",
-          () => {
-
-            if (
-              modalId ===
-              "announcementModal"
-            ) {
-              resetAnnouncementForm();
-            }
-
-            if (
-              modalId ===
-              "competitionModal"
-            ) {
-              resetCompetitionForm();
-            }
-
-            if (
-              modalId ===
-              "achievementModal"
-            ) {
-              resetAchievementForm();
-            }
-
-            if (
-              modalId ===
-              "athleteModal"
-            ) {
-              resetAthleteForm();
-            }
-
-            if (
-              modalId ===
-              "evaluationModal"
-            ) {
-              resetEvaluationForm();
-            }
-
-            if (
-              modalId ===
-              "attendanceModal"
-            ) {
-              resetAttendanceForm();
-            }
-
-            openModal(
-              modalId
-            );
-          }
-        );
-      }
-    );
-
-    [
-      [
-        "closeAnnouncementModal",
-        "announcementModal"
-      ],
-      [
-        "cancelAnnouncementBtn",
-        "announcementModal"
-      ],
-      [
-        "closeCompetitionModal",
-        "competitionModal"
-      ],
-      [
-        "cancelCompetitionBtn",
-        "competitionModal"
-      ],
-      [
-        "closeAchievementModal",
-        "achievementModal"
-      ],
-      [
-        "cancelAchievementBtn",
-        "achievementModal"
-      ],
-      [
-        "closeAthleteModal",
-        "athleteModal"
-      ],
-      [
-        "cancelAthleteBtn",
-        "athleteModal"
-      ],
-      [
-        "closeEvaluationModal",
-        "evaluationModal"
-      ],
-      [
-        "cancelEvaluationBtn",
-        "evaluationModal"
-      ],
-      [
-        "closeAttendanceModal",
-        "attendanceModal"
-      ],
-      [
-        "cancelAttendanceBtn",
-        "attendanceModal"
-      ]
-    ].forEach(
-      ([buttonId, modalId]) => {
-
-        $(buttonId)?.addEventListener(
-          "click",
-          () =>
-            closeModal(
-              modalId
-            )
-        );
-
-      }
-    );
-
-    [
-      "announcementModal",
-      "competitionModal",
-      "achievementModal",
-      "athleteModal",
-      "evaluationModal",
-      "attendanceModal"
-    ].forEach(id => {
-
-      $(id)?.addEventListener(
-        "click",
-        event => {
-
-          if (
-            event.target ===
-            $(id)
-          ) {
-            closeModal(id);
-          }
+          );
 
         }
       );
 
-    });
   }
+
 
   /* =======================================================
      ATHLETES
@@ -632,7 +895,10 @@
 
       state.athletes = [];
 
-      renderAthletes();
+      showMessage(
+        "دریافت ورزشکاران انجام نشد.",
+        "error"
+      );
 
       return;
 
@@ -645,21 +911,26 @@
         ? result.data
         : [];
 
-    renderAthletes();
-
     fillAthleteSelects();
 
     updateDashboard();
 
-    renderRanking();
   }
+
 
   function renderAthletes() {
 
     const container =
       $("athletesList");
 
-    if (!container) return;
+    if (!container) {
+      return;
+    }
+
+    let athletes =
+      [
+        ...state.athletes
+      ];
 
     const search =
       (
@@ -669,39 +940,43 @@
         .trim()
         .toLowerCase();
 
-    let list =
-      [...state.athletes];
-
     if (search) {
 
-      list =
-        list.filter(
-          athlete =>
-            [
-              getAthleteName(
-                athlete
-              ),
-              athlete.weight,
-              athlete.belt,
-              athlete.category,
-              athlete.age_group
-            ]
-              .filter(Boolean)
-              .join(" ")
-              .toLowerCase()
-              .includes(
-                search
-              )
+      athletes =
+        athletes.filter(
+          athlete => {
+
+            const text =
+              [
+                getAthleteName(
+                  athlete
+                ),
+                athlete.national_id,
+                athlete.weight,
+                athlete.age_group,
+                athlete.belt,
+                athlete.category
+              ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase();
+
+            return text.includes(
+              search
+            );
+
+          }
         );
 
     }
 
-    if (!list.length) {
+    if (!athletes.length) {
 
       container.innerHTML = `
         <div class="evaluation-empty">
+
           <div class="evaluation-empty-icon">
-            👥
+            👤
           </div>
 
           <h2>
@@ -709,25 +984,61 @@
           </h2>
 
           <p>
-            هنوز ورزشکاری در سیستم ثبت نشده است.
+            هنوز ورزشکاری ثبت نشده یا
+            نتیجه‌ای برای جستجو وجود ندارد.
           </p>
+
         </div>
       `;
 
       return;
+
     }
 
-    container.innerHTML = `
-      <div class="simple-grid">
+    container.innerHTML =
+      athletes
+        .map(
+          athlete => `
 
-        ${list
-          .map(
-            athlete => `
+            <div
+              class="athlete-card"
+              data-athlete-id="${escapeHTML(
+                athlete.id
+              )}"
+            >
 
-              <div class="simple-box">
+              <div class="athlete-avatar">
+
+                ${
+                  athlete.avatar_url
+                    ? `
+                      <img
+                        src="${escapeHTML(
+                          athlete.avatar_url
+                        )}"
+                        alt="${escapeHTML(
+                          getAthleteName(
+                            athlete
+                          )
+                        )}"
+                      >
+                    `
+                    : `
+                      <span>
+                        ${escapeHTML(
+                          getAthleteInitials(
+                            athlete
+                          )
+                        )}
+                      </span>
+                    `
+                }
+
+              </div>
+
+              <div class="athlete-card-content">
 
                 <h3>
-                  👤
                   ${escapeHTML(
                     getAthleteName(
                       athlete
@@ -735,257 +1046,247 @@
                   )}
                 </h3>
 
-                <p>
-                  وزن:
-                  ${escapeHTML(
-                    athlete.weight ??
-                    "-"
-                  )}
-                </p>
+                <div class="athlete-meta">
 
-                <p>
-                  کمربند:
-                  ${escapeHTML(
-                    athlete.belt ??
-                    "-"
-                  )}
-                </p>
+                  ${
+                    athlete.age_group
+                      ? `
+                        <span>
+                          👥 ${escapeHTML(
+                            athlete.age_group
+                          )}
+                        </span>
+                      `
+                      : ""
+                  }
 
-                <p>
-                  رده:
-                  ${escapeHTML(
-                    athlete.category ??
-                    athlete.age_group ??
-                    "-"
-                  )}
-                </p>
+                  ${
+                    athlete.weight !==
+                    null &&
+                    athlete.weight !==
+                    undefined &&
+                    athlete.weight !==
+                    ""
+                      ? `
+                        <span>
+                          ⚖️ ${escapeHTML(
+                            athlete.weight
+                          )} کیلو
+                        </span>
+                      `
+                      : ""
+                  }
 
-                <div class="event-actions">
-
-                  <button
-                    type="button"
-                    data-edit-athlete="${escapeHTML(
-                      athlete.id
-                    )}"
-                  >
-                    ✏️
-                  </button>
-
-                  <button
-                    type="button"
-                    data-delete-athlete="${escapeHTML(
-                      athlete.id
-                    )}"
-                  >
-                    🗑️
-                  </button>
+                  ${
+                    athlete.belt
+                      ? `
+                        <span>
+                          🥋 ${escapeHTML(
+                            athlete.belt
+                          )}
+                        </span>
+                      `
+                      : ""
+                  }
 
                 </div>
 
               </div>
 
-            `
-          )
-          .join("")}
+              <div class="athlete-card-actions">
 
-      </div>
-    `;
+                <button
+                  type="button"
+                  class="btn-icon"
+                  data-edit-athlete="${escapeHTML(
+                    athlete.id
+                  )}"
+                  title="ویرایش"
+                >
+                  ✏️
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-icon danger"
+                  data-delete-athlete="${escapeHTML(
+                    athlete.id
+                  )}"
+                  title="حذف"
+                >
+                  🗑️
+                </button>
+
+              </div>
+
+            </div>
+
+          `
+        )
+        .join("");
 
     bindAthleteActions();
+
   }
 
-  function fillAthleteSelects() {
 
-    const ids = [
-      "achievementAthlete",
-      "evaluationAthlete",
-      "attendanceAthlete"
-    ];
+  function bindAthleteActions() {
 
-    ids.forEach(id => {
+    $$(
+      "[data-edit-athlete]"
+    )
+      .forEach(
+        button => {
 
-      const select = $(id);
+          button.addEventListener(
+            "click",
+            () =>
+              editAthlete(
+                button.dataset
+                  .editAthlete
+              )
+          );
 
-      if (!select) return;
+        }
+      );
 
-      const currentValue =
-        select.value;
+    $$(
+      "[data-delete-athlete]"
+    )
+      .forEach(
+        button => {
 
-      select.innerHTML = `
-        <option value="">
-          انتخاب ورزشکار
-        </option>
+          button.addEventListener(
+            "click",
+            () =>
+              deleteAthlete(
+                button.dataset
+                  .deleteAthlete
+              )
+          );
 
-        ${state.athletes
-          .map(
-            athlete => `
-              <option
-                value="${escapeHTML(
-                  athlete.id
-                )}"
-              >
-                ${escapeHTML(
-                  getAthleteName(
-                    athlete
-                  )
-                )}
-              </option>
-            `
-          )
-          .join("")}
-      `;
-
-      if (
-        currentValue &&
-        state.athletes.some(
-          athlete =>
-            String(
-              athlete.id
-            ) ===
-            String(
-              currentValue
-            )
-        )
-      ) {
-        select.value =
-          currentValue;
-      }
-
-    });
-  }
-
-  function setupAthleteSearch() {
-
-    $("athleteSearch")
-      ?.addEventListener(
-        "input",
-        renderAthletes
+        }
       );
 
   }
 
+
   function resetAthleteForm() {
 
     [
-      "athleteName",
-      "athleteFullName",
+      "athleteFirstName",
+      "athleteLastName",
+      "athleteNationalId",
+      "athleteAge",
       "athleteWeight",
+      "athleteAgeGroup",
       "athleteBelt",
       "athleteCategory",
-      "athleteAgeGroup",
-      "athleteBirthDate",
       "athletePhone",
-      "athleteNationalId",
       "athleteDescription"
-    ].forEach(id => {
+    ]
+      .forEach(
+        id => {
 
-      const el = $(id);
+          const element =
+            $(id);
 
-      if (el) {
-        el.value = "";
-      }
+          if (element) {
+            element.value = "";
+          }
 
-    });
+        }
+      );
 
     state.editingAthleteId =
       null;
 
     setText(
       "saveAthleteBtn",
-      "👤 ثبت ورزشکار"
+      "➕ ثبت ورزشکار"
     );
-  }
-
-  function bindAthleteActions() {
-
-    $$("[data-edit-athlete]")
-      .forEach(button => {
-
-        button.addEventListener(
-          "click",
-          () =>
-            editAthlete(
-              button.dataset
-                .editAthlete
-            )
-        );
-
-      });
-
-    $$("[data-delete-athlete]")
-      .forEach(button => {
-
-        button.addEventListener(
-          "click",
-          () =>
-            deleteAthlete(
-              button.dataset
-                .deleteAthlete
-            )
-        );
-
-      });
 
   }
 
-  function editAthlete(id) {
+
+  function editAthlete(
+    id
+  ) {
 
     const athlete =
-      getAthlete(id);
+      state.athletes.find(
+        item =>
+          String(
+            item.id
+          ) ===
+          String(id)
+      );
 
-    if (!athlete) return;
+    if (!athlete) {
+      return;
+    }
 
     state.editingAthleteId =
       id;
 
     setValue(
-      "athleteName",
-      athlete.name || ""
+      "athleteFirstName",
+      athlete.first_name ||
+      ""
     );
 
     setValue(
-      "athleteFullName",
-      athlete.full_name || ""
-    );
-
-    setValue(
-      "athleteWeight",
-      athlete.weight || ""
-    );
-
-    setValue(
-      "athleteBelt",
-      athlete.belt || ""
-    );
-
-    setValue(
-      "athleteCategory",
-      athlete.category || ""
-    );
-
-    setValue(
-      "athleteAgeGroup",
-      athlete.age_group || ""
-    );
-
-    setValue(
-      "athleteBirthDate",
-      athlete.birth_date || ""
-    );
-
-    setValue(
-      "athletePhone",
-      athlete.phone || ""
+      "athleteLastName",
+      athlete.last_name ||
+      ""
     );
 
     setValue(
       "athleteNationalId",
-      athlete.national_id || ""
+      athlete.national_id ||
+      ""
+    );
+
+    setValue(
+      "athleteAge",
+      athlete.age ||
+      ""
+    );
+
+    setValue(
+      "athleteWeight",
+      athlete.weight ||
+      ""
+    );
+
+    setValue(
+      "athleteAgeGroup",
+      athlete.age_group ||
+      ""
+    );
+
+    setValue(
+      "athleteBelt",
+      athlete.belt ||
+      ""
+    );
+
+    setValue(
+      "athleteCategory",
+      athlete.category ||
+      ""
+    );
+
+    setValue(
+      "athletePhone",
+      athlete.phone ||
+      ""
     );
 
     setValue(
       "athleteDescription",
-      athlete.description || ""
+      athlete.description ||
+      ""
     );
 
     setText(
@@ -996,7 +1297,9 @@
     openModal(
       "athleteModal"
     );
+
   }
+
 
   async function saveAthlete() {
 
@@ -1008,15 +1311,25 @@
       );
 
       return;
+
     }
 
-    const name =
+    const firstName =
       (
-        $("athleteName")
+        $("athleteFirstName")
           ?.value || ""
       ).trim();
 
-    if (!name) {
+    const lastName =
+      (
+        $("athleteLastName")
+          ?.value || ""
+      ).trim();
+
+    if (
+      !firstName &&
+      !lastName
+    ) {
 
       showMessage(
         "نام ورزشکار را وارد کنید.",
@@ -1024,66 +1337,84 @@
       );
 
       return;
+
     }
 
     const payload = {
 
-      name,
+      first_name:
+        firstName ||
+        null,
 
-      full_name:
-        (
-          $("athleteFullName")
-            ?.value || ""
-        ).trim() || null,
-
-      weight:
-        (
-          $("athleteWeight")
-            ?.value || ""
-        ).trim() || null,
-
-      belt:
-        (
-          $("athleteBelt")
-            ?.value || ""
-        ).trim() || null,
-
-      category:
-        (
-          $("athleteCategory")
-            ?.value || ""
-        ).trim() || null,
-
-      age_group:
-        (
-          $("athleteAgeGroup")
-            ?.value || ""
-        ).trim() || null,
-
-      birth_date:
-        $("athleteBirthDate")
-          ?.value || null,
-
-      phone:
-        (
-          $("athletePhone")
-            ?.value || ""
-        ).trim() || null,
+      last_name:
+        lastName ||
+        null,
 
       national_id:
         (
           $("athleteNationalId")
             ?.value || ""
-        ).trim() || null,
+        ).trim() ||
+        null,
+
+      age:
+        $("athleteAge")
+          ?.value
+          ? Number(
+              $("athleteAge")
+                .value
+            )
+          : null,
+
+      weight:
+        $("athleteWeight")
+          ?.value
+          ? Number(
+              $("athleteWeight")
+                .value
+            )
+          : null,
+
+      age_group:
+        (
+          $("athleteAgeGroup")
+            ?.value || ""
+        ).trim() ||
+        null,
+
+      belt:
+        (
+          $("athleteBelt")
+            ?.value || ""
+        ).trim() ||
+        null,
+
+      category:
+        (
+          $("athleteCategory")
+            ?.value || ""
+        ).trim() ||
+        null,
+
+      phone:
+        (
+          $("athletePhone")
+            ?.value || ""
+        ).trim() ||
+        null,
 
       description:
         (
           $("athleteDescription")
             ?.value || ""
-        ).trim() || null
+        ).trim() ||
+        null
+
     };
 
+
     let result;
+
 
     if (
       state.editingAthleteId
@@ -1091,8 +1422,12 @@
 
       result =
         await supabaseClient
-          .from("athletes")
-          .update(payload)
+          .from(
+            "athletes"
+          )
+          .update(
+            payload
+          )
           .eq(
             "id",
             state.editingAthleteId
@@ -1102,10 +1437,15 @@
 
       result =
         await supabaseClient
-          .from("athletes")
-          .insert(payload);
+          .from(
+            "athletes"
+          )
+          .insert(
+            payload
+          );
 
     }
+
 
     if (result.error) {
 
@@ -1120,12 +1460,14 @@
       );
 
       return;
+
     }
+
 
     showMessage(
       state.editingAthleteId
         ? "اطلاعات ورزشکار ویرایش شد."
-        : "ورزشکار ثبت شد."
+        : "ورزشکار با موفقیت ثبت شد."
     );
 
     closeModal(
@@ -1135,9 +1477,17 @@
     resetAthleteForm();
 
     await loadAthletes();
+
+    renderAthletes();
+
+    renderRanking();
+
   }
 
-  async function deleteAthlete(id) {
+
+  async function deleteAthlete(
+    id
+  ) {
 
     if (
       !confirm(
@@ -1155,16 +1505,21 @@
       );
 
       return;
+
     }
+
 
     const result =
       await supabaseClient
-        .from("athletes")
+        .from(
+          "athletes"
+        )
         .delete()
         .eq(
           "id",
           id
         );
+
 
     if (result.error) {
 
@@ -1179,69 +1534,546 @@
       );
 
       return;
+
     }
+
 
     showMessage(
       "ورزشکار حذف شد."
     );
 
     await loadAthletes();
+
+    renderAthletes();
+
+    renderRanking();
+
   }
+
+
+  function setupAthleteSearch() {
+
+    const search =
+      $("athleteSearch");
+
+    if (!search) {
+      return;
+    }
+
+    search.addEventListener(
+      "input",
+      renderAthletes
+    );
+
+  }
+
+
+  function fillAthleteSelects() {
+
+    const ids = [
+      "evaluationAthlete",
+      "achievementAthlete",
+      "attendanceAthlete"
+    ];
+
+    ids.forEach(
+      id => {
+
+        const select =
+          $(id);
+
+        if (!select) {
+          return;
+        }
+
+        const current =
+          select.value;
+
+        select.innerHTML = `
+          <option value="">
+            انتخاب ورزشکار
+          </option>
+        `;
+
+        state.athletes
+          .forEach(
+            athlete => {
+
+              const option =
+                document.createElement(
+                  "option"
+                );
+
+              option.value =
+                athlete.id;
+
+              option.textContent =
+                getAthleteName(
+                  athlete
+                );
+
+              select.appendChild(
+                option
+              );
+
+            }
+          );
+
+        if (
+          current &&
+          state.athletes.some(
+            athlete =>
+              String(
+                athlete.id
+              ) ===
+              String(current)
+          )
+        ) {
+
+          select.value =
+            current;
+
+        }
+
+      }
+    );
+
+  }
+
 
   /* =======================================================
-     DASHBOARD
+     EVALUATION PERIODS
   ======================================================= */
 
-  function updateDashboard() {
+  async function loadEvaluationPeriods() {
 
-    setText(
-      "dashboardAthletes",
-      faNumber(
-        state.athletes.length
-      )
-    );
-
-    setText(
-      "dashboardEvaluations",
-      faNumber(
-        state.evaluations.length
-      )
-    );
-
-    setText(
-      "dashboardAchievements",
-      faNumber(
-        state.achievements.length
-      )
-    );
-
-    const todayAttendance =
-      state.attendance.filter(
-        item => {
-
-          const date =
-            item.date ||
-            item.attendance_date;
-
-          return (
-            date === today() &&
-            isPresent(item)
-          );
+    const result =
+      await queryTable(
+        "evaluation_periods",
+        {
+          order: {
+            column:
+              "created_at",
+            ascending:
+              false
+          }
         }
-      ).length;
+      );
 
-    setText(
-      "dashboardAttendance",
-      faNumber(
-        todayAttendance
+    if (result.error) {
+
+      console.warn(
+        "Evaluation periods:",
+        result.error
+      );
+
+      state.evaluationPeriods =
+        [];
+
+      return;
+
+    }
+
+    state.evaluationPeriods =
+      Array.isArray(
+        result.data
       )
-    );
+        ? result.data
+        : [];
 
-    updateAchievementStats();
-    updateAnnouncementStats();
-    updateCompetitionStats();
-    updateAttendanceStats();
+    fillEvaluationPeriodSelect();
+
+    renderEvaluationPeriods();
+
   }
+
+
+  function fillEvaluationPeriodSelect() {
+
+    const select =
+      $("evaluationPeriod");
+
+    if (!select) {
+      return;
+    }
+
+    const current =
+      select.value;
+
+    select.innerHTML = `
+      <option value="">
+        انتخاب دوره ارزیابی
+      </option>
+    `;
+
+    state.evaluationPeriods
+      .forEach(
+        period => {
+
+          const option =
+            document.createElement(
+              "option"
+            );
+
+          option.value =
+            period.id;
+
+          option.textContent =
+            period.title ||
+            period.name ||
+            "دوره ارزیابی";
+
+          select.appendChild(
+            option
+          );
+
+        }
+      );
+
+    if (
+      current &&
+      state.evaluationPeriods.some(
+        period =>
+          String(
+            period.id
+          ) ===
+          String(current)
+      )
+    ) {
+
+      select.value =
+        current;
+
+    }
+
+  }
+
+
+  function renderEvaluationPeriods() {
+
+    const container =
+      $("evaluationPeriodsList");
+
+    if (!container) {
+      return;
+    }
+
+    if (
+      !state.evaluationPeriods.length
+    ) {
+
+      container.innerHTML = `
+        <div class="evaluation-empty">
+
+          <div class="evaluation-empty-icon">
+            📋
+          </div>
+
+          <h2>
+            دوره‌ای ثبت نشده است
+          </h2>
+
+          <p>
+            هنوز دوره ارزیابی ایجاد نشده است.
+          </p>
+
+        </div>
+      `;
+
+      return;
+
+    }
+
+    container.innerHTML =
+      state.evaluationPeriods
+        .map(
+          period => `
+
+            <div
+              class="evaluation-period-card"
+            >
+
+              <div>
+
+                <h3>
+                  ${escapeHTML(
+                    period.title ||
+                    period.name ||
+                    "دوره ارزیابی"
+                  )}
+                </h3>
+
+                ${
+                  period.description
+                    ? `
+                      <p>
+                        ${escapeHTML(
+                          period.description
+                        )}
+                      </p>
+                    `
+                    : ""
+                }
+
+              </div>
+
+              <div class="period-date">
+
+                ${
+                  period.start_date
+                    ? escapeHTML(
+                        period.start_date
+                      )
+                    : "-"
+                }
+
+                ${
+                  period.end_date
+                    ? `
+                      تا
+                      ${escapeHTML(
+                        period.end_date
+                      )}
+                    `
+                    : ""
+                }
+
+              </div>
+
+            </div>
+
+          `
+        )
+        .join("");
+
+  }
+
+
+  /* =======================================================
+     EVALUATION CRITERIA
+  ======================================================= */
+
+  async function loadEvaluationCriteria() {
+
+    const result =
+      await queryTable(
+        "evaluation_criteria",
+        {
+          order: {
+            column:
+              "created_at",
+            ascending:
+              true
+          }
+        }
+      );
+
+    if (result.error) {
+
+      console.warn(
+        "Evaluation criteria:",
+        result.error
+      );
+
+      state.evaluationCriteria =
+        [];
+
+      return;
+
+    }
+
+    state.evaluationCriteria =
+      Array.isArray(
+        result.data
+      )
+        ? result.data
+        : [];
+
+    renderEvaluationCriteria();
+
+    prepareEvaluationPage();
+
+  }
+
+
+  function renderEvaluationCriteria() {
+
+    const container =
+      $("evaluationCriteriaList");
+
+    if (!container) {
+      return;
+    }
+
+    if (
+      !state.evaluationCriteria.length
+    ) {
+
+      container.innerHTML = `
+        <div class="evaluation-empty">
+
+          <div class="evaluation-empty-icon">
+            🎯
+          </div>
+
+          <h2>
+            معیاری ثبت نشده است
+          </h2>
+
+          <p>
+            هنوز معیار ارزیابی ایجاد نشده است.
+          </p>
+
+        </div>
+      `;
+
+      return;
+
+    }
+
+    container.innerHTML =
+      state.evaluationCriteria
+        .map(
+          criterion => `
+
+            <div
+              class="criterion-card"
+            >
+
+              <div class="criterion-number">
+                ${faNumber(
+                  criterion.order_index ??
+                  criterion.position ??
+                  ""
+                )}
+              </div>
+
+              <div class="criterion-content">
+
+                <h3>
+                  ${escapeHTML(
+                    criterion.title ||
+                    criterion.name ||
+                    "معیار"
+                  )}
+                </h3>
+
+                ${
+                  criterion.description
+                    ? `
+                      <p>
+                        ${escapeHTML(
+                          criterion.description
+                        )}
+                      </p>
+                    `
+                    : ""
+                }
+
+              </div>
+
+              <div class="criterion-score">
+                / ۱۰
+              </div>
+
+            </div>
+
+          `
+        )
+        .join("");
+
+  }
+
+
+  function prepareEvaluationPage() {
+
+    fillAthleteSelects();
+
+    fillEvaluationPeriodSelect();
+
+    renderEvaluationScoreInputs();
+
+  }
+
+
+  function renderEvaluationScoreInputs() {
+
+    const container =
+      $("evaluationScoreInputs");
+
+    if (!container) {
+      return;
+    }
+
+    if (
+      !state.evaluationCriteria.length
+    ) {
+
+      container.innerHTML = `
+        <div class="evaluation-empty">
+          هنوز معیاری برای ارزیابی ثبت نشده است.
+        </div>
+      `;
+
+      return;
+
+    }
+
+    container.innerHTML =
+      state.evaluationCriteria
+        .map(
+          criterion => `
+
+            <div
+              class="evaluation-score-row"
+            >
+
+              <div
+                class="evaluation-score-label"
+              >
+
+                <strong>
+                  ${escapeHTML(
+                    criterion.title ||
+                    criterion.name ||
+                    "معیار"
+                  )}
+                </strong>
+
+                ${
+                  criterion.description
+                    ? `
+                      <small>
+                        ${escapeHTML(
+                          criterion.description
+                        )}
+                      </small>
+                    `
+                    : ""
+                }
+
+              </div>
+
+              <input
+                type="number"
+                min="0"
+                max="10"
+                step="0.1"
+                class="evaluation-score-input"
+                data-criterion-id="${escapeHTML(
+                  criterion.id
+                )}"
+                value="0"
+              >
+
+            </div>
+
+          `
+        )
+        .join("");
+
+  }
+
 
   /* =======================================================
      EVALUATIONS
@@ -1264,83 +2096,29 @@
 
     if (result.error) {
 
-      console.error(
+      console.warn(
         "Evaluations:",
         result.error
       );
 
-      state.evaluations = [];
-
-    } else {
-
       state.evaluations =
-        Array.isArray(
-          result.data
-        )
-          ? result.data
-          : [];
+        [];
+
+      return;
 
     }
 
+    state.evaluations =
+      Array.isArray(
+        result.data
+      )
+        ? result.data
+        : [];
+
     renderEvaluations();
-    updateDashboard();
-    renderRanking();
+
   }
 
-  async function loadEvaluationPeriods() {
-
-    const result =
-      await queryTable(
-        "evaluation_periods",
-        {
-          order: {
-            column:
-              "created_at",
-            ascending:
-              false
-          }
-        }
-      );
-
-    state.evaluationPeriods =
-      result.error
-        ? []
-        : Array.isArray(
-            result.data
-          )
-          ? result.data
-          : [];
-
-    renderEvaluationPeriods();
-  }
-
-  async function loadEvaluationCriteria() {
-
-    const result =
-      await queryTable(
-        "evaluation_criteria",
-        {
-          order: {
-            column:
-              "created_at",
-            ascending:
-              true
-          }
-        }
-      );
-
-    state.evaluationCriteria =
-      result.error
-        ? []
-        : Array.isArray(
-            result.data
-          )
-          ? result.data
-          : [];
-
-    renderEvaluationCriteria();
-    renderEvaluationScoreInputs();
-  }
 
   async function loadEvaluationScores() {
 
@@ -1357,24 +2135,38 @@
         }
       );
 
-    state.evaluationScores =
-      result.error
-        ? []
-        : Array.isArray(
-            result.data
-          )
-          ? result.data
-          : [];
+    if (result.error) {
 
-    renderRanking();
+      console.warn(
+        "Evaluation scores:",
+        result.error
+      );
+
+      state.evaluationScores =
+        [];
+
+      return;
+
+    }
+
+    state.evaluationScores =
+      Array.isArray(
+        result.data
+      )
+        ? result.data
+        : [];
+
   }
+
 
   function renderEvaluations() {
 
     const container =
       $("evaluationsList");
 
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
     if (
       !state.evaluations.length
@@ -1392,191 +2184,144 @@
           </h2>
 
           <p>
-            برای شروع، یک ارزیابی جدید ایجاد کنید.
+            هنوز ارزیابی برای ورزشکاران ثبت نشده است.
           </p>
 
         </div>
       `;
 
       return;
+
     }
 
     container.innerHTML =
       state.evaluations
-        .map(item => {
+        .map(
+          evaluation => {
 
-          const athlete =
-            getAthlete(
-              item.athlete_id
-            );
+            const athlete =
+              state.athletes.find(
+                item =>
+                  String(
+                    item.id
+                  ) ===
+                  String(
+                    evaluation.athlete_id
+                  )
+              );
 
-          const period =
-            state.evaluationPeriods.find(
-              p =>
-                String(p.id) ===
-                String(
-                  item.period_id
-                )
-            );
-
-          return `
-            <div class="simple-box">
-
-              <h3>
-                📊
-                ${escapeHTML(
-                  getAthleteName(
+            const athleteName =
+              athlete
+                ? getAthleteName(
                     athlete
                   )
-                )}
-              </h3>
+                : "ورزشکار";
 
-              <p>
-                دوره:
-                ${escapeHTML(
-                  period?.name ||
-                  item.period_name ||
-                  "-"
-                )}
-              </p>
+            const score =
+              Number(
+                evaluation.total_score ??
+                evaluation.score ??
+                0
+              );
 
-              <p>
-                امتیاز:
-                ${escapeHTML(
-                  item.total_score ??
-                  item.score ??
-                  "-"
-                )}
-              </p>
+            return `
 
-              <p>
-                تاریخ:
-                ${escapeHTML(
-                  item.date ||
-                  item.created_at ||
-                  "-"
-                )}
-              </p>
+              <div
+                class="evaluation-card"
+              >
 
-              <div class="event-actions">
-
-                <button
-                  type="button"
-                  data-delete-evaluation="${escapeHTML(
-                    item.id
-                  )}"
+                <div
+                  class="evaluation-card-top"
                 >
-                  🗑️
-                </button>
+
+                  <div>
+
+                    <h3>
+                      ${escapeHTML(
+                        athleteName
+                      )}
+                    </h3>
+
+                    <span>
+                      ${escapeHTML(
+                        evaluation.title ||
+                        evaluation.name ||
+                        "ارزیابی"
+                      )}
+                    </span>
+
+                  </div>
+
+                  <strong
+                    class="evaluation-score"
+                  >
+                    ${formatSimpleScore(
+                      score
+                    )}
+                    / ۱۰
+                  </strong>
+
+                </div>
+
+                <div
+                  class="evaluation-card-details"
+                >
+
+                  ${
+                    evaluation.date
+                      ? `
+                        <span>
+                          📅
+                          ${escapeHTML(
+                            evaluation.date
+                          )}
+                        </span>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    evaluation.period_id
+                      ? `
+                        <span>
+                          📋 دوره ارزیابی
+                        </span>
+                      `
+                      : ""
+                  }
+
+                </div>
 
               </div>
 
-            </div>
-          `;
-        })
+            `;
+
+          }
+        )
         .join("");
 
-    $$("[data-delete-evaluation]")
-      .forEach(button => {
-
-        button.addEventListener(
-          "click",
-          () =>
-            deleteEvaluation(
-              button.dataset
-                .deleteEvaluation
-            )
-        );
-
-      });
   }
 
-  function renderEvaluationPeriods() {
 
-    const select =
-      $("evaluationPeriod");
+  function formatSimpleScore(
+    value
+  ) {
 
-    if (!select) return;
-
-    select.innerHTML = `
-      <option value="">
-        انتخاب دوره
-      </option>
-
-      ${state.evaluationPeriods
-        .map(
-          period => `
-            <option
-              value="${escapeHTML(
-                period.id
-              )}"
-            >
-              ${escapeHTML(
-                period.name ||
-                period.title ||
-                period.period_name ||
-                "دوره"
-              )}
-            </option>
-          `
-        )
-        .join("")}
-    `;
-  }
-
-  function renderEvaluationCriteria() {
-
-    const container =
-      $("evaluationCriteriaList");
-
-    if (!container) return;
+    const number =
+      Number(value);
 
     if (
-      !state.evaluationCriteria
-        .length
+      !Number.isFinite(number)
     ) {
-
-      container.innerHTML = `
-        <div class="evaluation-empty">
-
-          <div class="evaluation-empty-icon">
-            📋
-          </div>
-
-          <h2>
-            معیاری ثبت نشده است
-          </h2>
-
-        </div>
-      `;
-
-      return;
+      return "۰";
     }
 
-    container.innerHTML =
-      state.evaluationCriteria
-        .map(
-          criterion => `
-            <div class="simple-box">
+    return faNumber(
+      number.toFixed(1)
+    );
 
-              <h3>
-                📋
-                ${escapeHTML(
-                  criterion.name ||
-                  criterion.title ||
-                  "معیار"
-                )}
-              </h3>
-
-              <p>
-                امتیازدهی از ۰ تا ۱۰
-              </p>
-
-            </div>
-          `
-        )
-        .join("");
   }
+
 
   function resetEvaluationForm() {
 
@@ -1595,6 +2340,15 @@
       today()
     );
 
+    $$(
+      ".evaluation-score-input"
+    )
+      .forEach(
+        input => {
+          input.value = "0";
+        }
+      );
+
     state.editingEvaluationId =
       null;
 
@@ -1603,61 +2357,21 @@
       "📊 ثبت ارزیابی"
     );
 
-    renderEvaluationScoreInputs();
   }
 
-  function renderEvaluationScoreInputs() {
 
-    const container =
-      $("evaluationScoresList");
+  function startNewEvaluation() {
 
-    if (!container) return;
+    resetEvaluationForm();
 
-    if (
-      !state.evaluationCriteria
-        .length
-    ) {
+    prepareEvaluationPage();
 
-      container.innerHTML = `
-        <div class="evaluation-empty">
-          هنوز معیاری برای ارزیابی تعریف نشده است.
-        </div>
-      `;
+    openModal(
+      "evaluationModal"
+    );
 
-      return;
-    }
-
-    container.innerHTML =
-      state.evaluationCriteria
-        .map(
-          criterion => `
-            <div class="evaluation-score-row">
-
-              <label>
-                ${escapeHTML(
-                  criterion.name ||
-                  criterion.title ||
-                  "معیار"
-                )}
-              </label>
-
-              <input
-                type="number"
-                min="0"
-                max="10"
-                step="0.1"
-                class="evaluation-score-input"
-                data-criterion-id="${escapeHTML(
-                  criterion.id
-                )}"
-                value="0"
-              />
-
-            </div>
-          `
-        )
-        .join("");
   }
+
 
   async function saveEvaluation() {
 
@@ -1669,6 +2383,7 @@
       );
 
       return;
+
     }
 
     const athleteId =
@@ -1683,108 +2398,102 @@
       );
 
       return;
+
     }
 
-    const scores = [];
+    const periodId =
+      $("evaluationPeriod")
+        ?.value ||
+      null;
 
-    $$(".evaluation-score-input")
-      .forEach(input => {
+    const date =
+      $("evaluationDate")
+        ?.value ||
+      today();
 
-        let value =
+    const inputs =
+      $$(
+        ".evaluation-score-input"
+      );
+
+    let total =
+      0;
+
+    const scoreRows =
+      [];
+
+    inputs.forEach(
+      input => {
+
+        let score =
           Number(
             input.value
           );
 
         if (
-          !Number.isFinite(value)
+          !Number.isFinite(score)
         ) {
-          value = 0;
+          score = 0;
         }
 
-        value =
-          Math.max(
-            0,
-            Math.min(
-              10,
-              value
+        score =
+          Math.min(
+            10,
+            Math.max(
+              0,
+              score
             )
           );
 
-        scores.push({
+        total +=
+          score;
 
+        scoreRows.push({
           criterion_id:
             input.dataset
               .criterionId,
-
-          score:
-            value
+          score
         });
 
-      });
-
-    if (!scores.length) {
-
-      showMessage(
-        "معیارهای ارزیابی وجود ندارد.",
-        "error"
-      );
-
-      return;
-    }
-
-    const total =
-      scores.reduce(
-        (sum, item) =>
-          sum +
-          Number(
-            item.score
-          ),
-        0
-      );
+      }
+    );
 
     const average =
-      total /
-      scores.length;
+      scoreRows.length
+        ? total /
+          scoreRows.length
+        : 0;
 
-    const averageScore =
-      Number(
-        average.toFixed(2)
-      );
-
-    const evaluationPayload = {
+    const payload = {
 
       athlete_id:
         athleteId,
 
       period_id:
-        $("evaluationPeriod")
-          ?.value || null,
+        periodId,
 
-      date:
-        $("evaluationDate")
-          ?.value ||
-        today(),
+      date,
 
       total_score:
-        averageScore,
+        average
 
-      score:
-        averageScore
     };
 
-    let evaluationResult;
+
+    let result;
+
 
     if (
       state.editingEvaluationId
     ) {
 
-      evaluationResult =
+      result =
         await supabaseClient
           .from(
             "evaluations"
           )
           .update(
-            evaluationPayload
+            payload
           )
           .eq(
             "id",
@@ -1793,26 +2502,23 @@
 
     } else {
 
-      evaluationResult =
+      result =
         await supabaseClient
           .from(
             "evaluations"
           )
           .insert(
-            evaluationPayload
-          )
-          .select()
-          .single();
+            payload
+          );
 
     }
 
-    if (
-      evaluationResult.error
-    ) {
+
+    if (result.error) {
 
       console.error(
-        "Evaluation:",
-        evaluationResult.error
+        "Evaluation save:",
+        result.error
       );
 
       showMessage(
@@ -1821,15 +2527,16 @@
       );
 
       return;
+
     }
 
-    const evaluationId =
-      state.editingEvaluationId ||
-      evaluationResult.data?.id;
+
+    /*
+       ذخیره نمرات معیارها
+    */
 
     if (
-      evaluationId &&
-      scores.length
+      scoreRows.length
     ) {
 
       if (
@@ -1843,52 +2550,99 @@
           .delete()
           .eq(
             "evaluation_id",
-            evaluationId
+            state.editingEvaluationId
           );
 
       }
 
-      const scoreRows =
-        scores.map(
-          item => ({
 
-            evaluation_id:
-              evaluationId,
+      /*
+         برای ارزیابی جدید، ابتدا
+         آخرین رکورد را پیدا می‌کنیم.
+      */
 
-            criterion_id:
-              item.criterion_id,
+      let evaluationId =
+        state.editingEvaluationId;
 
-            score:
-              item.score
+      if (!evaluationId) {
 
-          })
-        );
+        const latest =
+          await supabaseClient
+            .from(
+              "evaluations"
+            )
+            .select(
+              "id"
+            )
+            .eq(
+              "athlete_id",
+              athleteId
+            )
+            .order(
+              "created_at",
+              {
+                ascending:
+                  false
+              }
+            )
+            .limit(1);
 
-      const scoreResult =
-        await supabaseClient
-          .from(
-            "evaluation_scores"
-          )
-          .insert(
-            scoreRows
+        if (
+          !latest.error &&
+          latest.data &&
+          latest.data[0]
+        ) {
+
+          evaluationId =
+            latest.data[0].id;
+
+        }
+
+      }
+
+
+      if (evaluationId) {
+
+        const rows =
+          scoreRows.map(
+            row => ({
+
+              evaluation_id:
+                evaluationId,
+
+              criterion_id:
+                row.criterion_id,
+
+              score:
+                row.score
+
+            })
           );
 
-      if (
-        scoreResult.error
-      ) {
+        const scoreResult =
+          await supabaseClient
+            .from(
+              "evaluation_scores"
+            )
+            .insert(
+              rows
+            );
 
-        console.error(
-          "Evaluation scores:",
+        if (
           scoreResult.error
-        );
+        ) {
 
-        showMessage(
-          "ارزیابی ثبت شد اما جزئیات معیارها ذخیره نشد.",
-          "error"
-        );
+          console.warn(
+            "Evaluation scores:",
+            scoreResult.error
+          );
+
+        }
 
       }
+
     }
+
 
     showMessage(
       state.editingEvaluationId
@@ -1902,82 +2656,14 @@
 
     resetEvaluationForm();
 
-    await Promise.all([
-      loadEvaluations(),
-      loadEvaluationScores()
-    ]);
+    await loadEvaluations();
+
+    await loadEvaluationScores();
+
+    renderRanking();
+
   }
 
-  async function deleteEvaluation(
-    id
-  ) {
-
-    if (
-      !confirm(
-        "آیا از حذف این ارزیابی مطمئن هستید؟"
-      )
-    ) {
-      return;
-    }
-
-    if (!supabaseClient) {
-
-      showMessage(
-        "اتصال Supabase برقرار نیست.",
-        "error"
-      );
-
-      return;
-    }
-
-    const scoreDelete =
-      await supabaseClient
-        .from(
-          "evaluation_scores"
-        )
-        .delete()
-        .eq(
-          "evaluation_id",
-          id
-        );
-
-    if (scoreDelete.error) {
-      console.warn(
-        "Evaluation score delete:",
-        scoreDelete.error
-      );
-    }
-
-    const result =
-      await supabaseClient
-        .from(
-          "evaluations"
-        )
-        .delete()
-        .eq(
-          "id",
-          id
-        );
-
-    if (result.error) {
-
-      showMessage(
-        "حذف ارزیابی انجام نشد.",
-        "error"
-      );
-
-      return;
-    }
-
-    showMessage(
-      "ارزیابی حذف شد."
-    );
-
-    await Promise.all([
-      loadEvaluations(),
-      loadEvaluationScores()
-    ]);
-  }
 
   /* =======================================================
      ATTENDANCE
@@ -2000,83 +2686,108 @@
 
     if (result.error) {
 
-      console.error(
+      console.warn(
         "Attendance:",
         result.error
       );
 
-      state.attendance = [];
-
-    } else {
-
       state.attendance =
-        Array.isArray(
-          result.data
-        )
-          ? result.data
-          : [];
+        [];
+
+      return;
 
     }
 
+    state.attendance =
+      Array.isArray(
+        result.data
+      )
+        ? result.data
+        : [];
+
     renderAttendance();
-    updateAttendanceStats();
-    updateDashboard();
-    renderRanking();
+
   }
 
-  function updateAttendanceStats() {
 
-    const todayRecords =
-      state.attendance.filter(
-        item =>
-          (
-            item.date ||
-            item.attendance_date
-          ) ===
-          today()
+  function resetAttendanceForm() {
+
+    setValue(
+      "attendanceDate",
+      today()
+    );
+
+    setValue(
+      "attendanceAthlete",
+      ""
+    );
+
+  }
+
+
+  function initializeAttendancePage() {
+
+    fillAthleteSelects();
+
+    loadAttendanceForDate(
+      today()
+    );
+
+  }
+
+
+  async function loadAttendanceForDate(
+    date
+  ) {
+
+    if (!supabaseClient) {
+      return;
+    }
+
+    const result =
+      await queryTable(
+        "attendance",
+        {
+          eq: {
+            date
+          },
+          order: {
+            column:
+              "created_at",
+            ascending:
+              true
+          }
+        }
       );
 
-    const present =
-      todayRecords.filter(
-        isPresent
-      ).length;
+    if (
+      result.error
+    ) {
 
-    const absent =
-      todayRecords.length -
-      present;
+      console.warn(
+        "Attendance date:",
+        result.error
+      );
 
-    setText(
-      "attendancePresentCount",
-      faNumber(
-        present
+      return;
+
+    }
+
+    const rows =
+      Array.isArray(
+        result.data
       )
-    );
-
-    setText(
-      "attendanceAbsentCount",
-      faNumber(
-        absent
-      )
-    );
-
-    setText(
-      "attendanceTotalCount",
-      faNumber(
-        todayRecords.length
-      )
-    );
-  }
-
-  function renderAttendance() {
+        ? result.data
+        : [];
 
     const container =
       $("attendanceList");
 
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
-    if (
-      !state.attendance.length
-    ) {
+    if (!rows.length) {
 
       container.innerHTML = `
         <div class="evaluation-empty">
@@ -2089,83 +2800,111 @@
             حضور و غیابی ثبت نشده است
           </h2>
 
+          <p>
+            برای این تاریخ هنوز اطلاعاتی ثبت نشده.
+          </p>
+
         </div>
       `;
 
       return;
+
     }
 
     container.innerHTML =
-      state.attendance
-        .slice(0, 100)
-        .map(item => {
+      rows
+        .map(
+          row => {
 
-          const athlete =
-            getAthlete(
-              item.athlete_id
-            );
-
-          const present =
-            isPresent(item);
-
-          return `
-            <div class="simple-box">
-
-              <h3>
-                👤
-                ${escapeHTML(
-                  getAthleteName(
-                    athlete
+            const athlete =
+              state.athletes.find(
+                item =>
+                  String(
+                    item.id
+                  ) ===
+                  String(
+                    row.athlete_id
                   )
-                )}
-              </h3>
+              );
 
-              <p>
-                تاریخ:
-                ${escapeHTML(
-                  item.date ||
-                  item.attendance_date ||
-                  "-"
-                )}
-              </p>
+            return `
 
-              <p>
-                وضعیت:
-                ${
-                  present
-                    ? "✅ حاضر"
-                    : "❌ غایب"
-                }
-              </p>
+              <div
+                class="attendance-card"
+              >
 
-            </div>
-          `;
-        })
+                <strong>
+                  ${escapeHTML(
+                    athlete
+                      ? getAthleteName(
+                          athlete
+                        )
+                      : "ورزشکار"
+                  )}
+                </strong>
+
+                <span>
+                  ${
+                    isPresent(row)
+                      ? "🟢 حاضر"
+                      : "🔴 غایب"
+                  }
+                </span>
+
+              </div>
+
+            `;
+
+          }
+        )
         .join("");
+
   }
 
-  function resetAttendanceForm() {
 
-    setValue(
-      "attendanceAthlete",
-      ""
-    );
+  function renderAttendance() {
 
-    setValue(
-      "attendanceDate",
+    const container =
+      $("attendanceList");
+
+    if (!container) {
+      return;
+    }
+
+    if (
+      !state.attendance.length
+    ) {
+
+      container.innerHTML = `
+        <div class="evaluation-empty">
+
+          <div class="evaluation-empty-icon">
+            📅
+          </div>
+
+          <h2>
+            سابقه حضور خالی است
+          </h2>
+
+          <p>
+            هنوز حضور و غیابی ثبت نشده است.
+          </p>
+
+        </div>
+      `;
+
+      return;
+
+    }
+
+    loadAttendanceForDate(
+      $("attendanceDate")
+        ?.value ||
       today()
     );
 
-    setValue(
-      "attendanceStatus",
-      "present"
-    );
-
-    setValue(
-      "attendanceDescription",
-      ""
-    );
   }
+
 
   async function saveAttendance() {
 
@@ -2177,11 +2916,17 @@
       );
 
       return;
+
     }
 
     const athleteId =
       $("attendanceAthlete")
         ?.value;
+
+    const date =
+      $("attendanceDate")
+        ?.value ||
+      today();
 
     if (!athleteId) {
 
@@ -2191,45 +2936,42 @@
       );
 
       return;
+
     }
 
-    const status =
-      $("attendanceStatus")
-        ?.value ||
-      "present";
-
     const present =
-      status ===
-      "present";
+      $("attendancePresent")
+        ? Boolean(
+            $("attendancePresent")
+              .checked
+          )
+        : true;
 
     const payload = {
 
       athlete_id:
         athleteId,
 
-      date:
-        $("attendanceDate")
-          ?.value ||
-        today(),
+      date,
 
-      status,
+      present
 
-      present,
-
-      description:
-        (
-          $("attendanceDescription")
-            ?.value || ""
-        ).trim() ||
-        null
     };
+
 
     const result =
       await supabaseClient
-        .from("attendance")
-        .insert(
-          payload
+        .from(
+          "attendance"
+        )
+        .upsert(
+          payload,
+          {
+            onConflict:
+              "athlete_id,date"
+          }
         );
+
 
     if (result.error) {
 
@@ -2244,592 +2986,24 @@
       );
 
       return;
+
     }
+
 
     showMessage(
       "حضور و غیاب ثبت شد."
     );
 
-    closeModal(
-      "attendanceModal"
-    );
-
-    resetAttendanceForm();
-
     await loadAttendance();
-  }
 
-  /* =======================================================
-     ACHIEVEMENTS
-  ======================================================= */
-
-  async function loadAchievements() {
-
-    const result =
-      await queryTable(
-        "achievements",
-        {
-          order: {
-            column:
-              "created_at",
-            ascending:
-              false
-          }
-        }
-      );
-
-    if (result.error) {
-
-      console.error(
-        "Achievements:",
-        result.error
-      );
-
-      state.achievements = [];
-
-    } else {
-
-      state.achievements =
-        Array.isArray(
-          result.data
-        )
-          ? result.data
-          : [];
-
-    }
-
-    renderAchievements();
-    updateAchievementStats();
-    updateDashboard();
     renderRanking();
-  }
 
-  function medalType(item) {
-
-    const value =
-      String(
-        item?.medal ??
-        item?.medal_type ??
-        item?.position ??
-        item?.rank ??
-        ""
-      )
-        .trim()
-        .toLowerCase();
-
-    if (
-      value === "gold" ||
-      value === "طلا" ||
-      value === "اول" ||
-      value === "1" ||
-      value === "۱"
-    ) {
-      return "gold";
-    }
-
-    if (
-      value === "silver" ||
-      value === "نقره" ||
-      value === "دوم" ||
-      value === "2" ||
-      value === "۲"
-    ) {
-      return "silver";
-    }
-
-    if (
-      value === "bronze" ||
-      value === "برنز" ||
-      value === "سوم" ||
-      value === "3" ||
-      value === "۳"
-    ) {
-      return "bronze";
-    }
-
-    return "other";
-  }
-
-  function updateAchievementStats() {
-
-    const gold =
-      state.achievements.filter(
-        item =>
-          medalType(item) ===
-          "gold"
-      ).length;
-
-    const silver =
-      state.achievements.filter(
-        item =>
-          medalType(item) ===
-          "silver"
-      ).length;
-
-    const bronze =
-      state.achievements.filter(
-        item =>
-          medalType(item) ===
-          "bronze"
-      ).length;
-
-    setText(
-      "goldAchievements",
-      faNumber(
-        gold
-      )
+    loadAttendanceForDate(
+      date
     );
 
-    setText(
-      "silverAchievements",
-      faNumber(
-        silver
-      )
-    );
-
-    setText(
-      "bronzeAchievements",
-      faNumber(
-        bronze
-      )
-    );
-  }
-
-  function renderAchievements() {
-
-    const container =
-      $("achievementsList");
-
-    if (!container) return;
-
-    if (
-      !state.achievements.length
-    ) {
-
-      container.innerHTML = `
-        <div class="evaluation-empty">
-
-          <div class="evaluation-empty-icon">
-            🏆
-          </div>
-
-          <h2>
-            افتخاری ثبت نشده است
-          </h2>
-
-          <p>
-            هنوز مقام یا افتخاری ثبت نشده است.
-          </p>
-
-        </div>
-      `;
-
-      return;
-    }
-
-    container.innerHTML =
-      state.achievements
-        .map(item => {
-
-          const athlete =
-            getAthlete(
-              item.athlete_id
-            );
-
-          return `
-            <div class="simple-box">
-
-              <h3>
-                🏆
-                ${escapeHTML(
-                  item.title ||
-                  item.competition ||
-                  item.name ||
-                  "افتخار"
-                )}
-              </h3>
-
-              <p>
-                ورزشکار:
-                ${escapeHTML(
-                  getAthleteName(
-                    athlete
-                  )
-                )}
-              </p>
-
-              <p>
-                مقام:
-                ${escapeHTML(
-                  item.position ||
-                  item.rank ||
-                  item.medal ||
-                  "-"
-                )}
-              </p>
-
-              <p>
-                تاریخ:
-                ${escapeHTML(
-                  item.date ||
-                  "-"
-                )}
-              </p>
-
-              <div class="event-actions">
-
-                <button
-                  type="button"
-                  data-edit-achievement="${escapeHTML(
-                    item.id
-                  )}"
-                >
-                  ✏️
-                </button>
-
-                <button
-                  type="button"
-                  data-delete-achievement="${escapeHTML(
-                    item.id
-                  )}"
-                >
-                  🗑️
-                </button>
-
-              </div>
-
-            </div>
-          `;
-        })
-        .join("");
-
-    bindAchievementActions();
-  }
-
-  function resetAchievementForm() {
-
-    [
-      "achievementAthlete",
-      "achievementTitle",
-      "achievementCompetition",
-      "achievementDate",
-      "achievementPosition",
-      "achievementDescription"
-    ].forEach(id => {
-
-      const el = $(id);
-
-      if (el) {
-        el.value = "";
-      }
-
-    });
-
-    setValue(
-      "achievementMedal",
-      "gold"
-    );
-
-    setValue(
-      "achievementDate",
-      today()
-    );
-
-    state.editingAchievementId =
-      null;
-
-    setText(
-      "saveAchievementBtn",
-      "🏆 ثبت افتخار"
-    );
-  }
-
-  function bindAchievementActions() {
-
-    $$("[data-delete-achievement]")
-      .forEach(button => {
-
-        button.addEventListener(
-          "click",
-          () =>
-            deleteAchievement(
-              button.dataset
-                .deleteAchievement
-            )
-        );
-
-      });
-
-    $$("[data-edit-achievement]")
-      .forEach(button => {
-
-        button.addEventListener(
-          "click",
-          () =>
-            editAchievement(
-              button.dataset
-                .editAchievement
-            )
-        );
-
-      });
-  }
-
-  function editAchievement(id) {
-
-    const item =
-      state.achievements.find(
-        x =>
-          String(x.id) ===
-          String(id)
-      );
-
-    if (!item) return;
-
-    state.editingAchievementId =
-      id;
-
-    setValue(
-      "achievementAthlete",
-      item.athlete_id
-    );
-
-    setValue(
-      "achievementTitle",
-      item.title || ""
-    );
-
-    setValue(
-      "achievementCompetition",
-      item.competition || ""
-    );
-
-    setValue(
-      "achievementDate",
-      item.date || ""
-    );
-
-    setValue(
-      "achievementPosition",
-      item.position ||
-      item.rank ||
-      ""
-    );
-
-    setValue(
-      "achievementMedal",
-      item.medal ||
-      "gold"
-    );
-
-    setValue(
-      "achievementDescription",
-      item.description ||
-      ""
-    );
-
-    setText(
-      "saveAchievementBtn",
-      "💾 ذخیره تغییرات"
-    );
-
-    openModal(
-      "achievementModal"
-    );
-  }
-
-  async function saveAchievement() {
-
-    if (!supabaseClient) {
-
-      showMessage(
-        "اتصال Supabase برقرار نیست.",
-        "error"
-      );
-
-      return;
-    }
-
-    const athleteId =
-      $("achievementAthlete")
-        ?.value;
-
-    const title =
-      (
-        $("achievementTitle")
-          ?.value || ""
-      ).trim();
-
-    if (!athleteId) {
-
-      showMessage(
-        "ورزشکار را انتخاب کنید.",
-        "error"
-      );
-
-      return;
-    }
-
-    if (!title) {
-
-      showMessage(
-        "عنوان افتخار را وارد کنید.",
-        "error"
-      );
-
-      return;
-    }
-
-    const payload = {
-
-      athlete_id:
-        athleteId,
-
-      title,
-
-      competition:
-        (
-          $("achievementCompetition")
-            ?.value || ""
-        ).trim() ||
-        null,
-
-      date:
-        $("achievementDate")
-          ?.value ||
-        null,
-
-      position:
-        (
-          $("achievementPosition")
-            ?.value || ""
-        ).trim() ||
-        null,
-
-      medal:
-        $("achievementMedal")
-          ?.value ||
-        "gold",
-
-      description:
-        (
-          $("achievementDescription")
-            ?.value || ""
-        ).trim() ||
-        null
-    };
-
-    let result;
-
-    if (
-      state.editingAchievementId
-    ) {
-
-      result =
-        await supabaseClient
-          .from(
-            "achievements"
-          )
-          .update(
-            payload
-          )
-          .eq(
-            "id",
-            state.editingAchievementId
-          );
-
-    } else {
-
-      result =
-        await supabaseClient
-          .from(
-            "achievements"
-          )
-          .insert(
-            payload
-          );
-
-    }
-
-    if (result.error) {
-
-      console.error(
-        "Achievement save:",
-        result.error
-      );
-
-      showMessage(
-        "ذخیره افتخار انجام نشد.",
-        "error"
-      );
-
-      return;
-    }
-
-    showMessage(
-      state.editingAchievementId
-        ? "افتخار ویرایش شد."
-        : "افتخار ثبت شد."
-    );
-
-    closeModal(
-      "achievementModal"
-    );
-
-    resetAchievementForm();
-
-    await loadAchievements();
-  }
-
-  async function deleteAchievement(id) {
-
-    if (
-      !confirm(
-        "آیا از حذف این افتخار مطمئن هستید؟"
-      )
-    ) {
-      return;
-    }
-
-    if (!supabaseClient) {
-
-      showMessage(
-        "اتصال Supabase برقرار نیست.",
-        "error"
-      );
-
-      return;
-    }
-
-    const result =
-      await supabaseClient
-        .from(
-          "achievements"
-        )
-        .delete()
-        .eq(
-          "id",
-          id
-        );
-
-    if (result.error) {
-
-      showMessage(
-        "حذف افتخار انجام نشد.",
-        "error"
-      );
-
-      return;
-    }
-
-    showMessage(
-      "افتخار حذف شد."
-    );
-
-    await loadAchievements();
-  }
-
-  /* =======================================================
+       }
+   /* =======================================================
      ANNOUNCEMENTS
   ======================================================= */
 
@@ -2840,10 +3014,8 @@
         "announcements",
         {
           order: {
-            column:
-              "date",
-            ascending:
-              false
+            column: "date",
+            ascending: false
           }
         }
       );
@@ -2851,9 +3023,7 @@
     state.announcements =
       result.error
         ? []
-        : Array.isArray(
-            result.data
-          )
+        : Array.isArray(result.data)
           ? result.data
           : [];
 
@@ -2861,9 +3031,8 @@
     updateAnnouncementStats();
   }
 
-  function announcementTypeLabel(
-    type
-  ) {
+
+  function announcementTypeLabel(type) {
 
     const labels = {
 
@@ -2896,6 +3065,7 @@
     );
   }
 
+
   function renderAnnouncements() {
 
     const container =
@@ -2903,10 +3073,9 @@
 
     if (!container) return;
 
-    let list =
-      [
-        ...state.announcements
-      ];
+    let list = [
+      ...state.announcements
+    ];
 
     const search =
       (
@@ -2918,8 +3087,8 @@
 
     const filter =
       $("announcementFilter")
-        ?.value ||
-      "all";
+        ?.value || "all";
+
 
     if (search) {
 
@@ -2934,26 +3103,20 @@
             .filter(Boolean)
             .join(" ")
             .toLowerCase()
-            .includes(
-              search
-            )
+            .includes(search)
         );
-
     }
 
-    if (
-      filter !==
-      "all"
-    ) {
+
+    if (filter !== "all") {
 
       list =
         list.filter(
           item =>
-            item.type ===
-            filter
+            item.type === filter
         );
-
     }
+
 
     if (!list.length) {
 
@@ -2978,121 +3141,133 @@
       return;
     }
 
+
     container.innerHTML =
       list
-        .map(
-          item => `
+        .map(item => `
 
-            <div class="announcement-card">
+          <div class="announcement-card">
 
-              <div class="announcement-card-top">
+            <div class="announcement-card-top">
 
-                <div class="announcement-icon">
-                  📢
-                </div>
+              <div class="announcement-icon">
+                📢
+              </div>
 
-                <div class="announcement-main">
+              <div class="announcement-main">
 
-                  <h3>
-                    ${escapeHTML(
-                      item.title ||
-                      "اطلاعیه"
-                    )}
-                  </h3>
+                <h3>
+                  ${escapeHTML(
+                    item.title ||
+                    "اطلاعیه"
+                  )}
+                </h3>
 
-                  <span
-                    class="announcement-type-badge"
-                  >
-                    ${announcementTypeLabel(
-                      item.type
-                    )}
-                  </span>
-
-                </div>
-
-                <div class="event-actions">
-
-                  <button
-                    type="button"
-                    data-edit-announcement="${escapeHTML(
-                      item.id
-                    )}"
-                  >
-                    ✏️
-                  </button>
-
-                  <button
-                    type="button"
-                    data-delete-announcement="${escapeHTML(
-                      item.id
-                    )}"
-                  >
-                    🗑️
-                  </button>
-
-                </div>
+                <span
+                  class="announcement-type-badge"
+                >
+                  ${announcementTypeLabel(
+                    item.type
+                  )}
+                </span>
 
               </div>
 
-              <div class="announcement-details">
+              <div class="event-actions">
 
-                <div class="event-detail">
-                  <span>📅 تاریخ</span>
+                <button
+                  type="button"
+                  data-edit-announcement="${escapeHTML(
+                    item.id
+                  )}"
+                >
+                  ✏️
+                </button>
 
-                  <strong>
-                    ${escapeHTML(
-                      item.date ||
-                      "-"
-                    )}
-                  </strong>
-                </div>
-
-                <div class="event-detail">
-                  <span>📍 محل</span>
-
-                  <strong>
-                    ${escapeHTML(
-                      item.location ||
-                      "-"
-                    )}
-                  </strong>
-                </div>
-
-                <div class="event-detail">
-                  <span>⏰ ساعت</span>
-
-                  <strong>
-                    ${escapeHTML(
-                      item.start_time ||
-                      "-"
-                    )}
-                  </strong>
-                </div>
+                <button
+                  type="button"
+                  data-delete-announcement="${escapeHTML(
+                    item.id
+                  )}"
+                >
+                  🗑️
+                </button>
 
               </div>
-
-              ${
-                item.content
-                  ? `
-                    <div
-                      class="announcement-content"
-                    >
-                      ${escapeHTML(
-                        item.content
-                      )}
-                    </div>
-                  `
-                  : ""
-              }
 
             </div>
 
-          `
-        )
+
+            <div class="announcement-details">
+
+              <div class="event-detail">
+
+                <span>
+                  📅 تاریخ
+                </span>
+
+                <strong>
+                  ${escapeHTML(
+                    item.date || "-"
+                  )}
+                </strong>
+
+              </div>
+
+
+              <div class="event-detail">
+
+                <span>
+                  📍 محل
+                </span>
+
+                <strong>
+                  ${escapeHTML(
+                    item.location || "-"
+                  )}
+                </strong>
+
+              </div>
+
+
+              <div class="event-detail">
+
+                <span>
+                  ⏰ ساعت
+                </span>
+
+                <strong>
+                  ${escapeHTML(
+                    item.start_time || "-"
+                  )}
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            ${
+              item.content
+                ? `
+                  <div class="announcement-content">
+                    ${escapeHTML(
+                      item.content
+                    )}
+                  </div>
+                `
+                : ""
+            }
+
+          </div>
+
+        `)
         .join("");
+
 
     bindAnnouncementActions();
   }
+
 
   function updateAnnouncementStats() {
 
@@ -3103,16 +3278,17 @@
       )
     );
 
+
     setText(
       "activeAnnouncements",
       faNumber(
         state.announcements.filter(
           item =>
-            item.active !==
-            false
+            item.active !== false
         ).length
       )
     );
+
 
     setText(
       "upcomingAnnouncements",
@@ -3120,12 +3296,12 @@
         state.announcements.filter(
           item =>
             item.date &&
-            item.date >=
-            today()
+            item.date >= today()
         ).length
       )
     );
   }
+
 
   function bindAnnouncementActions() {
 
@@ -3143,6 +3319,7 @@
 
       });
 
+
     $$("[data-edit-announcement]")
       .forEach(button => {
 
@@ -3157,6 +3334,7 @@
 
       });
   }
+
 
   function resetAnnouncementForm() {
 
@@ -3176,24 +3354,29 @@
 
     });
 
+
     setValue(
       "announcementType",
       "general"
     );
+
 
     setValue(
       "announcementDate",
       today()
     );
 
+
     state.editingAnnouncementId =
       null;
+
 
     setText(
       "saveAnnouncementBtn",
       "📢 انتشار اطلاعیه"
     );
   }
+
 
   function editAnnouncement(id) {
 
@@ -3206,58 +3389,64 @@
 
     if (!item) return;
 
+
     state.editingAnnouncementId =
       id;
+
 
     setValue(
       "announcementTitle",
       item.title || ""
     );
 
+
     setValue(
       "announcementType",
-      item.type ||
-      "general"
+      item.type || "general"
     );
+
 
     setValue(
       "announcementDate",
       item.date || ""
     );
 
+
     setValue(
       "announcementLocation",
-      item.location ||
-      ""
+      item.location || ""
     );
+
 
     setValue(
       "announcementStartTime",
-      item.start_time ||
-      ""
+      item.start_time || ""
     );
+
 
     setValue(
       "announcementEndTime",
-      item.end_time ||
-      ""
+      item.end_time || ""
     );
+
 
     setValue(
       "announcementContent",
-      item.content ||
-      ""
+      item.content || ""
     );
+
 
     setText(
       "saveAnnouncementBtn",
       "💾 ذخیره تغییرات"
     );
 
+
     openModal(
       "announcementModal"
     );
   }
+
 
   async function saveAnnouncement() {
 
@@ -3271,11 +3460,13 @@
       return;
     }
 
+
     const title =
       (
         $("announcementTitle")
           ?.value || ""
       ).trim();
+
 
     if (!title) {
 
@@ -3286,6 +3477,7 @@
 
       return;
     }
+
 
     const payload = {
 
@@ -3325,11 +3517,12 @@
         ).trim() ||
         null,
 
-      active:
-        true
+      active: true
     };
 
+
     let result;
+
 
     if (
       state.editingAnnouncementId
@@ -3337,12 +3530,8 @@
 
       result =
         await supabaseClient
-          .from(
-            "announcements"
-          )
-          .update(
-            payload
-          )
+          .from("announcements")
+          .update(payload)
           .eq(
             "id",
             state.editingAnnouncementId
@@ -3352,14 +3541,11 @@
 
       result =
         await supabaseClient
-          .from(
-            "announcements"
-          )
-          .insert(
-            payload
-          );
+          .from("announcements")
+          .insert(payload);
 
     }
+
 
     if (result.error) {
 
@@ -3376,20 +3562,25 @@
       return;
     }
 
+
     showMessage(
       state.editingAnnouncementId
         ? "اطلاعیه ویرایش شد."
         : "اطلاعیه ثبت شد."
     );
 
+
     closeModal(
       "announcementModal"
     );
 
+
     resetAnnouncementForm();
+
 
     await loadAnnouncements();
   }
+
 
   async function deleteAnnouncement(id) {
 
@@ -3401,6 +3592,7 @@
       return;
     }
 
+
     if (!supabaseClient) {
 
       showMessage(
@@ -3411,16 +3603,13 @@
       return;
     }
 
+
     const result =
       await supabaseClient
-        .from(
-          "announcements"
-        )
+        .from("announcements")
         .delete()
-        .eq(
-          "id",
-          id
-        );
+        .eq("id", id);
+
 
     if (result.error) {
 
@@ -3432,12 +3621,16 @@
       return;
     }
 
+
     showMessage(
       "اطلاعیه حذف شد."
     );
 
+
     await loadAnnouncements();
   }
+
+
 
   /* =======================================================
      COMPETITIONS
@@ -3450,27 +3643,26 @@
         "competitions",
         {
           order: {
-            column:
-              "date",
-            ascending:
-              true
+            column: "date",
+            ascending: true
           }
         }
       );
 
+
     state.competitions =
       result.error
         ? []
-        : Array.isArray(
-            result.data
-          )
+        : Array.isArray(result.data)
           ? result.data
           : [];
+
 
     renderCompetitions();
     updateCompetitionStats();
     renderRanking();
   }
+
 
   function competitionStatus(item) {
 
@@ -3481,6 +3673,7 @@
       return "cancelled";
     }
 
+
     if (
       item.status ===
       "completed"
@@ -3488,20 +3681,20 @@
       return "completed";
     }
 
+
     if (
       item.date &&
-      item.date <
-      today()
+      item.date < today()
     ) {
       return "completed";
     }
 
+
     return "upcoming";
   }
 
-  function competitionStatusLabel(
-    status
-  ) {
+
+  function competitionStatusLabel(status) {
 
     if (
       status ===
@@ -3510,6 +3703,7 @@
       return "✅ برگزارشده";
     }
 
+
     if (
       status ===
       "cancelled"
@@ -3517,8 +3711,10 @@
       return "❌ لغوشده";
     }
 
+
     return "⏳ پیش‌رو";
   }
+
 
   function renderCompetitions() {
 
@@ -3527,10 +3723,11 @@
 
     if (!container) return;
 
-    let list =
-      [
-        ...state.competitions
-      ];
+
+    let list = [
+      ...state.competitions
+    ];
+
 
     const search =
       (
@@ -3540,10 +3737,11 @@
         .trim()
         .toLowerCase();
 
+
     const filter =
       $("competitionFilter")
-        ?.value ||
-      "all";
+        ?.value || "all";
+
 
     if (search) {
 
@@ -3559,28 +3757,22 @@
             .filter(Boolean)
             .join(" ")
             .toLowerCase()
-            .includes(
-              search
-            )
+            .includes(search)
         );
-
     }
 
-    if (
-      filter !==
-      "all"
-    ) {
+
+    if (filter !== "all") {
 
       list =
         list.filter(
           item =>
             competitionStatus(
               item
-            ) ===
-            filter
+            ) === filter
         );
-
     }
+
 
     if (!list.length) {
 
@@ -3605,6 +3797,7 @@
       return;
     }
 
+
     container.innerHTML =
       list
         .map(item => {
@@ -3614,7 +3807,9 @@
               item
             );
 
+
           return `
+
             <div class="competition-card">
 
               <div class="competition-card-top">
@@ -3622,6 +3817,7 @@
                 <div class="competition-icon">
                   📅
                 </div>
+
 
                 <div class="competition-main">
 
@@ -3641,6 +3837,7 @@
                   </span>
 
                 </div>
+
 
                 <div class="event-actions">
 
@@ -3666,49 +3863,61 @@
 
               </div>
 
+
               <div class="competition-details">
 
                 <div class="event-detail">
-                  <span>📅 تاریخ</span>
+
+                  <span>
+                    📅 تاریخ
+                  </span>
 
                   <strong>
                     ${escapeHTML(
-                      item.date ||
-                      "-"
+                      item.date || "-"
                     )}
                   </strong>
+
                 </div>
 
+
                 <div class="event-detail">
-                  <span>📍 محل</span>
+
+                  <span>
+                    📍 محل
+                  </span>
 
                   <strong>
                     ${escapeHTML(
-                      item.location ||
-                      "-"
+                      item.location || "-"
                     )}
                   </strong>
+
                 </div>
 
+
                 <div class="event-detail">
-                  <span>👥 رده سنی</span>
+
+                  <span>
+                    👥 رده سنی
+                  </span>
 
                   <strong>
                     ${escapeHTML(
-                      item.age_group ||
-                      "-"
+                      item.age_group || "-"
                     )}
                   </strong>
+
                 </div>
 
               </div>
 
+
               ${
                 item.weights
                   ? `
-                    <div
-                      class="competition-description"
-                    >
+                    <div class="competition-description">
+
                       <strong>
                         ⚖️ وزن‌ها:
                       </strong>
@@ -3716,17 +3925,17 @@
                       ${escapeHTML(
                         item.weights
                       )}
+
                     </div>
                   `
                   : ""
               }
 
+
               ${
                 item.description
                   ? `
-                    <div
-                      class="competition-description"
-                    >
+                    <div class="competition-description">
                       ${escapeHTML(
                         item.description
                       )}
@@ -3736,12 +3945,15 @@
               }
 
             </div>
+
           `;
         })
         .join("");
 
+
     bindCompetitionActions();
   }
+
 
   function updateCompetitionStats() {
 
@@ -3752,32 +3964,31 @@
       )
     );
 
+
     setText(
       "upcomingCompetitions",
       faNumber(
         state.competitions.filter(
           item =>
-            competitionStatus(
-              item
-            ) ===
+            competitionStatus(item) ===
             "upcoming"
         ).length
       )
     );
+
 
     setText(
       "completedCompetitions",
       faNumber(
         state.competitions.filter(
           item =>
-            competitionStatus(
-              item
-            ) ===
+            competitionStatus(item) ===
             "completed"
         ).length
       )
     );
   }
+
 
   function bindCompetitionActions() {
 
@@ -3795,6 +4006,7 @@
 
       });
 
+
     $$("[data-edit-competition]")
       .forEach(button => {
 
@@ -3809,6 +4021,7 @@
 
       });
   }
+
 
   function resetCompetitionForm() {
 
@@ -3831,19 +4044,23 @@
 
     });
 
+
     setValue(
       "competitionDate",
       today()
     );
 
+
     state.editingCompetitionId =
       null;
+
 
     setText(
       "saveCompetitionBtn",
       "📅 ثبت مسابقه"
     );
   }
+
 
   function editCompetition(id) {
 
@@ -3856,58 +4073,70 @@
 
     if (!item) return;
 
+
     state.editingCompetitionId =
       id;
+
 
     setValue(
       "competitionTitle",
       item.title || ""
     );
 
+
     setValue(
       "competitionDate",
       item.date || ""
     );
+
 
     setValue(
       "competitionLocation",
       item.location || ""
     );
 
+
     setValue(
       "competitionStartTime",
       item.start_time || ""
     );
+
 
     setValue(
       "competitionEndTime",
       item.end_time || ""
     );
 
+
     setValue(
       "competitionAgeGroup",
       item.age_group || ""
     );
+
 
     setValue(
       "competitionWeights",
       item.weights || ""
     );
 
+
     setValue(
       "competitionDescription",
       item.description || ""
     );
+
 
     setText(
       "saveCompetitionBtn",
       "💾 ذخیره تغییرات"
     );
 
+
     openModal(
       "competitionModal"
     );
   }
+
 
   async function saveCompetition() {
 
@@ -3921,11 +4150,13 @@
       return;
     }
 
+
     const title =
       (
         $("competitionTitle")
           ?.value || ""
       ).trim();
+
 
     if (!title) {
 
@@ -3936,6 +4167,7 @@
 
       return;
     }
+
 
     const payload = {
 
@@ -3985,7 +4217,9 @@
         null
     };
 
+
     let result;
+
 
     if (
       state.editingCompetitionId
@@ -3993,12 +4227,8 @@
 
       result =
         await supabaseClient
-          .from(
-            "competitions"
-          )
-          .update(
-            payload
-          )
+          .from("competitions")
+          .update(payload)
           .eq(
             "id",
             state.editingCompetitionId
@@ -4008,14 +4238,11 @@
 
       result =
         await supabaseClient
-          .from(
-            "competitions"
-          )
-          .insert(
-            payload
-          );
+          .from("competitions")
+          .insert(payload);
 
     }
+
 
     if (result.error) {
 
@@ -4032,20 +4259,25 @@
       return;
     }
 
+
     showMessage(
       state.editingCompetitionId
         ? "مسابقه ویرایش شد."
         : "مسابقه ثبت شد."
     );
 
+
     closeModal(
       "competitionModal"
     );
 
+
     resetCompetitionForm();
+
 
     await loadCompetitions();
   }
+
 
   async function deleteCompetition(id) {
 
@@ -4057,6 +4289,7 @@
       return;
     }
 
+
     if (!supabaseClient) {
 
       showMessage(
@@ -4067,16 +4300,13 @@
       return;
     }
 
+
     const result =
       await supabaseClient
-        .from(
-          "competitions"
-        )
+        .from("competitions")
         .delete()
-        .eq(
-          "id",
-          id
-        );
+        .eq("id", id);
+
 
     if (result.error) {
 
@@ -4088,12 +4318,16 @@
       return;
     }
 
+
     showMessage(
       "مسابقه حذف شد."
     );
 
+
     await loadCompetitions();
   }
+
+
 
   /* =======================================================
      RANKING
@@ -4106,237 +4340,235 @@
   function calculateAthleteRanking() {
 
     const athletes =
-      Array.isArray(
-        state.athletes
-      )
+      Array.isArray(state.athletes)
         ? state.athletes
         : [];
 
+
     const evaluations =
-      Array.isArray(
-        state.evaluations
-      )
+      Array.isArray(state.evaluations)
         ? state.evaluations
         : [];
 
+
     const achievements =
-      Array.isArray(
-        state.achievements
-      )
+      Array.isArray(state.achievements)
         ? state.achievements
         : [];
 
+
     const attendance =
-      Array.isArray(
-        state.attendance
-      )
+      Array.isArray(state.attendance)
         ? state.attendance
         : [];
 
+
     const ranking =
-      athletes.map(
-        athlete => {
+      athletes.map(athlete => {
 
-          const athleteId =
-            String(
-              athlete.id
-            );
+        const athleteId =
+          String(athlete.id);
 
-          /* -----------------------------------------------
-             EVALUATION / 50
-          ----------------------------------------------- */
 
-          const athleteEvaluations =
-            evaluations.filter(
-              item =>
-                String(
-                  item.athlete_id
-                ) ===
-                athleteId
-            );
+        /* -----------------------------------------------
+           EVALUATION / 50
+        ----------------------------------------------- */
 
-          let evaluationAverage = 0;
+        const athleteEvaluations =
+          evaluations.filter(
+            item =>
+              String(
+                item.athlete_id
+              ) === athleteId
+          );
 
-          if (
-            athleteEvaluations.length
-          ) {
 
-            const validScores =
-              athleteEvaluations
-                .map(item =>
+        let evaluationAverage = 0;
+
+
+        if (
+          athleteEvaluations.length
+        ) {
+
+          const validScores =
+            athleteEvaluations
+              .map(
+                item =>
                   Number(
                     item.total_score ??
                     item.score ??
                     0
                   )
-                )
-                .filter(
-                  Number.isFinite
-                );
-
-            if (
-              validScores.length
-            ) {
-
-              const total =
-                validScores.reduce(
-                  (
-                    sum,
-                    score
-                  ) =>
-                    sum +
-                    score,
-                  0
-                );
-
-              evaluationAverage =
-                total /
-                validScores.length;
-            }
-          }
-
-          const evaluationPoints =
-            Math.min(
-              50,
-              Math.max(
-                0,
-                evaluationAverage * 5
               )
-            );
+              .filter(
+                Number.isFinite
+              );
 
-          /* -----------------------------------------------
-             ACHIEVEMENTS / 30
-          ----------------------------------------------- */
-
-          const athleteAchievements =
-            achievements.filter(
-              item =>
-                String(
-                  item.athlete_id
-                ) ===
-                athleteId
-            );
-
-          let achievementPoints =
-            0;
-
-          athleteAchievements.forEach(
-            item => {
-
-              const medal =
-                medalType(item);
-
-              if (
-                medal ===
-                "gold"
-              ) {
-                achievementPoints +=
-                  10;
-              }
-
-              else if (
-                medal ===
-                "silver"
-              ) {
-                achievementPoints +=
-                  7;
-              }
-
-              else if (
-                medal ===
-                "bronze"
-              ) {
-                achievementPoints +=
-                  5;
-              }
-
-              else {
-                achievementPoints +=
-                  2;
-              }
-
-            }
-          );
-
-          achievementPoints =
-            Math.min(
-              30,
-              Math.max(
-                0,
-                achievementPoints
-              )
-            );
-
-          /* -----------------------------------------------
-             ATTENDANCE / 20
-          ----------------------------------------------- */
-
-          const athleteAttendance =
-            attendance.filter(
-              item =>
-                String(
-                  item.athlete_id
-                ) ===
-                athleteId
-            );
-
-          let attendancePoints =
-            0;
-
-          let attendanceRate =
-            0;
 
           if (
-            athleteAttendance.length
+            validScores.length
           ) {
 
-            const presentCount =
-              athleteAttendance.filter(
-                isPresent
-              ).length;
-
-            attendanceRate =
-              presentCount /
-              athleteAttendance.length;
-
-            attendancePoints =
-              Math.min(
-                20,
-                Math.max(
-                  0,
-                  attendanceRate * 20
-                )
+            const total =
+              validScores.reduce(
+                (sum, score) =>
+                  sum + score,
+                0
               );
+
+
+            evaluationAverage =
+              total /
+              validScores.length;
           }
-
-          /* -----------------------------------------------
-             FINAL
-          ----------------------------------------------- */
-
-          const totalScore =
-            evaluationPoints +
-            achievementPoints +
-            attendancePoints;
-
-          return {
-
-            athlete,
-
-            evaluationAverage,
-
-            evaluationPoints,
-
-            achievementPoints,
-
-            attendancePoints,
-
-            attendanceRate,
-
-            totalScore
-
-          };
         }
-      );
+
+
+        const evaluationPoints =
+          Math.min(
+            50,
+            Math.max(
+              0,
+              evaluationAverage * 5
+            )
+          );
+
+
+        /* -----------------------------------------------
+           ACHIEVEMENTS / 30
+        ----------------------------------------------- */
+
+        const athleteAchievements =
+          achievements.filter(
+            item =>
+              String(
+                item.athlete_id
+              ) === athleteId
+          );
+
+
+        let achievementPoints = 0;
+
+
+        athleteAchievements.forEach(
+          item => {
+
+            const medal =
+              medalType(item);
+
+
+            if (
+              medal === "gold"
+            ) {
+
+              achievementPoints += 10;
+
+            } else if (
+              medal === "silver"
+            ) {
+
+              achievementPoints += 7;
+
+            } else if (
+              medal === "bronze"
+            ) {
+
+              achievementPoints += 5;
+
+            } else {
+
+              achievementPoints += 2;
+
+            }
+
+          }
+        );
+
+
+        achievementPoints =
+          Math.min(
+            30,
+            Math.max(
+              0,
+              achievementPoints
+            )
+          );
+
+
+        /* -----------------------------------------------
+           ATTENDANCE / 20
+        ----------------------------------------------- */
+
+        const athleteAttendance =
+          attendance.filter(
+            item =>
+              String(
+                item.athlete_id
+              ) === athleteId
+          );
+
+
+        let attendancePoints = 0;
+
+        let attendanceRate = 0;
+
+
+        if (
+          athleteAttendance.length
+        ) {
+
+          const presentCount =
+            athleteAttendance.filter(
+              isPresent
+            ).length;
+
+
+          attendanceRate =
+            presentCount /
+            athleteAttendance.length;
+
+
+          attendancePoints =
+            Math.min(
+              20,
+              Math.max(
+                0,
+                attendanceRate * 20
+              )
+            );
+        }
+
+
+        /* -----------------------------------------------
+           FINAL
+        ----------------------------------------------- */
+
+        const totalScore =
+          evaluationPoints +
+          achievementPoints +
+          attendancePoints;
+
+
+        return {
+
+          athlete,
+
+          evaluationAverage,
+
+          evaluationPoints,
+
+          achievementPoints,
+
+          attendancePoints,
+
+          attendanceRate,
+
+          totalScore
+
+        };
+
+      });
+
 
     /* -----------------------------------------------
        SORT
@@ -4349,38 +4581,46 @@
           b.totalScore !==
           a.totalScore
         ) {
+
           return (
             b.totalScore -
             a.totalScore
           );
         }
 
+
         if (
           b.evaluationPoints !==
           a.evaluationPoints
         ) {
+
           return (
             b.evaluationPoints -
             a.evaluationPoints
           );
         }
 
+
         if (
           b.attendancePoints !==
           a.attendancePoints
         ) {
+
           return (
             b.attendancePoints -
             a.attendancePoints
           );
         }
 
+
         return (
           b.achievementPoints -
           a.achievementPoints
         );
+
       }
     );
+
 
     /* -----------------------------------------------
        RANK
@@ -4397,6 +4637,7 @@
       })
     );
   }
+
 
   function rankingMedal(rank) {
 
@@ -4415,36 +4656,37 @@
     return "🏅";
   }
 
-  function formatRankingScore(
-    value
-  ) {
+
+  function formatRankingScore(value) {
 
     const number =
       Number(value);
 
+
     if (
       !Number.isFinite(number)
     ) {
+
       return "۰";
     }
+
 
     return faNumber(
       number.toFixed(1)
     );
   }
 
+
   function renderRanking() {
 
     const container =
       $("rankingList");
 
+
     if (!container) {
       return;
     }
 
-    /* -----------------------------------------------
-       NO ATHLETES
-    ----------------------------------------------- */
 
     if (
       !state.athletes.length
@@ -4472,12 +4714,10 @@
       return;
     }
 
+
     let ranking =
       calculateAthleteRanking();
 
-    /* -----------------------------------------------
-       SEARCH
-    ----------------------------------------------- */
 
     const search =
       (
@@ -4487,39 +4727,38 @@
         .trim()
         .toLowerCase();
 
+
     if (search) {
 
       ranking =
-        ranking.filter(
-          item => {
+        ranking.filter(item => {
 
-            const athlete =
-              item.athlete;
+          const athlete =
+            item.athlete;
 
-            const text =
-              [
-                getAthleteName(
-                  athlete
-                ),
-                athlete.weight,
-                athlete.belt,
-                athlete.category,
-                athlete.age_group
-              ]
-                .filter(Boolean)
-                .join(" ")
-                .toLowerCase();
 
-            return text.includes(
-              search
-            );
-          }
-        );
+          const text =
+            [
+              getAthleteName(
+                athlete
+              ),
+              athlete.weight,
+              athlete.belt,
+              athlete.category,
+              athlete.age_group
+            ]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase();
+
+
+          return text.includes(
+            search
+          );
+
+        });
     }
 
-    /* -----------------------------------------------
-       SEARCH EMPTY
-    ----------------------------------------------- */
 
     if (!ranking.length) {
 
@@ -4544,9 +4783,6 @@
       return;
     }
 
-    /* -----------------------------------------------
-       TABLE
-    ----------------------------------------------- */
 
     container.innerHTML = `
 
@@ -4586,14 +4822,16 @@
 
           </thead>
 
+
           <tbody>
 
-            ${ranking
-              .map(
-                item => {
+            ${
+              ranking
+                .map(item => {
 
                   const athlete =
                     item.athlete;
+
 
                   return `
 
@@ -4623,6 +4861,7 @@
 
                       </td>
 
+
                       <td>
 
                         <div
@@ -4638,6 +4877,7 @@
                           </strong>
 
                           <small>
+
                             ${
                               athlete.belt
                                 ? `کمربند: ${escapeHTML(
@@ -4645,11 +4885,13 @@
                                   )}`
                                 : ""
                             }
+
                           </small>
 
                         </div>
 
                       </td>
+
 
                       <td>
 
@@ -4665,6 +4907,7 @@
 
                       </td>
 
+
                       <td>
 
                         <strong>
@@ -4679,6 +4922,7 @@
 
                       </td>
 
+
                       <td>
 
                         <strong>
@@ -4692,6 +4936,7 @@
                         </small>
 
                       </td>
+
 
                       <td>
 
@@ -4714,9 +4959,10 @@
                     </tr>
 
                   `;
-                }
-              )
-              .join("")}
+
+                })
+                .join("")
+            }
 
           </tbody>
 
@@ -4727,20 +4973,25 @@
     `;
   }
 
+
   function setupRankingSearch() {
 
     const search =
       $("rankingSearch");
 
+
     if (!search) {
       return;
     }
+
 
     search.addEventListener(
       "input",
       renderRanking
     );
   }
+
+
 
   /* =======================================================
      TESTS
@@ -4753,13 +5004,12 @@
         "tests",
         {
           order: {
-            column:
-              "created_at",
-            ascending:
-              false
+            column: "created_at",
+            ascending: false
           }
         }
       );
+
 
     if (result.error) {
 
@@ -4768,18 +5018,20 @@
         result.error
       );
 
+
       state.tests = [];
 
     } else {
 
       state.tests =
-        Array.isArray(
-          result.data
-        )
+        Array.isArray(result.data)
           ? result.data
           : [];
+
     }
   }
+
+
 
   /* =======================================================
      PROGRESS HISTORY
@@ -4792,13 +5044,12 @@
         "progress_history",
         {
           order: {
-            column:
-              "created_at",
-            ascending:
-              false
+            column: "created_at",
+            ascending: false
           }
         }
       );
+
 
     if (result.error) {
 
@@ -4807,18 +5058,20 @@
         result.error
       );
 
+
       state.progressHistory = [];
 
     } else {
 
       state.progressHistory =
-        Array.isArray(
-          result.data
-        )
+        Array.isArray(result.data)
           ? result.data
           : [];
+
     }
   }
+
+
 
   /* =======================================================
      SETTINGS
@@ -4831,48 +5084,47 @@
         "settings"
       );
 
-    if (
-      result.error
-    ) {
+
+    if (result.error) {
 
       console.warn(
         "Settings table:",
         result.error
       );
 
+
       state.settings = {};
 
       return;
     }
 
+
     const rows =
-      Array.isArray(
-        result.data
-      )
+      Array.isArray(result.data)
         ? result.data
         : [];
 
+
     state.settings = {};
 
-    rows.forEach(
-      row => {
 
-        if (
-          row &&
-          row.key !==
-          undefined
-        ) {
+    rows.forEach(row => {
 
-          state.settings[
-            row.key
-          ] =
-            row.value;
+      if (
+        row &&
+        row.key !== undefined
+      ) {
 
-        }
+        state.settings[
+          row.key
+        ] = row.value;
 
       }
-    );
+
+    });
   }
+
+
 
   /* =======================================================
      SEARCHES / FILTERS
@@ -4886,11 +5138,13 @@
         renderAnnouncements
       );
 
+
     $("announcementFilter")
       ?.addEventListener(
         "change",
         renderAnnouncements
       );
+
 
     $("competitionSearch")
       ?.addEventListener(
@@ -4898,12 +5152,15 @@
         renderCompetitions
       );
 
+
     $("competitionFilter")
       ?.addEventListener(
         "change",
         renderCompetitions
       );
   }
+
+
 
   /* =======================================================
      SAVE BUTTONS
@@ -4917,11 +5174,13 @@
         saveAthlete
       );
 
+
     $("saveEvaluationBtn")
       ?.addEventListener(
         "click",
         saveEvaluation
       );
+
 
     $("saveAttendanceBtn")
       ?.addEventListener(
@@ -4929,11 +5188,13 @@
         saveAttendance
       );
 
+
     $("saveAchievementBtn")
       ?.addEventListener(
         "click",
         saveAchievement
       );
+
 
     $("saveAnnouncementBtn")
       ?.addEventListener(
@@ -4941,12 +5202,15 @@
         saveAnnouncement
       );
 
+
     $("saveCompetitionBtn")
       ?.addEventListener(
         "click",
         saveCompetition
       );
   }
+
+
 
   /* =======================================================
      ESC KEY
@@ -4959,8 +5223,7 @@
       event => {
 
         if (
-          event.key ===
-          "Escape"
+          event.key === "Escape"
         ) {
 
           closeAllModals();
@@ -4970,6 +5233,8 @@
       }
     );
   }
+
+
 
   /* =======================================================
      INITIAL DATA LOAD
@@ -4984,10 +5249,12 @@
         "error"
       );
 
+
       renderRanking();
 
       return;
     }
+
 
     /*
        ورزشکاران ابتدا بارگذاری می‌شوند.
@@ -4995,11 +5262,10 @@
 
     await loadAthletes();
 
+
     /*
        اطلاعات دیگر مستقل از یکدیگر
        بارگذاری می‌شوند.
-       خطای یک جدول نباید رنکینگ
-       و کل پنل را متوقف کند.
     */
 
     await Promise.allSettled([
@@ -5028,6 +5294,7 @@
 
     ]);
 
+
     /*
        رندر نهایی
     */
@@ -5055,6 +5322,8 @@
     updateDashboard();
   }
 
+
+
   /* =======================================================
      REFRESH RANKING
   ======================================================= */
@@ -5065,6 +5334,8 @@
 
   }
 
+
+
   /* =======================================================
      GLOBAL REFRESH
   ======================================================= */
@@ -5073,10 +5344,13 @@
 
     await loadAllCoachData();
 
+
     showMessage(
       "اطلاعات پنل مربی به‌روزرسانی شد."
     );
   }
+
+
 
   /* =======================================================
      INITIALIZATION
@@ -5086,15 +5360,17 @@
 
     if (
       document.body.dataset
-        .coachInitialized ===
-      "true"
+        .coachInitialized === "true"
     ) {
+
       return;
     }
+
 
     document.body.dataset
       .coachInitialized =
       "true";
+
 
     setupNavigation();
 
@@ -5112,6 +5388,7 @@
 
     setupEscapeKey();
 
+
     /*
        فرم‌های اولیه
     */
@@ -5128,11 +5405,13 @@
 
     resetCompetitionForm();
 
+
     /*
        بارگذاری
     */
 
     await loadAllCoachData();
+
 
     /*
        رندر قطعی رنکینگ
@@ -5140,6 +5419,8 @@
 
     renderRanking();
   }
+
+
 
   /* =======================================================
      DOM READY
@@ -5160,6 +5441,8 @@
     initCoachPanel();
 
   }
+
+
 
   /* =======================================================
      GLOBAL API
@@ -5193,6 +5476,8 @@
         [...state.attendance]
 
   };
+
+
 
   /* =======================================================
      END OF COACH.JS
