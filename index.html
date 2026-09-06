@@ -22,7 +22,7 @@
 <body>
 
   <!-- =================================
-       HOME
+       HOME / LOGIN PAGE
   ================================== -->
 
   <main class="home-page">
@@ -77,7 +77,7 @@
       </div>
 
 
-      <!-- LOGIN -->
+      <!-- LOGIN BUTTON -->
 
       <button
         class="home-login-btn"
@@ -119,63 +119,17 @@
 
 
     <!-- =================================
-         ATHLETES
-    ================================== -->
-
-    <section
-      class="public-athletes"
-      id="athletesSection"
-    >
-
-      <div class="public-athletes-header">
-
-        <span class="eyebrow">
-          NATURE JUDO ATHLETES
-        </span>
-
-        <h2>
-          ورزشکاران جودو طبیعت
-        </h2>
-
-        <p>
-          ورزشکاران باشگاه را مشاهده کنید.
-        </p>
-
-      </div>
-
-
-      <!-- SEARCH -->
-
-      <div class="public-athletes-search">
-
-        <input
-          id="athleteSearch"
-          type="search"
-          placeholder="جستجوی نام ورزشکار..."
-          autocomplete="off"
-        >
-
-      </div>
-
-
-      <!-- ATHLETES CONTAINER -->
-
-      <div
-        id="athletesGrid"
-        class="athletes-grid"
-      ></div>
-
-    </section>
-
-
-    <!-- =================================
          FOOTER
     ================================== -->
 
     <footer class="home-footer">
 
       جودو طبیعت
-      <span>•</span>
+
+      <span>
+        •
+      </span>
+
       سامانه باشگاه
 
     </footer>
@@ -219,6 +173,8 @@
       </p>
 
 
+      <!-- USERNAME -->
+
       <label>
 
         نام کاربری
@@ -232,6 +188,8 @@
 
       </label>
 
+
+      <!-- PASSWORD -->
 
       <label>
 
@@ -247,12 +205,16 @@
       </label>
 
 
+      <!-- LOGIN -->
+
       <button
         class="primary wide"
         id="loginSubmit"
         type="button"
       >
+
         ورود
+
       </button>
 
 
@@ -269,7 +231,14 @@
        SUPABASE
   ================================== -->
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+
+  <!-- =================================
+       APP
+  ================================== -->
 
   <script src="app.js"></script>
 
