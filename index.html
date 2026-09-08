@@ -1,117 +1,338 @@
-<!-- =====================================================
-     COACH LOGIN
-===================================================== -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
 
-<div
-  id="coachLoginModal"
-  class="coach-login-modal"
->
+<head>
 
-  <div class="coach-login-overlay">
+  <meta charset="UTF-8">
 
-    <div class="coach-login-box">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-      <button
-        type="button"
-        id="closeCoachLogin"
-        class="coach-login-close"
+  <meta
+    name="theme-color"
+    content="#0b7a4b"
+  >
+
+  <title>
+    جودو طبیعت | سامانه باشگاه
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+</head>
+
+<body>
+
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+
+  <header class="site-header">
+
+    <div class="container header-inner">
+
+      <a
+        href="index.html"
+        class="brand"
       >
-        ×
-      </button>
 
-      <div class="coach-login-icon">
-        🥋
-      </div>
+        <div class="brand-icon">
+          🥋
+        </div>
 
-      <div class="coach-login-brand">
-        جودو طبیعت
-      </div>
+        <div class="brand-text">
 
-      <h2>
-        ورود مربی
-      </h2>
+          <strong>
+            جودو طبیعت
+          </strong>
 
-      <p>
-        ورود به پنل مدیریت باشگاه
-      </p>
-
-      <form
-        id="coachLoginForm"
-        autocomplete="on"
-      >
-
-        <div class="coach-login-field">
-
-          <label
-            for="coachEmail"
-          >
-            ایمیل مربی
-          </label>
-
-          <input
-            id="coachEmail"
-            type="email"
-            autocomplete="username"
-            placeholder="ایمیل مربی"
-            required
-          >
+          <span>
+            سامانه باشگاه جودو طبیعت
+          </span>
 
         </div>
 
-        <div class="coach-login-field">
+      </a>
 
-          <label
-            for="coachPassword"
+      <button
+        type="button"
+        id="coachLoginBtn"
+        class="coach-login-btn"
+      >
+        🔐 ورود به سامانه
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- =====================================================
+       HERO
+  ====================================================== -->
+
+  <main>
+
+    <section class="hero-section">
+
+      <div class="container">
+
+        <div class="hero-content">
+
+          <div class="hero-badge">
+            NATURE JUDO ACADEMY
+          </div>
+
+          <h1>
+            مسیر پیشرفت
+            <br>
+            از همین‌جا شروع می‌شود
+          </h1>
+
+          <p>
+            سامانه‌ای برای مدیریت، ارزیابی و پیگیری
+            مسیر پیشرفت جودوکاران طبیعت.
+          </p>
+
+          <button
+            type="button"
+            class="hero-login-btn coach-login-btn"
+            data-coach-login
           >
-            رمز عبور
-          </label>
+            🔐 ورود به سامانه
+          </button>
 
-          <div class="password-wrap">
+        </div>
 
-            <input
-              id="coachPassword"
-              type="password"
-              autocomplete="current-password"
-              placeholder="رمز عبور"
-              required
-            >
+      </div>
 
-            <button
-              type="button"
-              id="toggleCoachPassword"
-              class="password-toggle"
-            >
-              👁️
-            </button>
+    </section>
+
+
+    <!-- ===================================================
+         FEATURES
+    ==================================================== -->
+
+    <section class="features-section">
+
+      <div class="container">
+
+        <div class="features-grid">
+
+          <div class="feature-card">
+
+            <div class="feature-icon">
+              📊
+            </div>
+
+            <h3>
+              ارزیابی عملکرد
+            </h3>
+
+            <p>
+              ثبت و بررسی عملکرد ورزشکاران
+              در دوره‌های مختلف.
+            </p>
+
+          </div>
+
+
+          <div class="feature-card">
+
+            <div class="feature-icon">
+              📈
+            </div>
+
+            <h3>
+              پیشرفت
+            </h3>
+
+            <p>
+              مشاهده مسیر رشد و پیشرفت
+              هر ورزشکار.
+            </p>
+
+          </div>
+
+
+          <div class="feature-card">
+
+            <div class="feature-icon">
+              🏆
+            </div>
+
+            <h3>
+              افتخار
+            </h3>
+
+            <p>
+              ثبت مقام‌ها، مدال‌ها و
+              افتخارات ورزشکاران.
+            </p>
 
           </div>
 
         </div>
 
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         ATHLETES
+    ==================================================== -->
+
+    <section
+      id="athletes"
+      class="athletes-section"
+    >
+
+      <div class="container">
+
+        <div class="section-header">
+
+          <div>
+
+            <span class="section-kicker">
+              ATHLETES
+            </span>
+
+            <h2>
+              ورزشکاران باشگاه
+            </h2>
+
+            <p>
+              ورزشکاران جودو طبیعت
+            </p>
+
+          </div>
+
+          <div
+            class="athlete-count"
+            data-athlete-count
+          >
+            ۰
+          </div>
+
+        </div>
+
+
+        <!-- SEARCH -->
+
+        <div class="athlete-filters">
+
+          <input
+            id="athleteSearch"
+            type="search"
+            placeholder="جستجوی ورزشکار..."
+            autocomplete="off"
+          >
+
+          <select
+            id="athleteCategoryFilter"
+          >
+
+            <option value="all">
+              همه رده‌ها
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- ATHLETES -->
+
         <div
-          id="coachLoginError"
-          class="coach-login-error"
-          style="display:none"
+          id="athletesList"
+          class="athletes-grid"
         ></div>
 
-        <button
-          type="submit"
-          id="coachLoginSubmit"
-          class="coach-login-submit"
+
+        <!-- EMPTY -->
+
+        <div
+          id="athletesEmpty"
+          class="athletes-empty"
+          style="display:none"
         >
-          🔐 ورود به سامانه
-        </button>
 
-      </form>
+          <div class="empty-icon">
+            🥋
+          </div>
 
-      <div class="coach-login-footer">
-        طبیعت جودو
-        <span>•</span>
+          <h3>
+            هنوز ورزشکاری ثبت نشده است
+          </h3>
+
+          <p>
+            پس از ورود مربی، ورزشکاران
+            از پنل مربی اضافه می‌شوند.
+          </p>
+
+          <button
+            type="button"
+            class="coach-login-btn"
+            data-coach-login
+          >
+            ورود مربی
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================================
+       FOOTER
+  ====================================================== -->
+
+  <footer class="site-footer">
+
+    <div class="container">
+
+      <div>
+        جودو طبیعت
+      </div>
+
+      <span>
+        •
+      </span>
+
+      <div>
         سامانه عملکرد ورزشکاران
       </div>
 
     </div>
 
-  </div>
+  </footer>
 
-</div>
+
+  <!-- =====================================================
+       SUPABASE
+  ====================================================== -->
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+
+  <!-- =====================================================
+       APP
+  ====================================================== -->
+
+  <script src="app.js"></script>
+
+</body>
+
+</html>
