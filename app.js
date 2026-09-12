@@ -1,1718 +1,2089 @@
+"use strict";
+
 /* =========================================================
-   JUDO TABIAT
-   app.js
-   MAIN SITE + COACH LOGIN
-   FINAL FIXED
-   2026
+   JUDO TABIAT - MAIN APP
+   نسخه جدید و ایمن‌تر
+   ---------------------------------------------------------
+   مسئولیت‌ها:
+   1. اتصال Supabase
+   2. ورود مربی
+   3. ورود ورزشکار
+   4. انتخاب نقش
+   5. حفظ لود و نمایش ورزشکاران
+   6. جستجو و فیلتر ورزشکاران
+   7. انتقال صحیح به صفحات مربوطه
 ========================================================= */
 
-(() => {
-  "use strict";
+(function () {
 
-  /* =======================================================
-     SUPABASE
-  ======================================================= */
+    /* =====================================================
+       CONFIG
+    ===================================================== */
 
-  const SUPABASE_URL =
-    "https://bkkdgywdptufjsaepehc.supabase.co";
+    const SUPABASE_URL =
+        "https://bkkdgywdptufjsaepehc.supabase.co";
 
-  const SUPABASE_KEY =
-    "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
+    /*
+      کلید publishable قبلی پروژه خودت را اینجا قرار بده.
+      اگر در app.js قبلی همین کلید را داری،
+      همان مقدار قبلی را بدون تغییر نگه دار.
+    */
+    const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_KBAMUqB0oL8fA0iNIKcv-w_brwIBHpd";
 
-  let supabaseClient = null;
 
-  /* =======================================================
-     CREATE SUPABASE CLIENT
-  ======================================================= */
+    /* =====================================================
+       GLOBAL STATE
+    ===================================================== */
 
-  function initSupabase() {
+    let supabaseClient = null;
 
-    if (
-      !window.supabase ||
-      typeof window.supabase.createClient !== "function"
-    ) {
+    const state = {
+        athletes: [],
+        filteredAthletes: [],
+        loadingAthletes: false,
 
-      console.error(
-        "Supabase JS library is not loaded."
-      );
+        loggedIn: false,
+        session: null,
 
-      return false;
-    }
+        currentRole: null,
+        currentAthlete: null
+    };
 
-    try {
 
-      supabaseClient =
-        window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_KEY,
-          {
-            auth: {
-              autoRefreshToken: true,
-              persistSession: true,
-              detectSessionInUrl: true
-            }
-          }
-        );
+    /* =====================================================
+       SUPABASE INITIALIZATION
+    ===================================================== */
 
-      /*
-        در اختیار سایر فایل‌ها
-      */
+    function initSupabase() {
 
-      window.supabaseClient =
-        supabaseClient;
-
-      return true;
-
-    } catch (error) {
-
-      console.error(
-        "Supabase initialization error:",
-        error
-      );
-
-      return false;
-    }
-  }
-
-  /* =======================================================
-     DOM HELPERS
-  ======================================================= */
-
-  const $ = id =>
-    document.getElementById(id);
-
-  const $$ = selector =>
-    document.querySelectorAll(selector);
-
-  /* =======================================================
-     MESSAGE
-  ======================================================= */
-
-  function showMessage(
-    message,
-    type = "error"
-  ) {
-
-    let box =
-      $("appMessage");
-
-    if (!box) {
-
-      box =
-        document.createElement(
-          "div"
-        );
-
-      box.id =
-        "appMessage";
-
-      box.style.position =
-        "fixed";
-
-      box.style.top =
-        "20px";
-
-      box.style.left =
-        "50%";
-
-      box.style.transform =
-        "translateX(-50%)";
-
-      box.style.zIndex =
-        "999999";
-
-      box.style.padding =
-        "14px 20px";
-
-      box.style.borderRadius =
-        "14px";
-
-      box.style.fontFamily =
-        "inherit";
-
-      box.style.fontWeight =
-        "800";
-
-      box.style.boxShadow =
-        "0 10px 30px rgba(0,0,0,.15)";
-
-      box.style.maxWidth =
-        "90%";
-
-      box.style.textAlign =
-        "center";
-
-      document.body.appendChild(
-        box
-      );
-    }
-
-    box.textContent =
-      message;
-
-    box.style.background =
-      type === "success"
-        ? "#e8f7ee"
-        : "#fff0f0";
-
-    box.style.color =
-      type === "success"
-        ? "#16733b"
-        : "#b42318";
-
-    box.style.border =
-      type === "success"
-        ? "1px solid #a7dfbd"
-        : "1px solid #f3b5b5";
-
-    box.style.display =
-      "block";
-
-    clearTimeout(
-      box._timer
-    );
-
-    box._timer =
-      setTimeout(() => {
-
-        box.style.display =
-          "none";
-
-      }, 3500);
-  }
-
-  /* =======================================================
-     PERSIAN NUMBERS
-  ======================================================= */
-
-  function faNumber(value) {
-
-    return String(
-      value ?? ""
-    )
-      .replace(/0/g, "۰")
-      .replace(/1/g, "۱")
-      .replace(/2/g, "۲")
-      .replace(/3/g, "۳")
-      .replace(/4/g, "۴")
-      .replace(/5/g, "۵")
-      .replace(/6/g, "۶")
-      .replace(/7/g, "۷")
-      .replace(/8/g, "۸")
-      .replace(/9/g, "۹");
-  }
-
-  /* =======================================================
-     ESCAPE HTML
-  ======================================================= */
-
-  function escapeHTML(value) {
-
-    if (
-      value === null ||
-      value === undefined
-    ) {
-      return "";
-    }
-
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  /* =======================================================
-     ATHLETE NAME
-  ======================================================= */
-
-  function getAthleteName(
-    athlete
-  ) {
-
-    if (!athlete) {
-      return "ورزشکار";
-    }
-
-    const fullName =
-      [
-        athlete.first_name,
-        athlete.last_name
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .trim();
-
-    if (fullName) {
-      return fullName;
-    }
-
-    return (
-      athlete.name ||
-      athlete.full_name ||
-      "ورزشکار"
-    );
-  }
-
-  /* =======================================================
-     STATE
-  ======================================================= */
-
-  const state = {
-
-    athletes: [],
-
-    loadingAthletes:
-      false,
-
-    loggedIn:
-      false,
-
-    session:
-      null
-
-  };
-
-  /* =======================================================
-     LOGIN MODAL
-  ======================================================= */
-
-  function createLoginModal() {
-
-    if ($("coachLoginModal")) {
-      return;
-    }
-
-    const modal =
-      document.createElement(
-        "div"
-      );
-
-    modal.id =
-      "coachLoginModal";
-
-    modal.innerHTML = `
-
-      <div class="coach-login-overlay">
-
-        <div class="coach-login-box">
-
-          <button
-            type="button"
-            class="coach-login-close"
-            id="closeCoachLogin"
-            aria-label="بستن"
-          >
-            ×
-          </button>
-
-          <div class="coach-login-icon">
-            🥋
-          </div>
-
-          <div class="coach-login-brand">
-            جودو طبیعت
-          </div>
-
-          <h2>
-            ورود مربی
-          </h2>
-
-          <p>
-            ورود به پنل مدیریت باشگاه
-          </p>
-
-          <form
-            id="coachLoginForm"
-            autocomplete="on"
-          >
-
-            <div class="coach-login-field">
-
-              <label
-                for="coachEmail"
-              >
-                ایمیل مربی
-              </label>
-
-              <input
-                type="email"
-                id="coachEmail"
-                name="email"
-                placeholder="example@email.com"
-                autocomplete="username"
-                required
-              >
-
-            </div>
-
-            <div class="coach-login-field">
-
-              <label
-                for="coachPassword"
-              >
-                رمز عبور
-              </label>
-
-              <div class="password-wrap">
-
-                <input
-                  type="password"
-                  id="coachPassword"
-                  name="password"
-                  placeholder="رمز عبور"
-                  autocomplete="current-password"
-                  required
-                >
-
-                <button
-                  type="button"
-                  id="toggleCoachPassword"
-                  class="password-toggle"
-                >
-                  👁️
-                </button>
-
-              </div>
-
-            </div>
-
-            <div
-              id="coachLoginError"
-              class="coach-login-error"
-              style="display:none"
-            ></div>
-
-            <button
-              type="submit"
-              id="coachLoginSubmit"
-              class="coach-login-submit"
-            >
-              <span>
-                🔐 ورود به سامانه
-              </span>
-            </button>
-
-          </form>
-
-          <div class="coach-login-footer">
-            <span>طبیعت جودو</span>
-            <span>•</span>
-            <span>سامانه عملکرد ورزشکاران</span>
-          </div>
-
-        </div>
-
-      </div>
-    `;
-
-    document.body.appendChild(
-      modal
-    );
-
-    bindLoginModal();
-  }
-
-  /* =======================================================
-     OPEN LOGIN
-  ======================================================= */
-
-  function openCoachLogin() {
-
-    createLoginModal();
-
-    const modal =
-      $("coachLoginModal");
-
-    if (!modal) {
-      return;
-    }
-
-    modal.classList.add(
-      "active"
-    );
-
-    document.body.classList.add(
-      "login-open"
-    );
-
-    setTimeout(() => {
-
-      $("coachEmail")
-        ?.focus();
-
-    }, 100);
-  }
-
-  /* =======================================================
-     CLOSE LOGIN
-  ======================================================= */
-
-  function closeCoachLogin() {
-
-    const modal =
-      $("coachLoginModal");
-
-    if (!modal) {
-      return;
-    }
-
-    modal.classList.remove(
-      "active"
-    );
-
-    document.body.classList.remove(
-      "login-open"
-    );
-  }
-
-  /* =======================================================
-     LOGIN ERROR
-  ======================================================= */
-
-  function showLoginError(
-    message
-  ) {
-
-    const box =
-      $("coachLoginError");
-
-    if (!box) {
-      return;
-    }
-
-    box.textContent =
-      message;
-
-    box.style.display =
-      "block";
-  }
-
-  /* =======================================================
-     LOGIN SUBMIT
-  ======================================================= */
-
-  async function loginCoach(
-    event
-  ) {
-
-    event.preventDefault();
-
-    if (!supabaseClient) {
-
-      showLoginError(
-        "اتصال به Supabase برقرار نیست."
-      );
-
-      return;
-    }
-
-    const email =
-      (
-        $("coachEmail")
-          ?.value || ""
-      )
-        .trim();
-
-    const password =
-      $("coachPassword")
-        ?.value || "";
-
-    if (!email) {
-
-      showLoginError(
-        "ایمیل مربی را وارد کنید."
-      );
-
-      return;
-    }
-
-    if (!password) {
-
-      showLoginError(
-        "رمز عبور را وارد کنید."
-      );
-
-      return;
-    }
-
-    const button =
-      $("coachLoginSubmit");
-
-    const originalHTML =
-      button
-        ?.innerHTML ||
-      "";
-
-    if (button) {
-
-      button.disabled =
-        true;
-
-      button.innerHTML =
-        "⏳ در حال ورود...";
-    }
-
-    const errorBox =
-      $("coachLoginError");
-
-    if (errorBox) {
-      errorBox.style.display =
-        "none";
-    }
-
-    try {
-
-      /*
-        ورود واقعی با Supabase Auth
-      */
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .auth
-          .signInWithPassword({
-
-            email,
-
-            password
-
-          });
-
-      if (error) {
-
-        console.error(
-          "Coach login:",
-          error
-        );
-
-        showLoginError(
-          getLoginErrorMessage(
-            error
-          )
-        );
-
-        return;
-      }
-
-      if (
-        !data ||
-        !data.session
-      ) {
-
-        showLoginError(
-          "ورود انجام نشد. جلسه کاربری دریافت نشد."
-        );
-
-        return;
-      }
-
-      state.loggedIn =
-        true;
-
-      state.session =
-        data.session;
-
-      /*
-        ذخیره وضعیت کمکی
-      */
-
-      localStorage.setItem(
-        "judoLoggedIn",
-        "true"
-      );
-
-      localStorage.setItem(
-        "judoLoginTime",
-        String(
-          Date.now()
-        )
-      );
-
-      /*
-        بستن پنجره
-      */
-
-      closeCoachLogin();
-
-      showMessage(
-        "ورود با موفقیت انجام شد. در حال انتقال به پنل مربی...",
-        "success"
-      );
-
-      /*
-        انتقال به پنل مربی
-      */
-
-      setTimeout(() => {
-
-        window.location.href =
-          "coach.html";
-
-      }, 500);
-
-    } catch (error) {
-
-      console.error(
-        "Login exception:",
-        error
-      );
-
-      showLoginError(
-        "خطایی هنگام ورود رخ داد. دوباره تلاش کنید."
-      );
-
-    } finally {
-
-      if (button) {
-
-        button.disabled =
-          false;
-
-        button.innerHTML =
-          originalHTML;
-      }
-    }
-  }
-
-  /* =======================================================
-     LOGIN ERROR TRANSLATION
-  ======================================================= */
-
-  function getLoginErrorMessage(
-    error
-  ) {
-
-    const message =
-      String(
-        error?.message ||
-        ""
-      ).toLowerCase();
-
-    if (
-      message.includes(
-        "invalid login credentials"
-      )
-    ) {
-
-      return (
-        "ایمیل یا رمز عبور اشتباه است."
-      );
-    }
-
-    if (
-      message.includes(
-        "email not confirmed"
-      )
-    ) {
-
-      return (
-        "ایمیل حساب مربی هنوز تأیید نشده است."
-      );
-    }
-
-    if (
-      message.includes(
-        "too many requests"
-      )
-    ) {
-
-      return (
-        "تعداد تلاش‌ها زیاد شده است. کمی بعد دوباره امتحان کنید."
-      );
-    }
-
-    if (
-      message.includes(
-        "network"
-      )
-    ) {
-
-      return (
-        "اتصال اینترنت را بررسی کنید."
-      );
-    }
-
-    return (
-      error?.message ||
-      "ورود انجام نشد."
-    );
-  }
-
-  /* =======================================================
-     BIND LOGIN MODAL
-  ======================================================= */
-
-  function bindLoginModal() {
-
-    $("coachLoginForm")
-      ?.addEventListener(
-        "submit",
-        loginCoach
-      );
-
-    $("closeCoachLogin")
-      ?.addEventListener(
-        "click",
-        closeCoachLogin
-      );
-
-    $("toggleCoachPassword")
-      ?.addEventListener(
-        "click",
-        () => {
-
-          const input =
-            $("coachPassword");
-
-          const button =
-            $("toggleCoachPassword");
-
-          if (!input) {
-            return;
-          }
-
-          if (
-            input.type ===
-            "password"
-          ) {
-
-            input.type =
-              "text";
-
-            if (button) {
-              button.textContent =
-                "🙈";
-            }
-
-          } else {
-
-            input.type =
-              "password";
-
-            if (button) {
-              button.textContent =
-                "👁️";
-            }
-          }
+        if (supabaseClient) {
+            return supabaseClient;
         }
-      );
-
-    $("coachLoginModal")
-      ?.addEventListener(
-        "click",
-        event => {
-
-          if (
-            event.target.classList
-              .contains(
-                "coach-login-overlay"
-              )
-          ) {
-
-            closeCoachLogin();
-
-          }
-
-        }
-      );
-
-    document.addEventListener(
-      "keydown",
-      event => {
 
         if (
-          event.key ===
-          "Escape"
+            !window.supabase ||
+            typeof window.supabase.createClient !== "function"
         ) {
+            console.error(
+                "Supabase library was not loaded."
+            );
 
-          closeCoachLogin();
-
+            return null;
         }
 
-      }
-    );
-  }
+        try {
 
-  /* =======================================================
-     AUTH SESSION
-  ======================================================= */
+            supabaseClient =
+                window.supabase.createClient(
+                    SUPABASE_URL,
+                    SUPABASE_PUBLISHABLE_KEY
+                );
 
-  async function checkAuthSession() {
+            /*
+              برای فایل‌های دیگر سایت هم قابل استفاده باشد.
+            */
+            window.supabaseClient =
+                supabaseClient;
 
-    if (!supabaseClient) {
-      return null;
+            return supabaseClient;
+
+        } catch (error) {
+
+            console.error(
+                "Supabase initialization error:",
+                error
+            );
+
+            return null;
+        }
     }
 
-    try {
 
-      const result =
-        await supabaseClient
-          .auth
-          .getSession();
+    /* =====================================================
+       DOM HELPERS
+    ===================================================== */
 
-      if (
-        result.error
-      ) {
+    function $(selector) {
+        return document.querySelector(selector);
+    }
 
-        console.error(
-          "Get session:",
-          result.error
+    function $all(selector) {
+        return Array.from(
+            document.querySelectorAll(selector)
+        );
+    }
+
+
+    /* =====================================================
+       MESSAGE HELPERS
+    ===================================================== */
+
+    function showMessage(
+        element,
+        message,
+        type = "error"
+    ) {
+
+        if (!element) {
+            return;
+        }
+
+        element.textContent = message;
+
+        element.className =
+            "login-message " + type;
+    }
+
+
+    function clearMessage(element) {
+
+        if (!element) {
+            return;
+        }
+
+        element.textContent = "";
+
+        element.className =
+            "login-message";
+    }
+
+
+    /* =====================================================
+       ROLE MODAL
+    ===================================================== */
+
+    function openRoleModal() {
+
+        const modal =
+            $("#roleModal");
+
+        if (!modal) {
+            return;
+        }
+
+        modal.classList.add("active");
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
         );
 
-        return null;
-      }
-
-      const session =
-        result.data?.session ||
-        null;
-
-      state.session =
-        session;
-
-      state.loggedIn =
-        Boolean(
-          session
+        document.body.classList.add(
+            "modal-open"
         );
 
-      return session;
-
-    } catch (error) {
-
-      console.error(
-        "Session error:",
-        error
-      );
-
-      return null;
-    }
-  }
-
-  /* =======================================================
-     AUTH STATE LISTENER
-  ======================================================= */
-
-  function setupAuthListener() {
-
-    if (!supabaseClient) {
-      return;
+        showRoleSelection();
     }
 
-    supabaseClient
-      .auth
-      .onAuthStateChange(
-        (
-          event,
-          session
-        ) => {
 
-          state.session =
-            session;
+    function closeRoleModal() {
 
-          state.loggedIn =
-            Boolean(
-              session
+        const modal =
+            $("#roleModal");
+
+        if (!modal) {
+            return;
+        }
+
+        modal.classList.remove("active");
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+        showRoleSelection();
+    }
+
+
+    function showRoleSelection() {
+
+        const roleSelection =
+            $("#roleSelection");
+
+        const coachSection =
+            $("#coachLoginSection");
+
+        const athleteSection =
+            $("#athleteLoginSection");
+
+        if (roleSelection) {
+            roleSelection.classList.add(
+                "active"
+            );
+        }
+
+        if (coachSection) {
+            coachSection.classList.remove(
+                "active"
+            );
+        }
+
+        if (athleteSection) {
+            athleteSection.classList.remove(
+                "active"
+            );
+        }
+
+        state.currentRole = null;
+    }
+
+
+    function showCoachLogin() {
+
+        const roleSelection =
+            $("#roleSelection");
+
+        const coachSection =
+            $("#coachLoginSection");
+
+        const athleteSection =
+            $("#athleteLoginSection");
+
+        if (roleSelection) {
+            roleSelection.classList.remove(
+                "active"
+            );
+        }
+
+        if (athleteSection) {
+            athleteSection.classList.remove(
+                "active"
+            );
+        }
+
+        if (coachSection) {
+            coachSection.classList.add(
+                "active"
+            );
+        }
+
+        state.currentRole = "coach";
+
+        clearMessage(
+            $("#coachLoginMessage")
+        );
+
+        setTimeout(function () {
+
+            const email =
+                $("#coachEmail");
+
+            if (email) {
+                email.focus();
+            }
+
+        }, 100);
+    }
+
+
+    function showAthleteLogin() {
+
+        const roleSelection =
+            $("#roleSelection");
+
+        const coachSection =
+            $("#coachLoginSection");
+
+        const athleteSection =
+            $("#athleteLoginSection");
+
+        if (roleSelection) {
+            roleSelection.classList.remove(
+                "active"
+            );
+        }
+
+        if (coachSection) {
+            coachSection.classList.remove(
+                "active"
+            );
+        }
+
+        if (athleteSection) {
+            athleteSection.classList.add(
+                "active"
+            );
+        }
+
+        state.currentRole = "athlete";
+
+        clearMessage(
+            $("#athleteLoginMessage")
+        );
+
+        setTimeout(function () {
+
+            const username =
+                $("#athleteUsername");
+
+            if (username) {
+                username.focus();
+            }
+
+        }, 100);
+    }
+
+
+    /* =====================================================
+       ROLE EVENTS
+    ===================================================== */
+
+    function setupRoleSystem() {
+
+        const systemLoginBtn =
+            $("#systemLoginBtn");
+
+        const closeBtn =
+            $("#closeRoleModal");
+
+        const coachRoleBtn =
+            $("#selectCoachRole");
+
+        const athleteRoleBtn =
+            $("#selectAthleteRole");
+
+        if (systemLoginBtn) {
+
+            systemLoginBtn.addEventListener(
+                "click",
+                openRoleModal
+            );
+        }
+
+        if (closeBtn) {
+
+            closeBtn.addEventListener(
+                "click",
+                closeRoleModal
+            );
+        }
+
+        if (coachRoleBtn) {
+
+            coachRoleBtn.addEventListener(
+                "click",
+                showCoachLogin
+            );
+        }
+
+        if (athleteRoleBtn) {
+
+            athleteRoleBtn.addEventListener(
+                "click",
+                showAthleteLogin
+            );
+        }
+
+
+        $all("[data-back-role]")
+            .forEach(function (button) {
+
+                button.addEventListener(
+                    "click",
+                    showRoleSelection
+                );
+
+            });
+
+
+        const modal =
+            $("#roleModal");
+
+        if (modal) {
+
+            modal.addEventListener(
+                "click",
+                function (event) {
+
+                    if (
+                        event.target === modal
+                    ) {
+                        closeRoleModal();
+                    }
+
+                }
+            );
+        }
+
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "Escape"
+                ) {
+
+                    const modal =
+                        $("#roleModal");
+
+                    if (
+                        modal &&
+                        modal.classList.contains(
+                            "active"
+                        )
+                    ) {
+                        closeRoleModal();
+                    }
+
+                }
+
+            }
+        );
+    }
+
+
+    /* =====================================================
+       PASSWORD VISIBILITY
+    ===================================================== */
+
+    function setupPasswordToggles() {
+
+        $all(
+            "[data-password-toggle]"
+        ).forEach(function (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    const inputId =
+                        button.getAttribute(
+                            "data-password-toggle"
+                        );
+
+                    const input =
+                        document.getElementById(
+                            inputId
+                        );
+
+                    if (!input) {
+                        return;
+                    }
+
+                    if (
+                        input.type ===
+                        "password"
+                    ) {
+
+                        input.type =
+                            "text";
+
+                        button.textContent =
+                            "🙈";
+
+                    } else {
+
+                        input.type =
+                            "password";
+
+                        button.textContent =
+                            "👁️";
+                    }
+
+                }
             );
 
-          if (
-            event ===
-            "SIGNED_IN"
-          ) {
+        });
+    }
+
+
+    /* =====================================================
+       NORMALIZE NATIONAL ID
+    ===================================================== */
+
+    function normalizeDigits(value) {
+
+        if (!value) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/۰/g, "0")
+            .replace(/۱/g, "1")
+            .replace(/۲/g, "2")
+            .replace(/۳/g, "3")
+            .replace(/۴/g, "4")
+            .replace(/۵/g, "5")
+            .replace(/۶/g, "6")
+            .replace(/۷/g, "7")
+            .replace(/۸/g, "8")
+            .replace(/۹/g, "9")
+            .replace(/\s/g, "")
+            .trim();
+    }
+
+
+    function setupNationalIdInput() {
+
+        const input =
+            $("#athleteNationalId");
+
+        if (!input) {
+            return;
+        }
+
+        input.addEventListener(
+            "input",
+            function () {
+
+                this.value =
+                    normalizeDigits(
+                        this.value
+                    )
+                    .replace(
+                        /[^0-9]/g,
+                        ""
+                    )
+                    .slice(0, 10);
+
+            }
+        );
+    }
+
+
+    /* =====================================================
+       COACH LOGIN
+    ===================================================== */
+
+    async function loginCoach(event) {
+
+        event.preventDefault();
+
+        const client =
+            initSupabase();
+
+        const emailInput =
+            $("#coachEmail");
+
+        const passwordInput =
+            $("#coachPassword");
+
+        const submitButton =
+            $("#coachLoginSubmit");
+
+        const message =
+            $("#coachLoginMessage");
+
+        if (!client) {
+
+            showMessage(
+                message,
+                "اتصال به سامانه برقرار نشد. لطفاً صفحه را دوباره باز کنید."
+            );
+
+            return;
+        }
+
+        const email =
+            emailInput
+                ? emailInput.value.trim()
+                : "";
+
+        const password =
+            passwordInput
+                ? passwordInput.value
+                : "";
+
+        clearMessage(message);
+
+        if (!email || !password) {
+
+            showMessage(
+                message,
+                "ایمیل و رمز عبور را کامل وارد کنید."
+            );
+
+            return;
+        }
+
+
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent =
+                "⏳ در حال ورود...";
+        }
+
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await client.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+
+            if (error) {
+
+                console.error(
+                    "Coach login error:",
+                    error
+                );
+
+                showMessage(
+                    message,
+                    "ایمیل یا رمز عبور صحیح نیست."
+                );
+
+                return;
+            }
+
+
+            if (
+                !data ||
+                !data.session
+            ) {
+
+                showMessage(
+                    message,
+                    "ورود انجام نشد. لطفاً دوباره تلاش کنید."
+                );
+
+                return;
+            }
+
+
+            state.loggedIn = true;
+            state.session =
+                data.session;
+
+
+            /*
+              برای سازگاری با نسخه قبلی سایت.
+            */
+            localStorage.setItem(
+                "judoLoggedIn",
+                "true"
+            );
 
             localStorage.setItem(
-              "judoLoggedIn",
-              "true"
+                "judoLoginTime",
+                String(Date.now())
             );
 
-            localStorage.setItem(
-              "judoLoginTime",
-              String(
-                Date.now()
-              )
-            );
-          }
 
-          if (
-            event ===
-            "SIGNED_OUT"
-          ) {
-
-            localStorage.removeItem(
-              "judoLoggedIn"
+            showMessage(
+                message,
+                "ورود موفق بود. در حال انتقال...",
+                "success"
             );
 
-            localStorage.removeItem(
-              "judoLoginTime"
+
+            setTimeout(function () {
+
+                window.location.href =
+                    "coach.html";
+
+            }, 500);
+
+
+        } catch (error) {
+
+            console.error(
+                "Unexpected coach login error:",
+                error
             );
-          }
+
+            showMessage(
+                message,
+                "خطایی هنگام ورود رخ داد."
+            );
+
+        } finally {
+
+            if (submitButton) {
+
+                submitButton.disabled =
+                    false;
+
+                submitButton.textContent =
+                    "🔐 ورود به پنل مربی";
+            }
 
         }
-      );
-  }
-
-  /* =======================================================
-     LOGOUT
-  ======================================================= */
-
-  async function logoutCoach() {
-
-    if (!supabaseClient) {
-      return;
     }
 
-    try {
 
-      await supabaseClient
-        .auth
-        .signOut();
+    /* =====================================================
+       ATHLETE FIND
+    ===================================================== */
 
-    } catch (error) {
-
-      console.error(
-        "Logout:",
-        error
-      );
-    }
-
-    localStorage.removeItem(
-      "judoLoggedIn"
-    );
-
-    localStorage.removeItem(
-      "judoLoginTime"
-    );
-
-    window.location.href =
-      "index.html";
-  }
-
-  /* =======================================================
-     LOAD ATHLETES
-  ======================================================= */
-
-  async function loadAthletes() {
-
-    if (!supabaseClient) {
-
-      renderAthletes();
-
-      return;
-    }
-
-    state.loadingAthletes =
-      true;
-
-    renderAthletesLoading();
-
-    try {
-
-      const result =
-        await supabaseClient
-          .from(
-            "athletes"
-          )
-          .select("*")
-          .order(
-            "created_at",
-            {
-              ascending:
-                false
-            }
-          );
-
-      if (
-        result.error
-      ) {
-
-        console.error(
-          "Load athletes:",
-          result.error
-        );
-
-        state.athletes =
-          [];
-
-      } else {
-
-        state.athletes =
-          Array.isArray(
-            result.data
-          )
-            ? result.data
-            : [];
-      }
-
-    } catch (error) {
-
-      console.error(
-        "Athletes exception:",
-        error
-      );
-
-      state.athletes =
-        [];
-
-    } finally {
-
-      state.loadingAthletes =
-        false;
-
-      renderAthletes();
-    }
-  }
-
-  /* =======================================================
-     ATHLETE LOADING UI
-  ======================================================= */
-
-  function renderAthletesLoading() {
-
-    const container =
-      $("athletesList");
-
-    if (!container) {
-      return;
-    }
-
-    container.innerHTML = `
-
-      <div class="athletes-loading">
-
-        <div class="loading-spinner">
-          ⏳
-        </div>
-
-        <p>
-          در حال دریافت ورزشکاران...
-        </p>
-
-      </div>
-
-    `;
-  }
-
-  /* =======================================================
-     ATHLETE RENDER
-  ======================================================= */
-
-  function renderAthletes() {
-
-    const container =
-      $("athletesList");
-
-    const empty =
-      $("athletesEmpty");
-
-    if (!container) {
-      return;
-    }
-
-    /*
-      اگر ورزشکار وجود ندارد
-    */
-
-    if (
-      !state.athletes.length
+    async function findAthlete(
+        username,
+        nationalId
     ) {
 
-      container.innerHTML = "";
+        const client =
+            initSupabase();
 
-      if (empty) {
+        if (!client) {
+            throw new Error(
+                "Supabase is not initialized."
+            );
+        }
 
-        empty.style.display =
-          "block";
-      }
 
-      updateAthleteCount(
-        0
-      );
+        /*
+          اول username + national_id را با هم امتحان می‌کنیم.
+        */
 
-      return;
-    }
+        let query =
+            client
+                .from("athletes")
+                .select("*")
+                .eq(
+                    "national_id",
+                    nationalId
+                );
 
-    /*
-      اگر ورزشکار وجود دارد،
-      پیام خالی باید مخفی شود.
-    */
 
-    if (empty) {
+        /*
+          اگر ستون username در جدول موجود باشد،
+          این فیلتر اعمال می‌شود.
+        */
 
-      empty.style.display =
-        "none";
-    }
+        let result =
+            await query;
 
-    container.innerHTML =
-      state.athletes
-        .map(
-          athlete =>
-            createAthleteCard(
-              athlete
-            )
-        )
-        .join("");
+        if (result.error) {
 
-    updateAthleteCount(
-      state.athletes.length
-    );
+            console.error(
+                "Athlete lookup error:",
+                result.error
+            );
 
-    setupAthleteSearch();
-  }
+            throw result.error;
+        }
 
-  /* =======================================================
-     ATHLETE CARD
-  ======================================================= */
 
-  function createAthleteCard(
-    athlete
-  ) {
+        const athletes =
+            result.data || [];
 
-    const name =
-      getAthleteName(
-        athlete
-      );
 
-    const ageGroup =
-      athlete.age_group ||
-      athlete.category ||
-      "نامشخص";
+        /*
+          username را در سمت کلاینت بررسی می‌کنیم
+          تا اگر نام ستون در نسخه فعلی جدول متفاوت بود،
+          کل سایت از کار نیفتد.
+        */
 
-    const weight =
-      athlete.weight !==
-        null &&
-      athlete.weight !==
-        undefined &&
-      athlete.weight !== ""
-        ? `${escapeHTML(
-            athlete.weight
-          )} کیلوگرم`
-        : "ثبت نشده";
+        const normalizedUsername =
+            String(username)
+                .trim()
+                .toLowerCase();
 
-    const belt =
-      athlete.belt ||
-      "";
-
-    return `
-
-      <article
-        class="athlete-card"
-        data-athlete-id="${escapeHTML(
-          athlete.id
-        )}"
-        data-age-group="${escapeHTML(
-          ageGroup
-        )}"
-      >
-
-        <div class="athlete-card-icon">
-          🥋
-        </div>
-
-        <div class="athlete-card-body">
-
-          <h3>
-            ${escapeHTML(
-              name
-            )}
-          </h3>
-
-          <div class="athlete-card-club">
-            🥋 جودو طبیعت
-          </div>
-
-          <div class="athlete-card-meta">
-
-            <span>
-              👤 رده:
-              ${escapeHTML(
-                ageGroup
-              )}
-            </span>
-
-            <span>
-              ⚖️ وزن:
-              ${weight}
-            </span>
-
-            ${
-              belt
-                ? `
-                  <span>
-                    🎗️ کمربند:
-                    ${escapeHTML(
-                      belt
-                    )}
-                  </span>
-                `
-                : ""
-            }
-
-          </div>
-
-          <button
-            type="button"
-            class="athlete-profile-btn"
-            data-view-athlete="${escapeHTML(
-              athlete.id
-            )}"
-          >
-            مشاهده پروفایل
-          </button>
-
-        </div>
-
-      </article>
-
-    `;
-  }
-
-  /* =======================================================
-     ATHLETE COUNT
-  ======================================================= */
-
-  function updateAthleteCount(
-    count
-  ) {
-
-    const elements =
-      $$("[data-athlete-count]");
-
-    elements.forEach(
-      element => {
-
-        element.textContent =
-          faNumber(
-            count
-          );
-
-      }
-    );
-  }
-
-  /* =======================================================
-     SEARCH
-  ======================================================= */
-
-  function setupAthleteSearch() {
-
-    const search =
-      $("athleteSearch");
-
-    if (!search) {
-      return;
-    }
-
-    if (
-      search.dataset.bound ===
-      "true"
-    ) {
-      return;
-    }
-
-    search.dataset.bound =
-      "true";
-
-    search.addEventListener(
-      "input",
-      filterAthletes
-    );
-  }
-
-  function filterAthletes() {
-
-    const search =
-      (
-        $("athleteSearch")
-          ?.value || ""
-      )
-        .trim()
-        .toLowerCase();
-
-    const category =
-      (
-        $("athleteCategoryFilter")
-          ?.value || ""
-      )
-        .trim();
-
-    const cards =
-      $$("[data-athlete-id]");
-
-    cards.forEach(
-      card => {
-
-        const athleteId =
-          card.dataset
-            .athleteId;
 
         const athlete =
-          state.athletes.find(
-            item =>
-              String(
-                item.id
-              ) ===
-              String(
-                athleteId
-              )
-          );
+            athletes.find(
+                function (item) {
 
-        if (!athlete) {
-          return;
-        }
+                    const possibleUsernames = [
 
-        const name =
-          getAthleteName(
-            athlete
-          )
-            .toLowerCase();
+                        item.username,
 
-        const ageGroup =
-          String(
-            athlete.age_group ||
-            athlete.category ||
-            ""
-          );
+                        item.user_name,
 
-        const matchesSearch =
-          !search ||
-          name.includes(
-            search
-          ) ||
-          ageGroup
-            .toLowerCase()
-            .includes(
-              search
+                        item.userName,
+
+                        item.login_username,
+
+                        item.loginUsername
+
+                    ];
+
+                    return possibleUsernames
+                        .some(function (value) {
+
+                            return (
+                                value !== null &&
+                                value !== undefined &&
+                                String(value)
+                                    .trim()
+                                    .toLowerCase() ===
+                                    normalizedUsername
+                            );
+
+                        });
+
+                }
             );
 
-        const matchesCategory =
-          !category ||
-          category === "all" ||
-          ageGroup ===
-            category;
 
-        card.style.display =
-          matchesSearch &&
-          matchesCategory
-            ? ""
-            : "none";
-      }
-    );
-  }
+        if (!athlete) {
 
-  /* =======================================================
-     CATEGORY FILTER
-  ======================================================= */
-
-  function setupCategoryFilter() {
-
-    const select =
-      $("athleteCategoryFilter");
-
-    if (!select) {
-      return;
-    }
-
-    if (
-      select.dataset.bound ===
-      "true"
-    ) {
-      return;
-    }
-
-    select.dataset.bound =
-      "true";
-
-    select.addEventListener(
-      "change",
-      filterAthletes
-    );
-
-    const categories =
-      [
-        ...new Set(
-          state.athletes
-            .map(
-              athlete =>
-                athlete.age_group ||
-                athlete.category
-            )
-            .filter(Boolean)
-        )
-      ];
-
-    const current =
-      select.value;
-
-    select.innerHTML = `
-      <option value="all">
-        همه رده‌ها
-      </option>
-    `;
-
-    categories.forEach(
-      category => {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-        option.value =
-          category;
-
-        option.textContent =
-          category;
-
-        select.appendChild(
-          option
-        );
-      }
-    );
-
-    if (
-      current &&
-      [
-        ...select.options
-      ].some(
-        option =>
-          option.value ===
-          current
-      )
-    ) {
-
-      select.value =
-        current;
-    }
-  }
-
-  /* =======================================================
-     PROFILE BUTTON
-  ======================================================= */
-
-  function setupAthleteProfileButtons() {
-
-    document.addEventListener(
-      "click",
-      event => {
-
-        const button =
-          event.target.closest(
-            "[data-view-athlete]"
-          );
-
-        if (!button) {
-          return;
+            return null;
         }
 
-        const athleteId =
-          button.dataset
-            .viewAthlete;
 
-        openAthleteProfile(
-          athleteId
-        );
-      }
-    );
-  }
-
-  /* =======================================================
-     ATHLETE PROFILE
-  ======================================================= */
-
-  function openAthleteProfile(
-    athleteId
-  ) {
-
-    const athlete =
-      state.athletes.find(
-        item =>
-          String(
-            item.id
-          ) ===
-          String(
-            athleteId
-          )
-      );
-
-    if (!athlete) {
-
-      showMessage(
-        "اطلاعات ورزشکار پیدا نشد."
-      );
-
-      return;
+        return athlete;
     }
 
-    /*
-      اگر صفحه پروفایل اختصاصی
-      ساخته شده باشد.
-    */
 
-    const url =
-      `athlete.html?id=${encodeURIComponent(
-        athlete.id
-      )}`;
+    /* =====================================================
+       ATHLETE AUTH EMAIL
+    ===================================================== */
 
-    window.location.href =
-      url;
-  }
+    function getAthleteAuthEmail(
+        athlete
+    ) {
 
-  /* =======================================================
-     COACH LOGIN BUTTONS
-  ======================================================= */
+        if (!athlete) {
+            return null;
+        }
 
-  function setupCoachLoginButtons() {
 
-    const buttons =
-      $$(
-        "#coachLoginBtn, " +
-        "[data-coach-login], " +
-        ".coach-login-btn"
-      );
+        /*
+          بهترین حالت:
+          auth_email در جدول athletes ذخیره شود.
+        */
 
-    buttons.forEach(
-      button => {
+        const possibleEmails = [
+
+            athlete.auth_email,
+
+            athlete.authEmail,
+
+            athlete.email,
+
+            athlete.login_email,
+
+            athlete.loginEmail
+
+        ];
+
+
+        for (
+            let i = 0;
+            i < possibleEmails.length;
+            i++
+        ) {
+
+            const email =
+                possibleEmails[i];
+
+            if (
+                email &&
+                String(email).includes("@")
+            ) {
+
+                return String(email).trim();
+            }
+        }
+
+
+        /*
+          اگر auth_email موجود نبود،
+          از auth_user_id به‌تنهایی نمی‌توان
+          signInWithPassword انجام داد.
+        */
+
+        return null;
+    }
+
+
+    /* =====================================================
+       ATHLETE LOGIN
+    ===================================================== */
+
+    async function loginAthlete(event) {
+
+        event.preventDefault();
+
+        const client =
+            initSupabase();
+
+        const usernameInput =
+            $("#athleteUsername");
+
+        const nationalIdInput =
+            $("#athleteNationalId");
+
+        const passwordInput =
+            $("#athletePassword");
+
+        const submitButton =
+            $("#athleteLoginSubmit");
+
+        const message =
+            $("#athleteLoginMessage");
+
+
+        if (!client) {
+
+            showMessage(
+                message,
+                "اتصال به سامانه برقرار نشد. لطفاً صفحه را دوباره باز کنید."
+            );
+
+            return;
+        }
+
+
+        const username =
+            usernameInput
+                ? usernameInput.value.trim()
+                : "";
+
+
+        const nationalId =
+            nationalIdInput
+                ? normalizeDigits(
+                    nationalIdInput.value
+                )
+                : "";
+
+
+        const password =
+            passwordInput
+                ? passwordInput.value
+                : "";
+
+
+        clearMessage(message);
+
+
+        if (!username) {
+
+            showMessage(
+                message,
+                "نام کاربری را وارد کنید."
+            );
+
+            return;
+        }
+
+
+        if (!nationalId) {
+
+            showMessage(
+                message,
+                "کد ملی را وارد کنید."
+            );
+
+            return;
+        }
+
 
         if (
-          button.dataset
-            .loginBound ===
-          "true"
+            nationalId.length !== 10
         ) {
-          return;
+
+            showMessage(
+                message,
+                "کد ملی باید ۱۰ رقم باشد."
+            );
+
+            return;
         }
 
-        button.dataset
-          .loginBound =
-          "true";
 
-        button.addEventListener(
-          "click",
-          event => {
+        if (!password) {
 
-            event.preventDefault();
+            showMessage(
+                message,
+                "رمز عبور را وارد کنید."
+            );
 
-            openCoachLogin();
+            return;
+        }
 
-          }
+
+        if (submitButton) {
+
+            submitButton.disabled =
+                true;
+
+            submitButton.textContent =
+                "⏳ در حال بررسی...";
+        }
+
+
+        try {
+
+            /*
+              مرحله ۱:
+              پیدا کردن ورزشکار
+            */
+
+            const athlete =
+                await findAthlete(
+                    username,
+                    nationalId
+                );
+
+
+            if (!athlete) {
+
+                showMessage(
+                    message,
+                    "نام کاربری یا کد ملی صحیح نیست."
+                );
+
+                return;
+            }
+
+
+            /*
+              مرحله ۲:
+              پیدا کردن ایمیل Auth
+            */
+
+            const authEmail =
+                getAthleteAuthEmail(
+                    athlete
+                );
+
+
+            if (!authEmail) {
+
+                console.error(
+                    "Athlete found but no auth email:",
+                    athlete
+                );
+
+                showMessage(
+                    message,
+                    "حساب ورود این ورزشکار هنوز در سامانه احراز هویت ثبت نشده است. ابتدا حساب ورزشکار را در Supabase تنظیم کنید."
+                );
+
+                return;
+            }
+
+
+            /*
+              مرحله ۳:
+              ورود واقعی با Supabase Auth
+            */
+
+            const {
+                data,
+                error
+            } =
+                await client.auth.signInWithPassword({
+
+                    email: authEmail,
+
+                    password: password
+
+                });
+
+
+            if (error) {
+
+                console.error(
+                    "Athlete auth error:",
+                    error
+                );
+
+                showMessage(
+                    message,
+                    "رمز عبور صحیح نیست."
+                );
+
+                return;
+            }
+
+
+            if (
+                !data ||
+                !data.session ||
+                !data.user
+            ) {
+
+                showMessage(
+                    message,
+                    "ورود انجام نشد. دوباره تلاش کنید."
+                );
+
+                return;
+            }
+
+
+            /*
+              ذخیره اطلاعات لازم برای پروفایل
+            */
+
+            state.loggedIn =
+                true;
+
+            state.session =
+                data.session;
+
+            state.currentAthlete =
+                athlete;
+
+
+            localStorage.setItem(
+                "judoAthleteLoggedIn",
+                "true"
+            );
+
+            localStorage.setItem(
+                "judoAthleteId",
+                String(athlete.id)
+            );
+
+            localStorage.setItem(
+                "judoAthleteLoginTime",
+                String(Date.now())
+            );
+
+
+            showMessage(
+                message,
+                "ورود موفق بود. در حال انتقال به پروفایل...",
+                "success"
+            );
+
+
+            /*
+              انتقال به پروفایل واقعی همان ورزشکار
+            */
+
+            setTimeout(function () {
+
+                window.location.href =
+                    "athlete.html?id=" +
+                    encodeURIComponent(
+                        athlete.id
+                    );
+
+            }, 600);
+
+
+        } catch (error) {
+
+            console.error(
+                "Unexpected athlete login error:",
+                error
+            );
+
+            showMessage(
+                message,
+                "خطایی هنگام ورود ورزشکار رخ داد."
+            );
+
+        } finally {
+
+            if (submitButton) {
+
+                submitButton.disabled =
+                    false;
+
+                submitButton.textContent =
+                    "🥋 ورود به پروفایل";
+            }
+
+        }
+    }
+
+
+    /* =====================================================
+       FORM EVENTS
+    ===================================================== */
+
+    function setupLoginForms() {
+
+        const coachForm =
+            $("#coachLoginForm");
+
+        const athleteForm =
+            $("#athleteLoginForm");
+
+
+        if (coachForm) {
+
+            coachForm.addEventListener(
+                "submit",
+                loginCoach
+            );
+        }
+
+
+        if (athleteForm) {
+
+            athleteForm.addEventListener(
+                "submit",
+                loginAthlete
+            );
+        }
+    }
+
+
+    /* =====================================================
+       AUTH SESSION
+    ===================================================== */
+
+    async function checkAuthSession() {
+
+        const client =
+            initSupabase();
+
+        if (!client) {
+            return;
+        }
+
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await client.auth.getSession();
+
+
+            if (error) {
+
+                console.warn(
+                    "Session check error:",
+                    error
+                );
+
+                return;
+            }
+
+
+            if (
+                data &&
+                data.session
+            ) {
+
+                state.loggedIn =
+                    true;
+
+                state.session =
+                    data.session;
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Could not check session:",
+                error
+            );
+        }
+    }
+
+
+    /* =====================================================
+       AUTH LISTENER
+    ===================================================== */
+
+    function setupAuthListener() {
+
+        const client =
+            initSupabase();
+
+        if (!client) {
+            return;
+        }
+
+
+        client.auth.onAuthStateChange(
+            function (
+                event,
+                session
+            ) {
+
+                state.session =
+                    session;
+
+                state.loggedIn =
+                    !!session;
+
+
+                if (
+                    event ===
+                    "SIGNED_OUT"
+                ) {
+
+                    state.currentAthlete =
+                        null;
+
+                    localStorage.removeItem(
+                        "judoLoggedIn"
+                    );
+
+                    localStorage.removeItem(
+                        "judoAthleteLoggedIn"
+                    );
+
+                    localStorage.removeItem(
+                        "judoAthleteId"
+                    );
+                }
+
+            }
         );
-      }
-    );
-  }
+    }
 
-  /* =======================================================
-     INIT
-  ======================================================= */
 
-  async function init() {
+    /* =====================================================
+       LOGOUT
+    ===================================================== */
 
-    /*
-      Supabase
-    */
+    async function logout() {
 
-    initSupabase();
+        const client =
+            initSupabase();
 
-    /*
-      Modal login
-    */
+        if (!client) {
+            return;
+        }
 
-    createLoginModal();
+        try {
 
-    /*
-      Buttons
-    */
+            await client.auth.signOut();
 
-    setupCoachLoginButtons();
+        } catch (error) {
 
-    /*
-      Profile buttons
-    */
+            console.error(
+                "Logout error:",
+                error
+            );
+        }
 
-    setupAthleteProfileButtons();
 
-    /*
-      Search
-    */
+        state.loggedIn =
+            false;
 
-    setupAthleteSearch();
+        state.session =
+            null;
 
-    /*
-      Session
-    */
+        state.currentAthlete =
+            null;
 
-    await checkAuthSession();
 
-    setupAuthListener();
+        localStorage.removeItem(
+            "judoLoggedIn"
+        );
 
-    /*
-      Athletes
-    */
+        localStorage.removeItem(
+            "judoLoginTime"
+        );
 
-    await loadAthletes();
+        localStorage.removeItem(
+            "judoAthleteLoggedIn"
+        );
 
-    /*
-      Category filter
-    */
+        localStorage.removeItem(
+            "judoAthleteId"
+        );
+    }
 
-    setupCategoryFilter();
 
-    filterAthletes();
-  }
+    /* =====================================================
+       PUBLIC ATHLETES
+    ===================================================== */
 
-  /* =======================================================
-     GLOBAL API
-  ======================================================= */
+    async function loadAthletes() {
 
-  window.JudoTabiatApp = {
+        const client =
+            initSupabase();
 
-    openCoachLogin,
+        if (!client) {
+            return;
+        }
 
-    closeCoachLogin,
 
-    loginCoach,
+        state.loadingAthletes =
+            true;
 
-    logoutCoach,
 
-    loadAthletes,
+        try {
 
-    getAthletes:
-      () =>
-        [
-          ...state.athletes
-        ],
+            const {
+                data,
+                error
+            } =
+                await client
+                    .from("athletes")
+                    .select("*")
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    );
 
-    getSession:
-      () =>
-        state.session,
 
-    isLoggedIn:
-      () =>
-        state.loggedIn,
+            if (error) {
 
-    supabase:
-      () =>
-        supabaseClient
-  };
+                /*
+                  اگر created_at وجود نداشت،
+                  دوباره بدون order امتحان می‌کنیم.
+                */
 
-  /* =======================================================
-     DOM READY
-  ======================================================= */
+                const fallback =
+                    await client
+                        .from("athletes")
+                        .select("*");
 
-  if (
-    document.readyState ===
-    "loading"
-  ) {
 
-    document.addEventListener(
-      "DOMContentLoaded",
-      init
-    );
+                if (fallback.error) {
 
-  } else {
+                    console.error(
+                        "Athletes load error:",
+                        fallback.error
+                    );
 
-    init();
+                    state.athletes =
+                        [];
 
-  }
+                    renderAthletes();
+
+                    return;
+                }
+
+                state.athletes =
+                    fallback.data || [];
+
+            } else {
+
+                state.athletes =
+                    data || [];
+            }
+
+
+            state.filteredAthletes =
+                [...state.athletes];
+
+
+            renderAthletes();
+
+
+        } catch (error) {
+
+            console.error(
+                "Unexpected athletes error:",
+                error
+            );
+
+            state.athletes =
+                [];
+
+            state.filteredAthletes =
+                [];
+
+            renderAthletes();
+
+        } finally {
+
+            state.loadingAthletes =
+                false;
+        }
+    }
+
+
+    /* =====================================================
+       ATHLETE CARD
+    ===================================================== */
+
+    function createAthleteCard(
+        athlete
+    ) {
+
+        const card =
+            document.createElement(
+                "article"
+            );
+
+        card.className =
+            "athlete-card";
+
+
+        const firstName =
+            athlete.first_name ||
+            athlete.firstName ||
+            "";
+
+
+        const lastName =
+            athlete.last_name ||
+            athlete.lastName ||
+            "";
+
+
+        const fullName =
+            (
+                firstName +
+                " " +
+                lastName
+            ).trim() ||
+            athlete.name ||
+            "ورزشکار";
+
+
+        const ageGroup =
+            athlete.age_group ||
+            athlete.ageGroup ||
+            "";
+
+
+        const weight =
+            athlete.weight ||
+            "";
+
+
+        const photo =
+            athlete.photo_url ||
+            athlete.photoUrl ||
+            "";
+
+
+        const initials =
+            fullName
+                .split(" ")
+                .filter(Boolean)
+                .slice(0, 2)
+                .map(function (part) {
+                    return part.charAt(0);
+                })
+                .join("");
+
+
+        let photoHTML;
+
+
+        if (photo) {
+
+            photoHTML = `
+                <img
+                    src="${escapeHtml(photo)}"
+                    alt="${escapeHtml(fullName)}"
+                    class="athlete-card-photo"
+                    loading="lazy"
+                >
+            `;
+
+        } else {
+
+            photoHTML = `
+                <div class="athlete-card-placeholder">
+                    ${escapeHtml(initials || "🥋")}
+                </div>
+            `;
+        }
+
+
+        card.innerHTML = `
+
+            <div class="athlete-card-image">
+                ${photoHTML}
+            </div>
+
+            <div class="athlete-card-body">
+
+                <h3 class="athlete-card-name">
+                    ${escapeHtml(fullName)}
+                </h3>
+
+                ${
+                    ageGroup
+                        ? `
+                            <div class="athlete-card-meta">
+                                ${escapeHtml(ageGroup)}
+                            </div>
+                          `
+                        : ""
+                }
+
+                ${
+                    weight
+                        ? `
+                            <div class="athlete-card-meta">
+                                وزن: ${escapeHtml(weight)}
+                            </div>
+                          `
+                        : ""
+                }
+
+            </div>
+        `;
+
+
+        /*
+          اگر صفحه پروفایل عمومی برای id وجود دارد،
+          کارت را قابل کلیک می‌کنیم.
+        */
+
+        if (athlete.id !== undefined) {
+
+            card.style.cursor =
+                "pointer";
+
+            card.addEventListener(
+                "click",
+                function () {
+
+                    window.location.href =
+                        "athlete.html?id=" +
+                        encodeURIComponent(
+                            athlete.id
+                        );
+
+                }
+            );
+        }
+
+
+        return card;
+    }
+
+
+    /* =====================================================
+       ESCAPE HTML
+    ===================================================== */
+
+    function escapeHtml(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        return String(value)
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+    }
+
+
+    /* =====================================================
+       RENDER ATHLETES
+    ===================================================== */
+
+    function renderAthletes() {
+
+        const container =
+            document.querySelector(
+                "#athletesContainer"
+            ) ||
+            document.querySelector(
+                ".athletes-grid"
+            ) ||
+            document.querySelector(
+                ".athletes-list"
+            );
+
+
+        if (!container) {
+            return;
+        }
+
+
+        container.innerHTML = "";
+
+
+        if (
+            state.filteredAthletes.length === 0
+        ) {
+
+            const empty =
+                document.querySelector(
+                    "#athletesEmpty"
+                ) ||
+                document.querySelector(
+                    ".athletes-empty"
+                );
+
+
+            if (empty) {
+
+                empty.style.display =
+                    "block";
+
+                container.appendChild(
+                    empty
+                );
+
+            } else {
+
+                container.innerHTML = `
+                    <div class="athletes-empty">
+                        <div>🥋</div>
+                        <p>ورزشکاری برای نمایش وجود ندارد.</p>
+                    </div>
+                `;
+            }
+
+            return;
+        }
+
+
+        const empty =
+            document.querySelector(
+                "#athletesEmpty"
+            );
+
+        if (empty) {
+            empty.style.display =
+                "none";
+        }
+
+
+        state.filteredAthletes
+            .forEach(function (athlete) {
+
+                container.appendChild(
+                    createAthleteCard(
+                        athlete
+                    )
+                );
+
+            });
+    }
+
+
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+
+    function setupAthleteSearch() {
+
+        const searchInput =
+            document.querySelector(
+                "#athleteSearch"
+            ) ||
+            document.querySelector(
+                ".athlete-search"
+            );
+
+
+        if (!searchInput) {
+            return;
+        }
+
+
+        searchInput.addEventListener(
+            "input",
+            function () {
+
+                filterAthletes(
+                    this.value
+                );
+
+            }
+        );
+    }
+
+
+    function filterAthletes(
+        searchTerm = ""
+    ) {
+
+        const query =
+            String(searchTerm)
+                .trim()
+                .toLowerCase();
+
+
+        if (!query) {
+
+            state.filteredAthletes =
+                [...state.athletes];
+
+            renderAthletes();
+
+            return;
+        }
+
+
+        state.filteredAthletes =
+            state.athletes.filter(
+                function (athlete) {
+
+                    const firstName =
+                        athlete.first_name ||
+                        athlete.firstName ||
+                        "";
+
+                    const lastName =
+                        athlete.last_name ||
+                        athlete.lastName ||
+                        "";
+
+                    const name =
+                        athlete.name ||
+                        "";
+
+                    const nationalId =
+                        athlete.national_id ||
+                        athlete.nationalId ||
+                        "";
+
+                    const ageGroup =
+                        athlete.age_group ||
+                        athlete.ageGroup ||
+                        "";
+
+
+                    const text = [
+
+                        firstName,
+                        lastName,
+                        name,
+                        nationalId,
+                        ageGroup
+
+                    ]
+                        .join(" ")
+                        .toLowerCase();
+
+
+                    return text.includes(
+                        query
+                    );
+                }
+            );
+
+
+        renderAthletes();
+    }
+
+
+    /* =====================================================
+       CATEGORY FILTER
+    ===================================================== */
+
+    function setupCategoryFilter() {
+
+        const filter =
+            document.querySelector(
+                "#athleteCategory"
+            ) ||
+            document.querySelector(
+                "#categoryFilter"
+            );
+
+
+        if (!filter) {
+            return;
+        }
+
+
+        filter.addEventListener(
+            "change",
+            function () {
+
+                const value =
+                    String(
+                        this.value || ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                if (!value) {
+
+                    state.filteredAthletes =
+                        [...state.athletes];
+
+                    renderAthletes();
+
+                    return;
+                }
+
+
+                state.filteredAthletes =
+                    state.athletes.filter(
+                        function (athlete) {
+
+                            const ageGroup =
+                                String(
+                                    athlete.age_group ||
+                                    athlete.ageGroup ||
+                                    ""
+                                )
+                                .trim()
+                                .toLowerCase();
+
+
+                            return (
+                                ageGroup ===
+                                value
+                            );
+                        }
+                    );
+
+
+                renderAthletes();
+            }
+        );
+    }
+
+
+    /* =====================================================
+       AUTH REDIRECT PROTECTION
+    ===================================================== */
+
+    function protectCoachPage() {
+
+        const currentPage =
+            window.location.pathname
+                .split("/")
+                .pop()
+                .toLowerCase();
+
+
+        if (
+            currentPage !==
+            "coach.html"
+        ) {
+            return;
+        }
+
+
+        /*
+          اجازه می‌دهیم coach.html
+          خودش هم Auth را بررسی کند.
+          اینجا redirect اجباری انجام نمی‌دهیم
+          تا نسخه فعلی پنل خراب نشود.
+        */
+    }
+
+
+    /* =====================================================
+       GLOBAL API
+    ===================================================== */
+
+    window.JudoTabiat = {
+
+        openRoleModal:
+            openRoleModal,
+
+        closeRoleModal:
+            closeRoleModal,
+
+        showCoachLogin:
+            showCoachLogin,
+
+        showAthleteLogin:
+            showAthleteLogin,
+
+        logout:
+            logout,
+
+        loadAthletes:
+            loadAthletes,
+
+        filterAthletes:
+            filterAthletes,
+
+        getState:
+            function () {
+                return state;
+            },
+
+        getSupabase:
+            function () {
+                return initSupabase();
+            }
+
+    };
+
+
+    /* =====================================================
+       INIT
+    ===================================================== */
+
+    async function init() {
+
+        /*
+          اول Supabase
+        */
+
+        initSupabase();
+
+
+        /*
+          بعد UI
+        */
+
+        setupRoleSystem();
+
+        setupPasswordToggles();
+
+        setupNationalIdInput();
+
+        setupLoginForms();
+
+
+        /*
+          Auth
+        */
+
+        await checkAuthSession();
+
+        setupAuthListener();
+
+
+        /*
+          Public athletes
+        */
+
+        setupAthleteSearch();
+
+        setupCategoryFilter();
+
+        loadAthletes();
+
+
+        /*
+          Coach page compatibility
+        */
+
+        protectCoachPage();
+    }
+
+
+    /* =====================================================
+       START
+    ===================================================== */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            init
+        );
+
+    } else {
+
+        init();
+    }
 
 })();
