@@ -2,39 +2,27 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    >
+    <title>جودو طبیعت | عملکرد و پیشرفت ورزشکاران</title>
 
-    <meta
-        name="description"
-        content="جودو طبیعت - سامانه عملکرد و پیشرفت ورزشکاران"
-    >
+    <meta name="description"
+          content="سامانه عملکرد و پیشرفت ورزشکاران آکادمی جودو طبیعت">
 
-    <meta name="theme-color" content="#0b5d3b">
-
-    <title>جودو طبیعت | سامانه باشگاه</title>
+    <meta name="theme-color" content="#071f16">
 
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* =========================================================
-           RESET
-        ========================================================= */
-
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
-        html,
-        body {
-            width: 100%;
-            min-height: 100%;
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -42,22 +30,15 @@
                 Tahoma,
                 Arial,
                 sans-serif;
-
-            background:
-                radial-gradient(
-                    circle at top right,
-                    #198754 0%,
-                    #0b5d3b 38%,
-                    #063d28 100%
-                );
-
-            color: #ffffff;
-
+            background: #061a12;
+            color: #fff;
+            min-height: 100vh;
             overflow-x: hidden;
         }
 
         button,
-        input {
+        input,
+        select {
             font-family: inherit;
         }
 
@@ -65,84 +46,83 @@
             cursor: pointer;
         }
 
-
-        /* =========================================================
+        /* =========================
            LANDING PAGE
-        ========================================================= */
+        ========================= */
 
         .landing-page {
-            width: 100%;
             min-height: 100vh;
-
             min-height: 100svh;
+            position: relative;
+            overflow: hidden;
 
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
 
-            position: relative;
-
-            overflow: hidden;
+            background:
+                radial-gradient(
+                    circle at 50% 35%,
+                    rgba(43, 180, 112, 0.20),
+                    transparent 38%
+                ),
+                radial-gradient(
+                    circle at 10% 90%,
+                    rgba(20, 125, 76, 0.16),
+                    transparent 35%
+                ),
+                linear-gradient(
+                    145deg,
+                    #03150e 0%,
+                    #06251a 48%,
+                    #073522 100%
+                );
         }
 
-
-        /* پس‌زمینه تزئینی */
-
-        .background-circle {
+        .landing-page::before {
+            content: "";
             position: absolute;
+            inset: 0;
 
-            border-radius: 50%;
+            background:
+                linear-gradient(
+                    135deg,
+                    transparent 0%,
+                    rgba(255,255,255,0.025) 45%,
+                    transparent 46%
+                );
 
             pointer-events: none;
-
-            opacity: 0.12;
-
-            border: 1px solid rgba(255,255,255,0.45);
         }
 
-        .circle-one {
+        .top-glow {
+            position: absolute;
             width: 500px;
             height: 500px;
 
             top: -250px;
-            right: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            border-radius: 50%;
+
+            background: rgba(48, 194, 119, 0.10);
+            filter: blur(70px);
+
+            pointer-events: none;
         }
 
-        .circle-two {
-            width: 650px;
-            height: 650px;
+        /* Header */
 
-            bottom: -350px;
-            left: -300px;
-        }
+        .site-header {
+            position: relative;
+            z-index: 2;
 
-        .circle-three {
-            width: 280px;
-            height: 280px;
-
-            top: 25%;
-            left: 8%;
-        }
-
-
-        /* =========================================================
-           HEADER
-        ========================================================= */
-
-        .landing-header {
-            position: absolute;
-
-            top: 0;
-            right: 0;
-            left: 0;
-
-            padding: 24px 7%;
+            width: 100%;
+            padding: 28px 7vw 10px;
 
             display: flex;
             align-items: center;
             justify-content: space-between;
-
-            z-index: 5;
         }
 
         .brand {
@@ -151,23 +131,27 @@
             gap: 12px;
         }
 
-        .brand-icon {
+        .brand-logo {
             width: 48px;
             height: 48px;
-
-            border-radius: 14px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            background: rgba(255,255,255,0.13);
+            border-radius: 14px;
 
-            border: 1px solid rgba(255,255,255,0.2);
+            background:
+                linear-gradient(
+                    145deg,
+                    #27c879,
+                    #0d7045
+                );
+
+            box-shadow:
+                0 10px 35px rgba(24, 193, 112, 0.20);
 
             font-size: 25px;
-
-            backdrop-filter: blur(8px);
         }
 
         .brand-text {
@@ -176,445 +160,355 @@
             gap: 3px;
         }
 
-        .brand-name {
-            font-size: 19px;
+        .brand-title {
+            font-size: 18px;
             font-weight: 900;
         }
 
         .brand-subtitle {
+            color: rgba(255,255,255,0.58);
             font-size: 11px;
-            opacity: 0.72;
         }
 
+        .header-badge {
+            padding: 8px 13px;
 
-        /* =========================================================
-           HERO
-        ========================================================= */
+            border: 1px solid rgba(89, 220, 149, 0.20);
+            border-radius: 999px;
+
+            background: rgba(255,255,255,0.035);
+
+            color: #9be9bd;
+            font-size: 11px;
+        }
+
+        /* Hero */
 
         .hero {
-            width: 100%;
-            max-width: 900px;
-
-            padding: 110px 25px 80px;
-
-            text-align: center;
-
             position: relative;
             z-index: 2;
+
+            flex: 1;
+
+            width: 100%;
+            max-width: 1050px;
+
+            margin: auto;
+
+            padding:
+                40px 24px
+                70px;
 
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+
+            text-align: center;
         }
 
-        .hero-badge {
-            display: inline-flex;
+        .hero-icon {
+            width: 92px;
+            height: 92px;
+
+            margin-bottom: 25px;
+
+            display: flex;
             align-items: center;
             justify-content: center;
 
-            padding: 9px 18px;
+            border-radius: 28px;
 
-            border-radius: 999px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(43, 205, 125, 0.23),
+                    rgba(14, 102, 64, 0.45)
+                );
 
-            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(89, 226, 151, 0.20);
 
-            border: 1px solid rgba(255,255,255,0.18);
+            box-shadow:
+                0 20px 70px rgba(0,0,0,0.28),
+                inset 0 0 30px rgba(53, 214, 132, 0.06);
 
-            font-size: 11px;
-            font-weight: 700;
-
-            letter-spacing: 1.2px;
-
-            margin-bottom: 22px;
-
-            backdrop-filter: blur(8px);
+            font-size: 48px;
         }
 
-        .hero-logo {
-            font-size: clamp(58px, 12vw, 100px);
+        .hero-small {
+            color: #72d99d;
 
-            line-height: 1;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 3px;
 
-            margin-bottom: 16px;
-
-            filter: drop-shadow(
-                0 12px 25px rgba(0,0,0,0.2)
-            );
+            margin-bottom: 13px;
         }
 
-        .hero-title {
-            font-size: clamp(38px, 8vw, 70px);
-
-            line-height: 1.2;
-
-            font-weight: 900;
+        .hero h1 {
+            font-size: clamp(36px, 7vw, 70px);
+            line-height: 1.15;
+            font-weight: 950;
 
             margin-bottom: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff 10%,
+                    #a8f1c6 100%
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
-        .hero-title span {
-            color: #d7f8e7;
+        .hero h2 {
+            font-size: clamp(20px, 4vw, 32px);
+            color: #7ee3a8;
+
+            margin-bottom: 20px;
+            font-weight: 900;
         }
 
         .hero-description {
-            max-width: 600px;
+            max-width: 650px;
 
-            font-size: clamp(14px, 2vw, 17px);
+            color: rgba(255,255,255,0.62);
 
+            font-size: 15px;
             line-height: 2;
 
-            opacity: 0.8;
-
-            margin-bottom: 35px;
+            margin-bottom: 32px;
         }
 
-
-        /* =========================================================
-           MAIN LOGIN BUTTON
-        ========================================================= */
-
-        .main-login-btn {
+        .system-login-btn {
             border: none;
 
-            min-width: 230px;
-
-            padding: 16px 30px;
+            min-width: 250px;
+            padding: 17px 30px;
 
             border-radius: 16px;
 
-            background: #ffffff;
+            background:
+                linear-gradient(
+                    135deg,
+                    #31d383,
+                    #13955b
+                );
 
-            color: #0b5d3b;
+            color: #fff;
 
             font-size: 16px;
-
             font-weight: 900;
 
             box-shadow:
-                0 14px 35px rgba(0,0,0,0.2);
+                0 15px 40px rgba(24, 185, 106, 0.22);
 
             transition:
                 transform 0.2s ease,
-                box-shadow 0.2s ease;
+                box-shadow 0.2s ease,
+                filter 0.2s ease;
         }
 
-        .main-login-btn:hover {
+        .system-login-btn:hover {
             transform: translateY(-3px);
 
             box-shadow:
-                0 18px 42px rgba(0,0,0,0.27);
+                0 20px 50px rgba(24, 185, 106, 0.32);
+
+            filter: brightness(1.06);
         }
 
-        .main-login-btn:active {
+        .system-login-btn:active {
             transform: translateY(0);
         }
 
+        .hero-footer {
+            position: absolute;
+            bottom: 25px;
 
-        /* =========================================================
-           BOTTOM INFO
-        ========================================================= */
+            color: rgba(255,255,255,0.32);
 
-        .hero-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            flex-wrap: wrap;
-
-            gap: 10px 22px;
-
-            margin-top: 32px;
-
-            font-size: 12px;
-
-            opacity: 0.68;
+            font-size: 11px;
         }
 
-        .hero-info-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-
-        /* =========================================================
-           ROLE MODAL
-        ========================================================= */
+        /* =========================
+           ROLE / LOGIN MODAL
+        ========================= */
 
         .modal-overlay {
             position: fixed;
-
             inset: 0;
 
             z-index: 1000;
 
             display: none;
-
             align-items: center;
             justify-content: center;
 
             padding: 20px;
 
-            background:
-                rgba(0, 20, 12, 0.72);
-
-            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .modal-overlay.active {
             display: flex;
         }
 
-        .modal-box {
-            width: 100%;
-            max-width: 450px;
+        .login-modal {
+            width: min(470px, 100%);
 
-            max-height: calc(100vh - 40px);
-
+            max-height: 92vh;
             overflow-y: auto;
 
-            background: #ffffff;
+            padding: 28px;
 
-            color: #173326;
-
-            border-radius: 24px;
-
-            padding: 30px;
-
-            position: relative;
-
-            box-shadow:
-                0 25px 80px rgba(0,0,0,0.35);
-
-            animation: modalIn 0.22s ease;
-        }
-
-        @keyframes modalIn {
-            from {
-                opacity: 0;
-                transform: translateY(15px) scale(0.97);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .modal-close {
-            position: absolute;
-
-            top: 15px;
-            left: 15px;
-
-            width: 38px;
-            height: 38px;
-
-            border: none;
-
-            border-radius: 50%;
-
-            background: #f0f4f2;
-
-            color: #315348;
-
-            font-size: 20px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-close:hover {
-            background: #e4ece8;
-        }
-
-        .modal-icon {
-            width: 65px;
-            height: 65px;
-
-            margin: 0 auto 15px;
-
-            border-radius: 20px;
+            border-radius: 25px;
 
             background:
                 linear-gradient(
-                    135deg,
-                    #0b6e45,
-                    #0a4e34
+                    145deg,
+                    #0b3021,
+                    #062116
                 );
 
-            color: #ffffff;
+            border: 1px solid rgba(91, 221, 149, 0.17);
+
+            box-shadow:
+                0 35px 100px rgba(0,0,0,0.55);
+        }
+
+        .modal-close {
+            width: 38px;
+            height: 38px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            font-size: 30px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+
+            background: rgba(255,255,255,0.04);
+
+            color: rgba(255,255,255,0.65);
+
+            font-size: 20px;
+
+            margin-right: auto;
+            margin-bottom: 20px;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
         }
 
         .modal-title {
             text-align: center;
 
-            font-size: 23px;
+            font-size: 25px;
+            font-weight: 950;
 
-            font-weight: 900;
-
-            margin-bottom: 7px;
+            margin-bottom: 8px;
         }
 
         .modal-description {
             text-align: center;
 
-            font-size: 13px;
+            color: rgba(255,255,255,0.55);
 
-            line-height: 1.8;
-
-            color: #718078;
+            font-size: 12px;
 
             margin-bottom: 25px;
         }
 
-
-        /* =========================================================
-           ROLE SELECTION
-        ========================================================= */
+        /* Role selection */
 
         .role-selection {
             display: grid;
-
             grid-template-columns: 1fr 1fr;
-
-            gap: 14px;
+            gap: 13px;
         }
 
-        .role-btn {
-            min-height: 145px;
-
-            border: 1px solid #e0e9e4;
-
-            background: #f8faf9;
+        .role-card {
+            border: 1px solid rgba(255,255,255,0.08);
 
             border-radius: 18px;
 
-            display: flex;
+            background: rgba(255,255,255,0.035);
 
-            flex-direction: column;
+            color: #fff;
 
-            align-items: center;
-
-            justify-content: center;
-
-            gap: 10px;
-
-            color: #173326;
+            padding: 24px 15px;
 
             transition:
                 transform 0.2s ease,
                 border-color 0.2s ease,
-                background 0.2s ease,
-                box-shadow 0.2s ease;
+                background 0.2s ease;
         }
 
-        .role-btn:hover {
+        .role-card:hover {
             transform: translateY(-3px);
 
-            border-color: #0b6e45;
+            border-color: rgba(65, 214, 134, 0.35);
 
-            background: #f0f8f4;
-
-            box-shadow:
-                0 10px 25px rgba(11,93,59,0.1);
+            background: rgba(48, 202, 121, 0.07);
         }
 
         .role-icon {
-            font-size: 35px;
+            font-size: 38px;
+            margin-bottom: 10px;
         }
 
         .role-title {
-            font-size: 16px;
             font-weight: 900;
+            font-size: 15px;
         }
 
         .role-description {
-            font-size: 11px;
-            color: #78857f;
+            color: rgba(255,255,255,0.48);
+            font-size: 10px;
+            margin-top: 7px;
         }
 
+        /* Forms */
 
-        /* =========================================================
-           LOGIN FORMS
-        ========================================================= */
-
-        .login-section {
+        .login-form {
             display: none;
         }
 
-        .login-section.active {
+        .login-form.active {
             display: block;
         }
 
-        .back-role-btn {
+        .back-to-roles {
             border: none;
-
             background: transparent;
 
-            color: #0b6e45;
+            color: #75dda1;
 
             font-size: 12px;
+            font-weight: 800;
 
-            font-weight: 700;
-
-            margin-bottom: 17px;
-
-            padding: 0;
+            margin-bottom: 18px;
         }
 
-        .back-role-btn:hover {
-            text-decoration: underline;
+        .form-title {
+            font-size: 21px;
+            font-weight: 950;
+            margin-bottom: 7px;
         }
 
-        .login-heading {
-            display: flex;
-
-            align-items: center;
-
-            gap: 12px;
-
-            margin-bottom: 22px;
-        }
-
-        .login-heading-icon {
-            width: 45px;
-            height: 45px;
-
-            border-radius: 14px;
-
-            background: #eaf6f0;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 23px;
-        }
-
-        .login-heading-text h3 {
-            font-size: 18px;
-
-            margin-bottom: 4px;
-        }
-
-        .login-heading-text p {
+        .form-description {
+            color: rgba(255,255,255,0.48);
             font-size: 11px;
-
-            color: #78857f;
+            margin-bottom: 20px;
         }
-
-
-        /* =========================================================
-           FORM FIELDS
-        ========================================================= */
 
         .form-group {
             margin-bottom: 15px;
@@ -623,54 +517,46 @@
         .form-label {
             display: block;
 
-            font-size: 12px;
+            color: rgba(255,255,255,0.70);
 
+            font-size: 11px;
             font-weight: 800;
 
             margin-bottom: 7px;
-
-            color: #344c41;
         }
 
-        .input-wrapper {
+        .input-wrap {
             position: relative;
         }
 
         .form-input {
             width: 100%;
 
-            height: 50px;
-
-            border: 1px solid #dce6e1;
+            border: 1px solid rgba(255,255,255,0.09);
+            outline: none;
 
             border-radius: 13px;
 
-            background: #fafcfb;
+            background: rgba(0,0,0,0.20);
 
-            color: #173326;
+            color: #fff;
 
-            padding: 0 15px;
+            padding: 13px 14px;
 
             font-size: 13px;
 
-            outline: none;
-
             transition:
                 border-color 0.2s ease,
-                box-shadow 0.2s ease;
+                background 0.2s ease;
         }
 
         .form-input:focus {
-            border-color: #0b6e45;
-
-            box-shadow:
-                0 0 0 3px rgba(11,110,69,0.08);
-
-            background: #ffffff;
+            border-color: rgba(69, 220, 139, 0.50);
+            background: rgba(0,0,0,0.27);
         }
 
         .form-input::placeholder {
-            color: #a3ada8;
+            color: rgba(255,255,255,0.25);
         }
 
         .password-input {
@@ -680,155 +566,361 @@
         .password-toggle {
             position: absolute;
 
-            left: 7px;
+            left: 9px;
             top: 50%;
-
             transform: translateY(-50%);
 
-            width: 38px;
-            height: 38px;
+            width: 32px;
+            height: 32px;
 
             border: none;
+            border-radius: 9px;
 
             background: transparent;
 
-            color: #718078;
+            color: rgba(255,255,255,0.45);
 
-            font-size: 17px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 15px;
         }
 
+        .password-toggle:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+        }
 
-        /* =========================================================
-           LOGIN SUBMIT
-        ========================================================= */
-
-        .submit-login-btn {
+        .submit-btn {
             width: 100%;
-
-            height: 52px;
 
             border: none;
 
-            border-radius: 14px;
+            border-radius: 13px;
+
+            padding: 14px;
+
+            margin-top: 5px;
 
             background:
                 linear-gradient(
                     135deg,
-                    #0b6e45,
-                    #084e34
+                    #2ed17f,
+                    #138f58
                 );
 
-            color: #ffffff;
+            color: #fff;
 
-            font-size: 14px;
-
+            font-size: 13px;
             font-weight: 900;
-
-            margin-top: 7px;
-
-            box-shadow:
-                0 10px 25px rgba(11,93,59,0.2);
 
             transition:
                 transform 0.2s ease,
-                box-shadow 0.2s ease;
+                filter 0.2s ease;
         }
 
-        .submit-login-btn:hover {
+        .submit-btn:hover {
             transform: translateY(-2px);
-
-            box-shadow:
-                0 14px 30px rgba(11,93,59,0.25);
+            filter: brightness(1.07);
         }
 
-        .submit-login-btn:disabled {
-            opacity: 0.6;
-
-            cursor: not-allowed;
-
-            transform: none;
-        }
-
-
-        /* =========================================================
-           LOGIN ERROR / MESSAGE
-        ========================================================= */
-
-        .login-message {
+        .form-message {
             display: none;
 
-            padding: 11px 13px;
-
             margin-top: 13px;
+
+            padding: 11px 13px;
 
             border-radius: 11px;
 
             font-size: 11px;
 
-            line-height: 1.7;
-
-            text-align: center;
+            line-height: 1.8;
         }
 
-        .login-message.error {
+        .form-message.error {
             display: block;
 
-            color: #9d2929;
+            background: rgba(220, 70, 70, 0.10);
+            border: 1px solid rgba(220, 70, 70, 0.20);
 
-            background: #fff1f1;
-
-            border: 1px solid #ffd6d6;
+            color: #ff9c9c;
         }
 
-        .login-message.success {
+        .form-message.success {
             display: block;
 
-            color: #14613e;
+            background: rgba(49, 210, 126, 0.10);
+            border: 1px solid rgba(49, 210, 126, 0.20);
 
-            background: #eefaf4;
-
-            border: 1px solid #ccebdc;
+            color: #8de8b3;
         }
 
+        /* =========================
+           ATHLETES SECTION
+        ========================= */
 
-        /* =========================================================
-           FOOTER
-        ========================================================= */
+        .athletes-section {
+            position: relative;
 
-        .modal-footer {
+            width: 100%;
+
+            padding:
+                80px 7vw
+                90px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #061f15 0%,
+                    #04170f 100%
+                );
+
+            border-top: 1px solid rgba(91, 221, 149, 0.07);
+        }
+
+        .athletes-section::before {
+            content: "";
+
+            position: absolute;
+            top: 0;
+            left: 50%;
+
+            width: 600px;
+            height: 300px;
+
+            transform: translateX(-50%);
+
+            background: rgba(40, 191, 116, 0.06);
+
+            filter: blur(80px);
+
+            pointer-events: none;
+        }
+
+        .athletes-inner {
+            position: relative;
+            z-index: 1;
+
+            width: min(1200px, 100%);
+            margin: auto;
+        }
+
+        .athletes-heading {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .athletes-kicker {
+            color: #67d998;
+
+            font-size: 11px;
+            font-weight: 900;
+
+            letter-spacing: 2px;
+
+            margin-bottom: 9px;
+        }
+
+        .athletes-heading h2 {
+            font-size: clamp(25px, 5vw, 38px);
+            font-weight: 950;
+
+            margin-bottom: 9px;
+        }
+
+        .athletes-heading p {
+            color: rgba(255,255,255,0.48);
+            font-size: 12px;
+        }
+
+        .athletes-controls {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 210px;
+
+            gap: 12px;
+
+            margin-bottom: 25px;
+        }
+
+        .athlete-search,
+        .athlete-category {
+            width: 100%;
+
+            border: 1px solid rgba(255,255,255,0.08);
+            outline: none;
+
+            border-radius: 13px;
+
+            padding: 13px 15px;
+
+            background: rgba(255,255,255,0.035);
+
+            color: #fff;
+
+            font-size: 12px;
+        }
+
+        .athlete-search::placeholder {
+            color: rgba(255,255,255,0.28);
+        }
+
+        .athlete-search:focus,
+        .athlete-category:focus {
+            border-color: rgba(70, 216, 137, 0.35);
+        }
+
+        .athlete-category option {
+            background: #092318;
+            color: #fff;
+        }
+
+        .athletes-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fill,
+                    minmax(235px, 1fr)
+                );
+
+            gap: 17px;
+        }
+
+        .athlete-card {
+            position: relative;
+
+            overflow: hidden;
+
+            min-height: 285px;
+
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 21px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(20,72,48,0.65),
+                    rgba(5,29,19,0.85)
+                );
+
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+
+            cursor: pointer;
+        }
+
+        .athlete-card:hover {
+            transform: translateY(-5px);
+
+            border-color: rgba(68, 216, 137, 0.28);
+
+            box-shadow:
+                0 18px 45px rgba(0,0,0,0.25);
+        }
+
+        .athlete-photo {
+            width: 100%;
+            height: 190px;
+
+            object-fit: cover;
+
+            display: block;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #0d4b30,
+                    #062217
+                );
+        }
+
+        .athlete-photo-placeholder {
+            width: 100%;
+            height: 190px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(54,210,132,0.16),
+                    transparent 60%
+                ),
+                #092a1c;
+
+            font-size: 58px;
+        }
+
+        .athlete-card-info {
+            padding: 15px 16px 17px;
+        }
+
+        .athlete-name {
+            font-size: 15px;
+            font-weight: 950;
+
+            margin-bottom: 9px;
+        }
+
+        .athlete-meta {
+            display: flex;
+            flex-wrap: wrap;
+
+            gap: 7px;
+        }
+
+        .athlete-meta span {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 5px 8px;
+
+            border-radius: 999px;
+
+            background: rgba(255,255,255,0.045);
+
+            color: rgba(255,255,255,0.55);
+
+            font-size: 9px;
+        }
+
+        .athletes-empty {
+            grid-column: 1 / -1;
+
             text-align: center;
 
-            margin-top: 20px;
+            padding: 40px 20px;
 
-            font-size: 10px;
+            color: rgba(255,255,255,0.45);
 
-            color: #9aa49f;
+            font-size: 13px;
         }
 
+        /* =========================
+           RESPONSIVE
+        ========================= */
 
-        /* =========================================================
-           MOBILE
-        ========================================================= */
+        @media (max-width: 700px) {
 
-        @media (max-width: 600px) {
-
-            .landing-header {
-                padding: 18px 20px;
+            .site-header {
+                padding: 20px 18px 10px;
             }
 
-            .brand-icon {
+            .header-badge {
+                display: none;
+            }
+
+            .brand-logo {
                 width: 42px;
                 height: 42px;
-
+                border-radius: 12px;
                 font-size: 21px;
             }
 
-            .brand-name {
-                font-size: 16px;
+            .brand-title {
+                font-size: 15px;
             }
 
             .brand-subtitle {
@@ -837,131 +929,121 @@
 
             .hero {
                 padding:
-                    90px 20px
-                    55px;
+                    35px 20px
+                    70px;
             }
 
-            .hero-badge {
-                font-size: 9px;
+            .hero-icon {
+                width: 78px;
+                height: 78px;
 
-                padding:
-                    8px 13px;
-            }
+                border-radius: 23px;
 
-            .hero-logo {
-                font-size: 62px;
-            }
-
-            .hero-title {
-                font-size: 38px;
+                font-size: 40px;
             }
 
             .hero-description {
                 font-size: 13px;
-
-                max-width: 330px;
             }
 
-            .main-login-btn {
+            .system-login-btn {
                 width: 100%;
-
-                max-width: 300px;
-            }
-
-            .hero-info {
-                font-size: 10px;
-
-                gap: 8px 14px;
-            }
-
-            .modal-overlay {
-                padding: 12px;
-            }
-
-            .modal-box {
-                padding: 24px 18px;
-
-                border-radius: 20px;
-
-                max-height:
-                    calc(100vh - 24px);
+                max-width: 320px;
             }
 
             .role-selection {
                 grid-template-columns: 1fr;
             }
 
-            .role-btn {
-                min-height: 110px;
+            .login-modal {
+                padding: 22px;
+                border-radius: 21px;
+            }
+
+            .athletes-section {
+                padding:
+                    60px 18px
+                    70px;
+            }
+
+            .athletes-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .athletes-grid {
+                grid-template-columns:
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
+
+                gap: 10px;
+            }
+
+            .athlete-card {
+                min-height: 250px;
+                border-radius: 16px;
+            }
+
+            .athlete-photo,
+            .athlete-photo-placeholder {
+                height: 145px;
+            }
+
+            .athlete-card-info {
+                padding: 11px;
+            }
+
+            .athlete-name {
+                font-size: 12px;
+            }
+
+            .athlete-meta span {
+                font-size: 8px;
+                padding: 4px 6px;
             }
         }
 
+        @media (max-width: 390px) {
 
-        /* =========================================================
-           VERY SMALL SCREENS
-        ========================================================= */
-
-        @media (max-height: 650px) and (min-width: 601px) {
-
-            .hero {
-                padding-top: 80px;
-                padding-bottom: 30px;
-            }
-
-            .hero-logo {
-                font-size: 60px;
-            }
-
-            .hero-title {
-                font-size: 42px;
-            }
-
-            .hero-description {
-                margin-bottom: 20px;
-            }
-
-            .hero-info {
-                margin-top: 18px;
+            .athletes-grid {
+                grid-template-columns: 1fr;
             }
         }
 
-
-        /* =========================================================
-           BODY LOCK
-        ========================================================= */
-
-        body.modal-open {
-            overflow: hidden;
+        /* Reduce animation for users who request it */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition: none !important;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- =========================================================
-         MAIN LANDING PAGE
-    ========================================================= -->
+    <!-- =========================
+         LANDING PAGE
+    ========================== -->
 
-    <main class="landing-page">
+    <section class="landing-page">
 
-        <div class="background-circle circle-one"></div>
-        <div class="background-circle circle-two"></div>
-        <div class="background-circle circle-three"></div>
+        <div class="top-glow"></div>
 
-
-        <!-- HEADER -->
-
-        <header class="landing-header">
+        <header class="site-header">
 
             <div class="brand">
 
-                <div class="brand-icon">
+                <div class="brand-logo">
                     🥋
                 </div>
 
                 <div class="brand-text">
 
-                    <div class="brand-name">
+                    <div class="brand-title">
                         جودو طبیعت
                     </div>
 
@@ -973,83 +1055,146 @@
 
             </div>
 
-        </header>
-
-
-        <!-- HERO -->
-
-        <section class="hero">
-
-            <div class="hero-badge">
+            <div class="header-badge">
                 NATURE JUDO ACADEMY
             </div>
 
-            <div class="hero-logo">
+        </header>
+
+
+        <main class="hero">
+
+            <div class="hero-icon">
                 🥋
             </div>
 
-            <h1 class="hero-title">
-                مسیر <span>پیشرفت</span>
+            <div class="hero-small">
+                NATURE JUDO ACADEMY
+            </div>
+
+            <h1>
+                مسیر پیشرفت
             </h1>
 
+            <h2>
+                عملکرد و پیشرفت ورزشکاران
+            </h2>
+
             <p class="hero-description">
-                سامانه اختصاصی باشگاه جودو طبیعت برای
-                مشاهده عملکرد، ارزیابی و روند پیشرفت ورزشکاران
+                سامانه اختصاصی آکادمی جودو طبیعت برای
+                ثبت، بررسی و مشاهده عملکرد، ارزیابی‌ها
+                و روند پیشرفت ورزشکاران.
             </p>
-
-
-            <!--
-                مهم:
-                این دکمه دیگر مستقیماً وارد پنل مربی نمی‌شود.
-                ابتدا پنجره انتخاب نقش باز می‌شود.
-            -->
 
             <button
                 type="button"
                 id="systemLoginBtn"
-                class="main-login-btn"
+                class="system-login-btn"
             >
                 🔐 ورود به سامانه
             </button>
 
+            <div class="hero-footer">
+                آکادمی جودو طبیعت • 🇮🇷 柔道🥋
+            </div>
 
-            <div class="hero-info">
+        </main>
 
-                <div class="hero-info-item">
-                    🏆 ارزیابی عملکرد
+    </section>
+
+
+    <!-- =========================
+         ATHLETES
+    ========================== -->
+
+    <section
+        class="athletes-section"
+        id="athletesSection"
+    >
+
+        <div class="athletes-inner">
+
+            <div class="athletes-heading">
+
+                <div class="athletes-kicker">
+                    ATHLETES
                 </div>
 
-                <div class="hero-info-item">
-                    📈 مشاهده پیشرفت
-                </div>
+                <h2>
+                    ورزشکاران جودو طبیعت
+                </h2>
 
-                <div class="hero-info-item">
-                    🥇 افتخارات
-                </div>
+                <p>
+                    برای مشاهده اطلاعات و عملکرد ورزشکار،
+                    روی کارت او کلیک کنید.
+                </p>
 
             </div>
 
-        </section>
 
-    </main>
+            <div class="athletes-controls">
+
+                <input
+                    type="search"
+                    id="athleteSearch"
+                    class="athlete-search"
+                    placeholder="🔎 جستجوی نام ورزشکار..."
+                    autocomplete="off"
+                >
+
+                <select
+                    id="athleteCategory"
+                    class="athlete-category"
+                >
+                    <option value="">
+                        همه رده‌ها
+                    </option>
+
+                    <option value="نونهالان">
+                        نونهالان
+                    </option>
+
+                    <option value="نوجوانان">
+                        نوجوانان
+                    </option>
+
+                    <option value="جوانان">
+                        جوانان
+                    </option>
+
+                    <option value="بزرگسالان">
+                        بزرگسالان
+                    </option>
+                </select>
+
+            </div>
 
 
-    <!-- =========================================================
-         ROLE SELECTION MODAL
-    ========================================================= -->
+            <!--
+                app.js دقیقاً دنبال این container می‌گردد.
+                بنابراین کارت‌های ورزشکار اینجا ساخته می‌شوند.
+            -->
+
+            <div
+                id="athletesContainer"
+                class="athletes-grid"
+            ></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         LOGIN / ROLE MODAL
+    ========================== -->
 
     <div
         id="roleModal"
         class="modal-overlay"
-        aria-hidden="true"
     >
 
-        <div
-            class="modal-box"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="roleModalTitle"
-        >
+        <div class="login-modal">
 
             <button
                 type="button"
@@ -1061,43 +1206,31 @@
             </button>
 
 
-            <!-- =================================================
-                 ROLE SELECTION
-            ================================================= -->
+            <!-- ROLE SELECTION -->
 
-            <section
+            <div
                 id="roleSelection"
-                class="login-section active"
             >
 
-                <div class="modal-icon">
-                    🥋
+                <div class="modal-title">
+                    ورود به سامانه
                 </div>
 
-                <h2
-                    id="roleModalTitle"
-                    class="modal-title"
-                >
-                    ورود به سامانه
-                </h2>
-
-                <p class="modal-description">
+                <div class="modal-description">
                     نوع حساب خود را انتخاب کنید
-                </p>
+                </div>
 
 
                 <div class="role-selection">
 
-                    <!-- COACH -->
-
                     <button
                         type="button"
                         id="selectCoachRole"
-                        class="role-btn"
+                        class="role-card"
                     >
 
                         <div class="role-icon">
-                            👨‍🏫
+                            🧑‍🏫
                         </div>
 
                         <div class="role-title">
@@ -1105,18 +1238,16 @@
                         </div>
 
                         <div class="role-description">
-                            پنل مدیریت باشگاه
+                            پنل مدیریت و ارزیابی ورزشکاران
                         </div>
 
                     </button>
 
 
-                    <!-- ATHLETE -->
-
                     <button
                         type="button"
                         id="selectAthleteRole"
-                        class="role-btn"
+                        class="role-card"
                     >
 
                         <div class="role-icon">
@@ -1128,574 +1259,446 @@
                         </div>
 
                         <div class="role-description">
-                            پروفایل و عملکرد شخصی
+                            مشاهده عملکرد و روند پیشرفت
                         </div>
 
                     </button>
 
                 </div>
 
-
-                <div class="modal-footer">
-                    طبیعت جودو • سامانه عملکرد ورزشکاران
-                </div>
-
-            </section>
+            </div>
 
 
-            <!-- =================================================
+            <!-- =========================
                  COACH LOGIN
-            ================================================= -->
+            ========================== -->
 
-            <section
-                id="coachLoginSection"
-                class="login-section"
+            <form
+                id="coachLoginForm"
+                class="login-form"
+                autocomplete="on"
             >
 
                 <button
                     type="button"
-                    class="back-role-btn"
-                    data-back-role
+                    id="backToRolesFromCoach"
+                    class="back-to-roles"
                 >
-                    ← بازگشت به انتخاب نقش
+                    ← بازگشت
                 </button>
 
+                <div class="form-title">
+                    ورود مربی
+                </div>
 
-                <div class="login-heading">
+                <div class="form-description">
+                    اطلاعات حساب مربی را وارد کنید.
+                </div>
 
-                    <div class="login-heading-icon">
-                        👨‍🏫
-                    </div>
 
-                    <div class="login-heading-text">
+                <div class="form-group">
 
-                        <h3>
-                            ورود مربی
-                        </h3>
+                    <label
+                        for="coachEmail"
+                        class="form-label"
+                    >
+                        ایمیل
+                    </label>
 
-                        <p>
-                            ورود به پنل مدیریت باشگاه
-                        </p>
-
-                    </div>
+                    <input
+                        type="email"
+                        id="coachEmail"
+                        class="form-input"
+                        placeholder="ایمیل مربی"
+                        autocomplete="username"
+                        required
+                    >
 
                 </div>
 
 
-                <form
-                    id="coachLoginForm"
-                    autocomplete="on"
-                >
+                <div class="form-group">
 
-                    <div class="form-group">
+                    <label
+                        for="coachPassword"
+                        class="form-label"
+                    >
+                        رمز عبور
+                    </label>
 
-                        <label
-                            class="form-label"
-                            for="coachEmail"
-                        >
-                            ایمیل مربی
-                        </label>
+                    <div class="input-wrap">
 
                         <input
-                            type="email"
-                            id="coachEmail"
-                            class="form-input"
-                            placeholder="example@email.com"
-                            autocomplete="username"
+                            type="password"
+                            id="coachPassword"
+                            class="form-input password-input"
+                            placeholder="رمز عبور"
+                            autocomplete="current-password"
                             required
                         >
 
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="coachPassword"
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            data-target="coachPassword"
+                            aria-label="نمایش رمز عبور"
                         >
-                            رمز عبور
-                        </label>
-
-                        <div class="input-wrapper">
-
-                            <input
-                                type="password"
-                                id="coachPassword"
-                                class="form-input password-input"
-                                placeholder="رمز عبور خود را وارد کنید"
-                                autocomplete="current-password"
-                                required
-                            >
-
-                            <button
-                                type="button"
-                                class="password-toggle"
-                                data-password-toggle="coachPassword"
-                                aria-label="نمایش رمز عبور"
-                            >
-                                👁️
-                            </button>
-
-                        </div>
+                            👁
+                        </button>
 
                     </div>
 
-
-                    <button
-                        type="submit"
-                        id="coachLoginSubmit"
-                        class="submit-login-btn"
-                    >
-                        🔐 ورود به پنل مربی
-                    </button>
-
-
-                    <div
-                        id="coachLoginMessage"
-                        class="login-message"
-                    ></div>
-
-                </form>
-
-
-                <div class="modal-footer">
-                    طبیعت جودو • پنل مربی
                 </div>
 
-            </section>
+
+                <button
+                    type="submit"
+                    id="coachLoginSubmit"
+                    class="submit-btn"
+                >
+                    ورود به پنل مربی
+                </button>
 
 
-            <!-- =================================================
+                <div
+                    id="coachLoginMessage"
+                    class="form-message"
+                ></div>
+
+            </form>
+
+
+            <!-- =========================
                  ATHLETE LOGIN
-            ================================================= -->
+            ========================== -->
 
-            <section
-                id="athleteLoginSection"
-                class="login-section"
+            <form
+                id="athleteLoginForm"
+                class="login-form"
+                autocomplete="on"
             >
 
                 <button
                     type="button"
-                    class="back-role-btn"
-                    data-back-role
+                    id="backToRolesFromAthlete"
+                    class="back-to-roles"
                 >
-                    ← بازگشت به انتخاب نقش
+                    ← بازگشت
+                </button>
+
+                <div class="form-title">
+                    ورود ورزشکار
+                </div>
+
+                <div class="form-description">
+                    نام کاربری، کد ملی و رمز عبور خود را وارد کنید.
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        for="athleteUsername"
+                        class="form-label"
+                    >
+                        نام کاربری
+                    </label>
+
+                    <input
+                        type="text"
+                        id="athleteUsername"
+                        class="form-input"
+                        placeholder="نام کاربری"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        for="athleteNationalId"
+                        class="form-label"
+                    >
+                        کد ملی
+                    </label>
+
+                    <input
+                        type="text"
+                        id="athleteNationalId"
+                        class="form-input"
+                        placeholder="کد ملی"
+                        inputmode="numeric"
+                        maxlength="10"
+                        autocomplete="off"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        for="athletePassword"
+                        class="form-label"
+                    >
+                        رمز عبور
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <input
+                            type="password"
+                            id="athletePassword"
+                            class="form-input password-input"
+                            placeholder="رمز عبور"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            data-target="athletePassword"
+                            aria-label="نمایش رمز عبور"
+                        >
+                            👁
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    id="athleteLoginSubmit"
+                    class="submit-btn"
+                >
+                    ورود به حساب ورزشکار
                 </button>
 
 
-                <div class="login-heading">
+                <div
+                    id="athleteLoginMessage"
+                    class="form-message"
+                ></div>
 
-                    <div class="login-heading-icon">
-                        🥋
-                    </div>
-
-                    <div class="login-heading-text">
-
-                        <h3>
-                            ورود ورزشکار
-                        </h3>
-
-                        <p>
-                            ورود به پروفایل شخصی
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <form
-                    id="athleteLoginForm"
-                    autocomplete="on"
-                >
-
-                    <!-- USERNAME -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="athleteUsername"
-                        >
-                            نام کاربری
-                        </label>
-
-                        <input
-                            type="text"
-                            id="athleteUsername"
-                            class="form-input"
-                            placeholder="نام کاربری خود را وارد کنید"
-                            autocomplete="username"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- NATIONAL ID -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="athleteNationalId"
-                        >
-                            کد ملی
-                        </label>
-
-                        <input
-                            type="text"
-                            id="athleteNationalId"
-                            class="form-input"
-                            placeholder="کد ملی ۱۰ رقمی"
-                            inputmode="numeric"
-                            maxlength="10"
-                            autocomplete="off"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- PASSWORD -->
-
-                    <div class="form-group">
-
-                        <label
-                            class="form-label"
-                            for="athletePassword"
-                        >
-                            رمز عبور
-                        </label>
-
-                        <div class="input-wrapper">
-
-                            <input
-                                type="password"
-                                id="athletePassword"
-                                class="form-input password-input"
-                                placeholder="رمز عبور خود را وارد کنید"
-                                autocomplete="current-password"
-                                required
-                            >
-
-                            <button
-                                type="button"
-                                class="password-toggle"
-                                data-password-toggle="athletePassword"
-                                aria-label="نمایش رمز عبور"
-                            >
-                                👁️
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        type="submit"
-                        id="athleteLoginSubmit"
-                        class="submit-login-btn"
-                    >
-                        🥋 ورود به پروفایل
-                    </button>
-
-
-                    <div
-                        id="athleteLoginMessage"
-                        class="login-message"
-                    ></div>
-
-                </form>
-
-
-                <div class="modal-footer">
-                    طبیعت جودو • پروفایل ورزشکار
-                </div>
-
-            </section>
+            </form>
 
         </div>
 
     </div>
 
 
-    <!-- =========================================================
-         JAVASCRIPT
-    ========================================================= -->
+    <!-- =========================
+         INLINE UI HELPERS
+    ========================== -->
 
     <script>
-
-        /*
-         * ---------------------------------------------------------
-         * این قسمت فعلاً فقط رابط کاربری انتخاب نقش را مدیریت می‌کند.
-         *
-         * احراز هویت واقعی در app.js انجام خواهد شد.
-         * ---------------------------------------------------------
-         */
-
         document.addEventListener("DOMContentLoaded", function () {
 
-            const roleModal =
+            /* -------------------------
+               Role modal
+            ------------------------- */
+
+            const modal =
                 document.getElementById("roleModal");
-
-            const roleSelection =
-                document.getElementById("roleSelection");
-
-            const coachLoginSection =
-                document.getElementById("coachLoginSection");
-
-            const athleteLoginSection =
-                document.getElementById("athleteLoginSection");
 
             const systemLoginBtn =
                 document.getElementById("systemLoginBtn");
 
-            const closeRoleModal =
+            const closeModal =
                 document.getElementById("closeRoleModal");
 
-            const selectCoachRole =
+            const roleSelection =
+                document.getElementById("roleSelection");
+
+            const coachForm =
+                document.getElementById("coachLoginForm");
+
+            const athleteForm =
+                document.getElementById("athleteLoginForm");
+
+            const coachRole =
                 document.getElementById("selectCoachRole");
 
-            const selectAthleteRole =
+            const athleteRole =
                 document.getElementById("selectAthleteRole");
 
+            const backCoach =
+                document.getElementById("backToRolesFromCoach");
 
-            /* -----------------------------------------------------
-               OPEN ROLE MODAL
-            ----------------------------------------------------- */
+            const backAthlete =
+                document.getElementById("backToRolesFromAthlete");
 
-            function openRoleModal() {
 
-                roleModal.classList.add("active");
+            function showRoles() {
 
-                roleModal.setAttribute(
-                    "aria-hidden",
-                    "false"
-                );
+                if (roleSelection) {
+                    roleSelection.style.display = "block";
+                }
 
-                document.body.classList.add(
-                    "modal-open"
-                );
+                if (coachForm) {
+                    coachForm.classList.remove("active");
+                }
 
-                showRoleSelection();
+                if (athleteForm) {
+                    athleteForm.classList.remove("active");
+                }
             }
 
 
-            /* -----------------------------------------------------
-               CLOSE ROLE MODAL
-            ----------------------------------------------------- */
+            function openModal() {
 
-            function closeModal() {
+                if (!modal) return;
 
-                roleModal.classList.remove("active");
+                modal.classList.add("active");
 
-                roleModal.setAttribute(
-                    "aria-hidden",
-                    "true"
-                );
-
-                document.body.classList.remove(
-                    "modal-open"
-                );
-
-                showRoleSelection();
+                showRoles();
             }
 
 
-            /* -----------------------------------------------------
-               SHOW ROLE SELECTION
-            ----------------------------------------------------- */
+            function closeModalFunction() {
 
-            function showRoleSelection() {
+                if (!modal) return;
 
-                roleSelection.classList.add("active");
-
-                coachLoginSection.classList.remove(
-                    "active"
-                );
-
-                athleteLoginSection.classList.remove(
-                    "active"
-                );
+                modal.classList.remove("active");
             }
 
 
-            /* -----------------------------------------------------
-               SHOW COACH LOGIN
-            ----------------------------------------------------- */
+            if (systemLoginBtn) {
 
-            function showCoachLogin() {
-
-                roleSelection.classList.remove(
-                    "active"
+                systemLoginBtn.addEventListener(
+                    "click",
+                    openModal
                 );
 
-                athleteLoginSection.classList.remove(
-                    "active"
+            }
+
+
+            if (closeModal) {
+
+                closeModal.addEventListener(
+                    "click",
+                    closeModalFunction
                 );
 
-                coachLoginSection.classList.add(
-                    "active"
-                );
+            }
 
-                setTimeout(function () {
 
-                    const input =
-                        document.getElementById(
-                            "coachEmail"
-                        );
+            if (modal) {
 
-                    if (input) {
-                        input.focus();
+                modal.addEventListener(
+                    "click",
+                    function (event) {
+
+                        if (
+                            event.target === modal
+                        ) {
+                            closeModalFunction();
+                        }
+
                     }
+                );
 
-                }, 100);
             }
 
 
-            /* -----------------------------------------------------
-               SHOW ATHLETE LOGIN
-            ----------------------------------------------------- */
+            if (coachRole) {
 
-            function showAthleteLogin() {
+                coachRole.addEventListener(
+                    "click",
+                    function () {
 
-                roleSelection.classList.remove(
-                    "active"
-                );
+                        if (roleSelection) {
+                            roleSelection.style.display =
+                                "none";
+                        }
 
-                coachLoginSection.classList.remove(
-                    "active"
-                );
+                        if (coachForm) {
+                            coachForm.classList.add("active");
+                        }
 
-                athleteLoginSection.classList.add(
-                    "active"
-                );
+                        if (athleteForm) {
+                            athleteForm.classList.remove("active");
+                        }
 
-                setTimeout(function () {
-
-                    const input =
-                        document.getElementById(
-                            "athleteUsername"
-                        );
-
-                    if (input) {
-                        input.focus();
                     }
+                );
 
-                }, 100);
             }
 
 
-            /* -----------------------------------------------------
-               EVENTS
-            ----------------------------------------------------- */
+            if (athleteRole) {
 
-            systemLoginBtn.addEventListener(
-                "click",
-                openRoleModal
-            );
+                athleteRole.addEventListener(
+                    "click",
+                    function () {
 
-            closeRoleModal.addEventListener(
-                "click",
-                closeModal
-            );
+                        if (roleSelection) {
+                            roleSelection.style.display =
+                                "none";
+                        }
 
-            selectCoachRole.addEventListener(
-                "click",
-                showCoachLogin
-            );
+                        if (athleteForm) {
+                            athleteForm.classList.add("active");
+                        }
 
-            selectAthleteRole.addEventListener(
-                "click",
-                showAthleteLogin
-            );
+                        if (coachForm) {
+                            coachForm.classList.remove("active");
+                        }
+
+                    }
+                );
+
+            }
 
 
-            /* -----------------------------------------------------
-               BACK TO ROLE
-            ----------------------------------------------------- */
+            if (backCoach) {
+
+                backCoach.addEventListener(
+                    "click",
+                    showRoles
+                );
+
+            }
+
+
+            if (backAthlete) {
+
+                backAthlete.addEventListener(
+                    "click",
+                    showRoles
+                );
+
+            }
+
+
+            /* -------------------------
+               Password visibility
+            ------------------------- */
 
             document
-                .querySelectorAll("[data-back-role]")
-                .forEach(function (button) {
-
-                    button.addEventListener(
-                        "click",
-                        showRoleSelection
-                    );
-
-                });
-
-
-            /* -----------------------------------------------------
-               CLICK OUTSIDE
-            ----------------------------------------------------- */
-
-            roleModal.addEventListener(
-                "click",
-                function (event) {
-
-                    if (
-                        event.target === roleModal
-                    ) {
-                        closeModal();
-                    }
-
-                }
-            );
-
-
-            /* -----------------------------------------------------
-               ESCAPE
-            ----------------------------------------------------- */
-
-            document.addEventListener(
-                "keydown",
-                function (event) {
-
-                    if (
-                        event.key === "Escape" &&
-                        roleModal.classList.contains(
-                            "active"
-                        )
-                    ) {
-                        closeModal();
-                    }
-
-                }
-            );
-
-
-            /* -----------------------------------------------------
-               PASSWORD VISIBILITY
-            ----------------------------------------------------- */
-
-            document
-                .querySelectorAll(
-                    "[data-password-toggle]"
-                )
+                .querySelectorAll(".password-toggle")
                 .forEach(function (button) {
 
                     button.addEventListener(
                         "click",
                         function () {
 
-                            const inputId =
-                                button.getAttribute(
-                                    "data-password-toggle"
-                                );
+                            const targetId =
+                                button.dataset.target;
 
                             const input =
                                 document.getElementById(
-                                    inputId
+                                    targetId
                                 );
 
-                            if (!input) {
-                                return;
-                            }
+                            if (!input) return;
 
                             if (
                                 input.type ===
@@ -1714,7 +1717,8 @@
                                     "password";
 
                                 button.textContent =
-                                    "👁️";
+                                    "👁";
+
                             }
 
                         }
@@ -1723,9 +1727,9 @@
                 });
 
 
-            /* -----------------------------------------------------
-               NATIONAL ID - ONLY DIGITS
-            ----------------------------------------------------- */
+            /* -------------------------
+               National ID normalization
+            ------------------------- */
 
             const nationalId =
                 document.getElementById(
@@ -1738,30 +1742,78 @@
                     "input",
                     function () {
 
+                        let value =
+                            this.value;
+
+                        const persianNumbers =
+                            "۰۱۲۳۴۵۶۷۸۹";
+
+                        const arabicNumbers =
+                            "٠١٢٣٤٥٦٧٨٩";
+
+                        value =
+                            value.replace(
+                                /[۰-۹]/g,
+                                function (char) {
+                                    return String(
+                                        persianNumbers
+                                            .indexOf(char)
+                                    );
+                                }
+                            );
+
+                        value =
+                            value.replace(
+                                /[٠-٩]/g,
+                                function (char) {
+                                    return String(
+                                        arabicNumbers
+                                            .indexOf(char)
+                                    );
+                                }
+                            );
+
+                        value =
+                            value.replace(
+                                /[^0-9]/g,
+                                ""
+                            );
+
                         this.value =
-                            this.value
-                                .replace(
-                                    /[^0-9۰-۹]/g,
-                                    ""
-                                )
-                                .slice(0, 10);
+                            value.slice(0, 10);
 
                     }
                 );
 
             }
 
-        });
 
+            /* -------------------------
+               Escape key
+            ------------------------- */
+
+            document.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (
+                        event.key === "Escape" &&
+                        modal &&
+                        modal.classList.contains("active")
+                    ) {
+
+                        closeModalFunction();
+
+                    }
+
+                }
+            );
+
+        });
     </script>
 
-    <!--
-        app.js باید در انتهای صفحه بارگذاری شود.
-        در نسخه بعدی، app.js جدید تمام منطق ورود مربی،
-        ورود ورزشکار، احراز هویت و انتقال به صفحات مربوطه
-        را به همین عناصر متصل می‌کند.
-    -->
 
+    <!-- Main application -->
     <script src="app.js"></script>
 
 </body>
